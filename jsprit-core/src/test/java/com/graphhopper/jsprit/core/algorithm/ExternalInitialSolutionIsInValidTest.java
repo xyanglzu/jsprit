@@ -25,12 +25,10 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl;
-import com.graphhopper.jsprit.core.util.Solutions;
 import junit.framework.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 
 public class ExternalInitialSolutionIsInValidTest {
@@ -57,8 +55,7 @@ public class ExternalInitialSolutionIsInValidTest {
         try {
             vra.searchSolutions();
             Assert.assertTrue(true);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             Assert.assertFalse(true);
         }
 

@@ -28,7 +28,24 @@ import com.graphhopper.jsprit.core.problem.Skills;
  */
 public class Break extends Service {
 
+    private boolean variableLocation = true;
+
+    Break(Builder builder) {
+        super(builder);
+        this.variableLocation = builder.variableLocation;
+    }
+
+    public boolean hasVariableLocation() {
+        return variableLocation;
+    }
+
     public static class Builder extends Service.Builder<Break> {
+
+        private boolean variableLocation = true;
+
+        Builder(String id) {
+            super(id);
+        }
 
         /**
          * Returns a new instance of builder that builds a pickup.
@@ -38,12 +55,6 @@ public class Break extends Service {
          */
         public static Builder newInstance(String id) {
             return new Builder(id);
-        }
-
-        private boolean variableLocation = true;
-
-        Builder(String id) {
-            super(id);
         }
 
         /**
@@ -64,17 +75,6 @@ public class Break extends Service {
             return new Break(this);
         }
 
-    }
-
-    private boolean variableLocation = true;
-
-    Break(Builder builder) {
-        super(builder);
-        this.variableLocation = builder.variableLocation;
-    }
-
-    public boolean hasVariableLocation() {
-        return variableLocation;
     }
 
 }

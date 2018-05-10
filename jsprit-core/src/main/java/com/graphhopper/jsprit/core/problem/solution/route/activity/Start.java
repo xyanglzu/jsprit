@@ -27,25 +27,11 @@ public final class Start extends AbstractActivity implements TourActivity {
     public final static String ACTIVITY_NAME = "start";
 
     private final static Capacity capacity = Capacity.Builder.newInstance().build();
-
-    public static Start newInstance(String locationId, double theoreticalStart, double theoreticalEnd) {
-        return new Start(locationId, theoreticalStart, theoreticalEnd);
-    }
-
-    public static Start copyOf(Start start) {
-        return new Start(start);
-    }
-
     private String locationId;
-
     private double theoretical_earliestOperationStartTime;
-
     private double theoretical_latestOperationStartTime;
-
     private double endTime;
-
     private double arrTime;
-
     private Location location;
 
     private Start(String locationId, double theoreticalStart, double theoreticalEnd) {
@@ -72,6 +58,21 @@ public final class Start extends AbstractActivity implements TourActivity {
         theoretical_latestOperationStartTime = start.getTheoreticalLatestOperationStartTime();
         endTime = start.getEndTime();
         setIndex(-1);
+    }
+
+    public static Start newInstance(String locationId, double theoreticalStart, double theoreticalEnd) {
+        return new Start(locationId, theoreticalStart, theoreticalEnd);
+    }
+
+    public static Start copyOf(Start start) {
+        return new Start(start);
+    }
+
+    @Override
+    public String toString() {
+        return "[type=" + getName() + "][location=" + location
+            + "][twStart=" + Activities.round(theoretical_earliestOperationStartTime)
+            + "][twEnd=" + Activities.round(theoretical_latestOperationStartTime) + "]";
     }
 
     public double getTheoreticalEarliestOperationStartTime() {
@@ -107,12 +108,6 @@ public final class Start extends AbstractActivity implements TourActivity {
         return 0.0;
     }
 
-    @Override
-    public String toString() {
-        return "[type=" + getName() + "][location=" + location
-            + "][twStart=" + Activities.round(theoretical_earliestOperationStartTime)
-            + "][twEnd=" + Activities.round(theoretical_latestOperationStartTime) + "]";
-    }
 
     @Override
     public String getName() {

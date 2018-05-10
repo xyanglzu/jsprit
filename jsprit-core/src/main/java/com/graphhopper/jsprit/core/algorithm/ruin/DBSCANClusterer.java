@@ -36,6 +36,107 @@ import java.util.*;
  */
 public class DBSCANClusterer {
 
+    private VehicleRoutingTransportCosts costs;
+    private int minNoOfJobsInCluster = 1;
+    private int noDistanceSamples = 10;
+    private double epsFactor = 0.8;
+    private Double epsDistance;
+    private Random random = RandomNumberGeneration.getRandom();
+
+    public DBSCANClusterer(VehicleRoutingTransportCosts costs) {
+        this.costs = costs;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
+
+    public void setMinPts(int pts) {
+        this.minNoOfJobsInCluster = pts;
+    }
+
+    public void setEpsFactor(double epsFactor) {
+        this.epsFactor = epsFactor;
+    }
+
+    public void setEpsDistance(double epsDistance) {
+        this.epsDistance = epsDistance;
+    }
+
+    public List<List<Job>> getClusters(VehicleRoute route) {
+        List<LocationWrapper> locations = getLocationWrappers(route);
+        List<Cluster<LocationWrapper>> clusterResults = getClusters(route, locations);
+        return makeList(clusterResults);
+    }
+
+    private List<LocationWrapper> getLocationWrappers(VehicleRoute route) {
+        List<LocationWrapper> locations = new ArrayList<LocationWrapper>(route.getTourActivities().getJobs().size());
+        Map<Job, List<Location>> jobs2locations = new HashMap<Job, List<Location>>();
+        for (TourActivity act : route.getActivities()) {
+            if (act instanceof TourActivity.JobActivity) {
+                Job job = ((TourActivity.JobActivity) act).getJob();
+                if (!jobs2locations.containsKey(job)) {
+                    jobs2locations.put(job, new ArrayList<Location>());
+                }
+                jobs2locations.get(job).add(act.getLocation());
+            }
+        }
+        for (Job j : jobs2locations.keySet()) {
+            locations.add(new LocationWrapper(j, jobs2locations.get(j)));
+        }
+        return locations;
+    }
+
+    private List<Cluster<LocationWrapper>> getClusters(VehicleRoute route, List<LocationWrapper> locations) {
+        double sampledDistance;
+        if (epsDistance != null) sampledDistance = epsDistance;
+        else sampledDistance = Math.max(0, sample(costs, route));
+        org.apache.commons.math3.ml.clustering.DBSCANClusterer<LocationWrapper> clusterer = new org.apache.commons.math3.ml.clustering.DBSCANClusterer<LocationWrapper>(sampledDistance, minNoOfJobsInCluster, new MyDistance(locations, costs));
+        return clusterer.cluster(locations);
+    }
+
+    private List<List<Job>> makeList(List<Cluster<LocationWrapper>> clusterResults) {
+        List<List<Job>> l = new ArrayList<List<Job>>();
+        for (Cluster<LocationWrapper> c : clusterResults) {
+            List<Job> l_ = getJobList(c);
+            l.add(l_);
+        }
+        return l;
+    }
+
+    private double sample(VehicleRoutingTransportCosts costs, VehicleRoute r) {
+        double min = Double.MAX_VALUE;
+        double sum = 0;
+        for (int i = 0; i < noDistanceSamples; i++) {
+            TourActivity act1 = RandomUtils.nextItem(r.getActivities(), random);
+            TourActivity act2 = RandomUtils.nextItem(r.getActivities(), random);
+            double dist = costs.getTransportCost(act1.getLocation(), act2.getLocation(),
+                0., null, r.getVehicle());
+            if (dist < min) min = dist;
+            sum += dist;
+        }
+        double avg = sum / ((double) noDistanceSamples);
+        return (avg - min) * epsFactor;
+    }
+
+    private List<Job> getJobList(Cluster<LocationWrapper> c) {
+        List<Job> l_ = new ArrayList<Job>();
+        if (c == null) return l_;
+        for (LocationWrapper lw : c.getPoints()) {
+            l_.add(lw.getJob());
+        }
+        return l_;
+    }
+
+    public List<Job> getRandomCluster(VehicleRoute route) {
+        if (route.isEmpty()) return Collections.emptyList();
+        List<LocationWrapper> locations = getLocationWrappers(route);
+        List<Cluster<LocationWrapper>> clusterResults = getClusters(route, locations);
+        if (clusterResults.isEmpty()) return Collections.emptyList();
+        Cluster<LocationWrapper> randomCluster = RandomUtils.nextItem(clusterResults, random);
+        return getJobList(randomCluster);
+    }
+
     private static class LocationWrapper implements Clusterable {
 
         private static int objCounter = 0;
@@ -107,112 +208,6 @@ public class DBSCANClusterer {
             }
             return sum / (double) count;
         }
-    }
-
-    private VehicleRoutingTransportCosts costs;
-
-    private int minNoOfJobsInCluster = 1;
-
-    private int noDistanceSamples = 10;
-
-    private double epsFactor = 0.8;
-
-    private Double epsDistance;
-
-    private Random random = RandomNumberGeneration.getRandom();
-
-    public void setRandom(Random random) {
-        this.random = random;
-    }
-
-    public DBSCANClusterer(VehicleRoutingTransportCosts costs) {
-        this.costs = costs;
-    }
-
-    public void setMinPts(int pts) {
-        this.minNoOfJobsInCluster = pts;
-    }
-
-    public void setEpsFactor(double epsFactor) {
-        this.epsFactor = epsFactor;
-    }
-
-    public void setEpsDistance(double epsDistance) {
-        this.epsDistance = epsDistance;
-    }
-
-    public List<List<Job>> getClusters(VehicleRoute route) {
-        List<LocationWrapper> locations = getLocationWrappers(route);
-        List<Cluster<LocationWrapper>> clusterResults = getClusters(route, locations);
-        return makeList(clusterResults);
-    }
-
-    private List<LocationWrapper> getLocationWrappers(VehicleRoute route) {
-        List<LocationWrapper> locations = new ArrayList<LocationWrapper>(route.getTourActivities().getJobs().size());
-        Map<Job, List<Location>> jobs2locations = new HashMap<Job, List<Location>>();
-        for (TourActivity act : route.getActivities()) {
-            if (act instanceof TourActivity.JobActivity) {
-                Job job = ((TourActivity.JobActivity) act).getJob();
-                if (!jobs2locations.containsKey(job)) {
-                    jobs2locations.put(job, new ArrayList<Location>());
-                }
-                jobs2locations.get(job).add(act.getLocation());
-            }
-        }
-        for (Job j : jobs2locations.keySet()) {
-            locations.add(new LocationWrapper(j, jobs2locations.get(j)));
-        }
-        return locations;
-    }
-
-    private List<Cluster<LocationWrapper>> getClusters(VehicleRoute route, List<LocationWrapper> locations) {
-        double sampledDistance;
-        if (epsDistance != null) sampledDistance = epsDistance;
-        else sampledDistance = Math.max(0, sample(costs, route));
-        org.apache.commons.math3.ml.clustering.DBSCANClusterer<LocationWrapper> clusterer = new org.apache.commons.math3.ml.clustering.DBSCANClusterer<LocationWrapper>(sampledDistance, minNoOfJobsInCluster, new MyDistance(locations, costs));
-        return clusterer.cluster(locations);
-    }
-
-    private List<List<Job>> makeList(List<Cluster<LocationWrapper>> clusterResults) {
-        List<List<Job>> l = new ArrayList<List<Job>>();
-        for (Cluster<LocationWrapper> c : clusterResults) {
-            List<Job> l_ = getJobList(c);
-            l.add(l_);
-        }
-        return l;
-    }
-
-    private List<Job> getJobList(Cluster<LocationWrapper> c) {
-        List<Job> l_ = new ArrayList<Job>();
-        if (c == null) return l_;
-        for (LocationWrapper lw : c.getPoints()) {
-            l_.add(lw.getJob());
-        }
-        return l_;
-    }
-
-    public List<Job> getRandomCluster(VehicleRoute route) {
-        if (route.isEmpty()) return Collections.emptyList();
-        List<LocationWrapper> locations = getLocationWrappers(route);
-        List<Cluster<LocationWrapper>> clusterResults = getClusters(route, locations);
-        if (clusterResults.isEmpty()) return Collections.emptyList();
-        Cluster<LocationWrapper> randomCluster = RandomUtils.nextItem(clusterResults, random);
-        return getJobList(randomCluster);
-    }
-
-    private double sample(VehicleRoutingTransportCosts costs, VehicleRoute r) {
-        double min = Double.MAX_VALUE;
-        double sum = 0;
-        for (int i = 0; i < noDistanceSamples; i++) {
-            TourActivity act1 = RandomUtils.nextItem(r.getActivities(), random);
-            TourActivity act2 = RandomUtils.nextItem(r.getActivities(), random);
-            double dist = costs.getTransportCost(act1.getLocation(), act2.getLocation(),
-                0., null, r.getVehicle());
-            if (dist < min) min = dist;
-            sum += dist;
-        }
-        double avg = sum / ((double) noDistanceSamples);
-        return (avg - min) * epsFactor;
     }
 
 }

@@ -51,6 +51,77 @@ import java.util.Collection;
  */
 public class JobAndActivityDependenciesExample {
 
+    public static void main(String[] args) {
+
+        VehicleImpl driver1 = VehicleImpl.Builder.newInstance("driver1")
+            .addSkill("driver1")
+            .setStartLocation(Location.newInstance(0, 0)).setReturnToDepot(false).build();
+
+        VehicleImpl driver3 = VehicleImpl.Builder.newInstance("driver3")
+            .addSkill("driver3")
+            .setStartLocation(Location.newInstance(-3, 5)).setReturnToDepot(true).build();
+
+        Service s1 = Service.Builder.newInstance("s1")
+            .addRequiredSkill("driver1")
+            .setName("install new device")
+            .setLocation(Location.newInstance(2, 2)).build();
+        Service s2 = Service.Builder.newInstance("s2")
+            .addRequiredSkill("driver3")
+            .setName("deliver key")
+            .setLocation(Location.newInstance(2, 4)).build();
+
+        Service s3 = Service.Builder.newInstance("s3")
+            .addRequiredSkill("driver1")
+            .setName("repair heater")
+            .setLocation(Location.newInstance(-2, 2)).build();
+
+        Service s4 = Service.Builder.newInstance("s4")
+            .addRequiredSkill("driver3")
+            .setName("get key")
+            .setLocation(Location.newInstance(-2.3, 4)).build();
+
+        Service s5 = Service.Builder.newInstance("s5")
+            .addRequiredSkill("driver1")
+            .setName("cleaning")
+            .setLocation(Location.newInstance(1, 5)).build();
+
+        Service s6 = Service.Builder.newInstance("s6")
+            .addRequiredSkill("driver3")
+            .setName("use key")
+            .setLocation(Location.newInstance(-2, 3)).build();
+
+        Service s7 = Service.Builder.newInstance("s7")
+            .addRequiredSkill("driver3")
+            .setName("maintenance")
+            .setLocation(Location.newInstance(-1.7, 3.5)).build();
+
+        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance().setFleetSize(VehicleRoutingProblem.FleetSize.FINITE)
+            .addJob(s1).addJob(s2).addJob(s3).addJob(s4).addJob(s5).addJob(s6).addJob(s7)
+            .addVehicle(driver1).addVehicle(driver3);
+
+        VehicleRoutingProblem vrp = vrpBuilder.build();
+
+        StateManager stateManager = new StateManager(vrp);
+        StateId keyPicked = stateManager.createStateId("key-picked");
+        StateId keyUsed = stateManager.createStateId("key-used");
+        StateId keyDelivered = stateManager.createStateId("key-delivered");
+        stateManager.addStateUpdater(new KeyStatusUpdater(stateManager, keyPicked, keyUsed, keyDelivered));
+
+        ConstraintManager constraintManager = new ConstraintManager(vrp, stateManager);
+        constraintManager.addConstraint(new GetUseAndDeliverKeySimpleHardActivityConstraint(stateManager, keyPicked, keyUsed, keyDelivered), ConstraintManager.Priority.CRITICAL);
+        constraintManager.addConstraint(new GetUseAndDeliverHardRouteContraint(stateManager, keyPicked, keyUsed, keyDelivered));
+
+        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setStateAndConstraintManager(stateManager, constraintManager).buildAlgorithm();
+        vra.setMaxIterations(100);
+
+        Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
+
+        SolutionPrinter.print(vrp, Solutions.bestOf(solutions), SolutionPrinter.Print.VERBOSE);
+
+        new GraphStreamViewer(vrp, Solutions.bestOf(solutions)).labelWith(GraphStreamViewer.Label.JOB_NAME).display();
+
+    }
+
     static class KeyStatusUpdater implements StateUpdater, ActivityVisitor {
 
         StateManager stateManager;
@@ -202,77 +273,6 @@ public class JobAndActivityDependenciesExample {
             return ((TourActivity.JobActivity) act).getJob().getName().equals("deliver key");
         }
 
-
-    }
-
-    public static void main(String[] args) {
-
-        VehicleImpl driver1 = VehicleImpl.Builder.newInstance("driver1")
-            .addSkill("driver1")
-            .setStartLocation(Location.newInstance(0, 0)).setReturnToDepot(false).build();
-
-        VehicleImpl driver3 = VehicleImpl.Builder.newInstance("driver3")
-            .addSkill("driver3")
-            .setStartLocation(Location.newInstance(-3, 5)).setReturnToDepot(true).build();
-
-        Service s1 = Service.Builder.newInstance("s1")
-            .addRequiredSkill("driver1")
-            .setName("install new device")
-            .setLocation(Location.newInstance(2, 2)).build();
-        Service s2 = Service.Builder.newInstance("s2")
-            .addRequiredSkill("driver3")
-            .setName("deliver key")
-            .setLocation(Location.newInstance(2, 4)).build();
-
-        Service s3 = Service.Builder.newInstance("s3")
-            .addRequiredSkill("driver1")
-            .setName("repair heater")
-            .setLocation(Location.newInstance(-2, 2)).build();
-
-        Service s4 = Service.Builder.newInstance("s4")
-            .addRequiredSkill("driver3")
-            .setName("get key")
-            .setLocation(Location.newInstance(-2.3, 4)).build();
-
-        Service s5 = Service.Builder.newInstance("s5")
-            .addRequiredSkill("driver1")
-            .setName("cleaning")
-            .setLocation(Location.newInstance(1, 5)).build();
-
-        Service s6 = Service.Builder.newInstance("s6")
-            .addRequiredSkill("driver3")
-            .setName("use key")
-            .setLocation(Location.newInstance(-2, 3)).build();
-
-        Service s7 = Service.Builder.newInstance("s7")
-            .addRequiredSkill("driver3")
-            .setName("maintenance")
-            .setLocation(Location.newInstance(-1.7, 3.5)).build();
-
-        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance().setFleetSize(VehicleRoutingProblem.FleetSize.FINITE)
-            .addJob(s1).addJob(s2).addJob(s3).addJob(s4).addJob(s5).addJob(s6).addJob(s7)
-            .addVehicle(driver1).addVehicle(driver3);
-
-        VehicleRoutingProblem vrp = vrpBuilder.build();
-
-        StateManager stateManager = new StateManager(vrp);
-        StateId keyPicked = stateManager.createStateId("key-picked");
-        StateId keyUsed = stateManager.createStateId("key-used");
-        StateId keyDelivered = stateManager.createStateId("key-delivered");
-        stateManager.addStateUpdater(new KeyStatusUpdater(stateManager, keyPicked, keyUsed, keyDelivered));
-
-        ConstraintManager constraintManager = new ConstraintManager(vrp, stateManager);
-        constraintManager.addConstraint(new GetUseAndDeliverKeySimpleHardActivityConstraint(stateManager, keyPicked, keyUsed, keyDelivered), ConstraintManager.Priority.CRITICAL);
-        constraintManager.addConstraint(new GetUseAndDeliverHardRouteContraint(stateManager, keyPicked, keyUsed, keyDelivered));
-
-        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setStateAndConstraintManager(stateManager,constraintManager).buildAlgorithm();
-        vra.setMaxIterations(100);
-
-        Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
-
-        SolutionPrinter.print(vrp, Solutions.bestOf(solutions), SolutionPrinter.Print.VERBOSE);
-
-        new GraphStreamViewer(vrp, Solutions.bestOf(solutions)).labelWith(GraphStreamViewer.Label.JOB_NAME).display();
 
     }
 

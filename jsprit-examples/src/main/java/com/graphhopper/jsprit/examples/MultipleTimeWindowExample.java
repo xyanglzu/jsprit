@@ -39,28 +39,28 @@ public class MultipleTimeWindowExample {
 
     public static void main(String[] args) {
 
-		/*
+        /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and one capacity dimension, i.e. weight, and capacity dimension value of 2
-		 */
+         */
         final int WEIGHT_INDEX = 0;
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType")
             .addCapacityDimension(WEIGHT_INDEX, 10).setCostPerWaitingTime(1.);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
         Builder vehicleBuilder = Builder.newInstance("vehicle");
         vehicleBuilder.setStartLocation(Location.newInstance(0, 0));
         vehicleBuilder.setType(vehicleType);
         VehicleImpl vehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * build services at the required locations, each with a capacity-demand of 1.
-		 */
+         */
         Service service1 = Service.Builder.newInstance("1")
-            .addTimeWindow(50,100)
-            .addTimeWindow(20,35)
+            .addTimeWindow(50, 100)
+            .addTimeWindow(20, 35)
             .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(10, 0)).build();
 
         Service service2 = Service.Builder.newInstance("2")
@@ -80,9 +80,9 @@ public class MultipleTimeWindowExample {
             .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(40, 0)).build();
 
         Service service5 = Service.Builder.newInstance("5")
-            .addTimeWindow(5,10)
+            .addTimeWindow(5, 10)
             .addTimeWindow(20, 40)
-            .addTimeWindow(60,100)
+            .addTimeWindow(60, 100)
             .addSizeDimension(WEIGHT_INDEX, 1).setLocation(Location.newInstance(20, 0)).build();
 
 
@@ -97,28 +97,28 @@ public class MultipleTimeWindowExample {
         vrpBuilder.setRoutingCost(new ManhattanCosts());
         VehicleRoutingProblem problem = vrpBuilder.build();
 
-		/*
+        /*
          * get the algorithm out-of-the-box.
-		 */
+         */
         VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);
 
-		/*
+        /*
          * and search a solution
-		 */
+         */
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
-		/*
+        /*
          * get the best
-		 */
+         */
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
 //        new VrpXMLWriter(problem, solutions).write("output/problem-with-solution.xml");
 
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
 
-		/*
+        /*
          * plot
-		 */
+         */
 //        new Plotter(problem,bestSolution).setLabel(Plotter.Label.ID).plot("output/plot", "mtw");
 
 //        new GraphStreamViewer(problem, bestSolution).labelWith(Label.ID).setRenderDelay(200).display();

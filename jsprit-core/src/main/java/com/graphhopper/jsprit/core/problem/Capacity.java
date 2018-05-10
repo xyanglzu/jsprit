@@ -28,6 +28,29 @@ import java.util.Arrays;
  */
 public class Capacity {
 
+    private int[] dimensions;
+
+    /**
+     * copy constructor
+     *
+     * @param capacity capacity to be copied
+     */
+    Capacity(Capacity capacity) {
+        this.dimensions = new int[capacity.getNuOfDimensions()];
+        for (int i = 0; i < capacity.getNuOfDimensions(); i++) {
+            this.dimensions[i] = capacity.get(i);
+        }
+    }
+
+    /**
+     * Returns the number of specified capacity dimensions.
+     *
+     * @return noDimensions
+     */
+    public int getNuOfDimensions() {
+        return dimensions.length;
+    }
+
     /**
      * Adds up two capacities, i.e. sums up each and every capacity dimension, and returns the resulting Capacity.
      * <p>
@@ -45,6 +68,23 @@ public class Capacity {
             capacityBuilder.addDimension(i, cap1.get(i) + cap2.get(i));
         }
         return capacityBuilder.build();
+    }
+
+    /**
+     * Returns value of capacity-dimension with specified index.
+     * <p>
+     * <p>If capacity dimension does not exist, it returns 0 (rather than IndexOutOfBoundsException).
+     *
+     * @param index dimension index of the capacity value to be retrieved
+     * @return the according dimension value
+     */
+    public int get(int index) {
+        if (index < dimensions.length) return dimensions[index];
+        return 0;
+    }
+
+    Capacity(Builder builder) {
+        dimensions = builder.dimensions;
     }
 
     /**
@@ -124,6 +164,87 @@ public class Capacity {
     }
 
     /**
+     * Return the maximum, i.e. the maximum of each capacity dimension.
+     *
+     * @param cap1 first capacity to compare
+     * @param cap2 second capacity to compare
+     * @return capacity maximum of each capacity dimension
+     */
+    public static Capacity max(Capacity cap1, Capacity cap2) {
+        if (cap1 == null || cap2 == null) throw new IllegalArgumentException("arg must not be null");
+        Capacity.Builder toReturnBuilder = Capacity.Builder.newInstance();
+        for (int i = 0; i < Math.max(cap1.getNuOfDimensions(), cap2.getNuOfDimensions()); i++) {
+            toReturnBuilder.addDimension(i, Math.max(cap1.get(i), cap2.get(i)));
+        }
+        return toReturnBuilder.build();
+    }
+
+    public static Capacity min(Capacity cap1, Capacity cap2) {
+        if (cap1 == null || cap2 == null) throw new IllegalArgumentException("arg must not be null");
+        Capacity.Builder toReturnBuilder = Capacity.Builder.newInstance();
+        for (int i = 0; i < Math.max(cap1.getNuOfDimensions(), cap2.getNuOfDimensions()); i++) {
+            toReturnBuilder.addDimension(i, Math.min(cap1.get(i), cap2.get(i)));
+        }
+        return toReturnBuilder.build();
+    }
+
+    /**
+     * Returns true if this capacity is less or equal than the capacity toCompare, i.e. if none of the capacity dimensions > than the corresponding dimension in toCompare.
+     *
+     * @param toCompare the capacity to compare
+     * @return true if this capacity is less or equal than toCompare
+     * @throws NullPointerException if one of the args is null
+     */
+    public boolean isLessOrEqual(Capacity toCompare) {
+        if (toCompare == null) throw new NullPointerException();
+        for (int i = 0; i < this.getNuOfDimensions(); i++) {
+            if (this.get(i) > toCompare.get(i)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns true if this capacity is greater or equal than the capacity toCompare
+     *
+     * @param toCompare the capacity to compare
+     * @return true if this capacity is greater or equal than toCompare
+     * @throws NullPointerException if one of the args is null
+     */
+    public boolean isGreaterOrEqual(Capacity toCompare) {
+        if (toCompare == null) throw new NullPointerException();
+        for (int i = 0; i < Math.max(this.getNuOfDimensions(), toCompare.getNuOfDimensions()); i++) {
+            if (this.get(i) < toCompare.get(i)) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(dimensions);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Capacity)) return false;
+
+        Capacity capacity = (Capacity) o;
+
+        if (!Arrays.equals(dimensions, capacity.dimensions)) return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        String string = "[noDimensions=" + getNuOfDimensions() + "]";
+        for (int i = 0; i < getNuOfDimensions(); i++) {
+            string += "[[dimIndex=" + i + "][dimValue=" + dimensions[i] + "]]";
+        }
+        return string;
+    }
+
+    /**
      * Builder that builds Capacity
      *
      * @author schroeder
@@ -135,6 +256,9 @@ public class Capacity {
          */
         private int[] dimensions = new int[1];
 
+        Builder() {
+        }
+
         /**
          * Returns a new instance of Capacity with one dimension and a value/size of 0
          *
@@ -142,9 +266,6 @@ public class Capacity {
          */
         public static Builder newInstance() {
             return new Builder();
-        }
-
-        Builder() {
         }
 
         /**
@@ -186,127 +307,5 @@ public class Capacity {
         }
 
 
-    }
-
-    private int[] dimensions;
-
-    /**
-     * copy constructor
-     *
-     * @param capacity capacity to be copied
-     */
-    Capacity(Capacity capacity) {
-        this.dimensions = new int[capacity.getNuOfDimensions()];
-        for (int i = 0; i < capacity.getNuOfDimensions(); i++) {
-            this.dimensions[i] = capacity.get(i);
-        }
-    }
-
-    Capacity(Builder builder) {
-        dimensions = builder.dimensions;
-    }
-
-    /**
-     * Returns the number of specified capacity dimensions.
-     *
-     * @return noDimensions
-     */
-    public int getNuOfDimensions() {
-        return dimensions.length;
-    }
-
-
-    /**
-     * Returns value of capacity-dimension with specified index.
-     * <p>
-     * <p>If capacity dimension does not exist, it returns 0 (rather than IndexOutOfBoundsException).
-     *
-     * @param index dimension index of the capacity value to be retrieved
-     * @return the according dimension value
-     */
-    public int get(int index) {
-        if (index < dimensions.length) return dimensions[index];
-        return 0;
-    }
-
-    /**
-     * Returns true if this capacity is less or equal than the capacity toCompare, i.e. if none of the capacity dimensions > than the corresponding dimension in toCompare.
-     *
-     * @param toCompare the capacity to compare
-     * @return true if this capacity is less or equal than toCompare
-     * @throws NullPointerException if one of the args is null
-     */
-    public boolean isLessOrEqual(Capacity toCompare) {
-        if (toCompare == null) throw new NullPointerException();
-        for (int i = 0; i < this.getNuOfDimensions(); i++) {
-            if (this.get(i) > toCompare.get(i)) return false;
-        }
-        return true;
-    }
-
-    /**
-     * Returns true if this capacity is greater or equal than the capacity toCompare
-     *
-     * @param toCompare the capacity to compare
-     * @return true if this capacity is greater or equal than toCompare
-     * @throws NullPointerException if one of the args is null
-     */
-    public boolean isGreaterOrEqual(Capacity toCompare) {
-        if (toCompare == null) throw new NullPointerException();
-        for (int i = 0; i < Math.max(this.getNuOfDimensions(), toCompare.getNuOfDimensions()); i++) {
-            if (this.get(i) < toCompare.get(i)) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        String string = "[noDimensions=" + getNuOfDimensions() + "]";
-        for (int i = 0; i < getNuOfDimensions(); i++) {
-            string += "[[dimIndex=" + i + "][dimValue=" + dimensions[i] + "]]";
-        }
-        return string;
-    }
-
-    /**
-     * Return the maximum, i.e. the maximum of each capacity dimension.
-     *
-     * @param cap1 first capacity to compare
-     * @param cap2 second capacity to compare
-     * @return capacity maximum of each capacity dimension
-     */
-    public static Capacity max(Capacity cap1, Capacity cap2) {
-        if (cap1 == null || cap2 == null) throw new IllegalArgumentException("arg must not be null");
-        Capacity.Builder toReturnBuilder = Capacity.Builder.newInstance();
-        for (int i = 0; i < Math.max(cap1.getNuOfDimensions(), cap2.getNuOfDimensions()); i++) {
-            toReturnBuilder.addDimension(i, Math.max(cap1.get(i), cap2.get(i)));
-        }
-        return toReturnBuilder.build();
-    }
-
-    public static Capacity min(Capacity cap1, Capacity cap2) {
-        if (cap1 == null || cap2 == null) throw new IllegalArgumentException("arg must not be null");
-        Capacity.Builder toReturnBuilder = Capacity.Builder.newInstance();
-        for (int i = 0; i < Math.max(cap1.getNuOfDimensions(), cap2.getNuOfDimensions()); i++) {
-            toReturnBuilder.addDimension(i, Math.min(cap1.get(i), cap2.get(i)));
-        }
-        return toReturnBuilder.build();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Capacity)) return false;
-
-        Capacity capacity = (Capacity) o;
-
-        if (!Arrays.equals(dimensions, capacity.dimensions)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(dimensions);
     }
 }

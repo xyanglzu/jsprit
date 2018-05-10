@@ -65,47 +65,20 @@ public class MaxTimeInVehicleConstraintTest {
     VehicleRoutingProblem vrp;
 
     @Before
-    public void doBefore(){
+    public void doBefore() {
 
-    }
-
-    private void ini(double maxTimeShipment, double maxTimeDelivery, double maxTimePickup) {
-        d1 = Delivery.Builder.newInstance("d1").setLocation(Location.newInstance(10,0)).build();
-
-        s1 = Shipment.Builder.newInstance("s1").setPickupLocation(Location.newInstance(20,0))
-            .setDeliveryLocation(Location.newInstance(40, 0)).setMaxTimeInVehicle(maxTimeShipment).build();
-
-        s2 = Shipment.Builder.newInstance("s2").setPickupLocation(Location.newInstance(20,0))
-            .setDeliveryLocation(Location.newInstance(40, 0)).setMaxTimeInVehicle(maxTimeShipment).build();
-
-        d2 = Delivery.Builder.newInstance("d2")
-            .setMaxTimeInVehicle(maxTimeDelivery)
-            .setLocation(Location.newInstance(30, 0)).setServiceTime(10).build();
-
-        p1 = Pickup.Builder.newInstance("p1").setLocation(Location.newInstance(10, 0)).build();
-        p2 = Pickup.Builder.newInstance("p2")
-//            .setMaxTimeInVehicle(maxTimePickup)
-            .setLocation(Location.newInstance(20, 0)).build();
-
-        v = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance(0,0)).build();
-
-        vrp = VehicleRoutingProblem.Builder.newInstance().addJob(d1).addJob(s1).addJob(d2).addJob(p1).addJob(p2)
-            .addVehicle(v).build();
-
-        route = VehicleRoute.Builder.newInstance(v).setJobActivityFactory(vrp.getJobActivityFactory())
-            .addDelivery(d1).addPickup(s1).addDelivery(s1).build();
     }
 
     @Test
-    public void shiftOfExistingShipmentsShouldWork(){
-        Vehicle v = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance(0,0)).build();
+    public void shiftOfExistingShipmentsShouldWork() {
+        Vehicle v = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance(0, 0)).build();
 
-        Shipment s1 = Shipment.Builder.newInstance("s1").setPickupLocation(Location.newInstance(20,0))
-            .setDeliveryLocation(Location.newInstance(40,0)).setMaxTimeInVehicle(20).build();
+        Shipment s1 = Shipment.Builder.newInstance("s1").setPickupLocation(Location.newInstance(20, 0))
+            .setDeliveryLocation(Location.newInstance(40, 0)).setMaxTimeInVehicle(20).build();
 
-        Shipment s2 = Shipment.Builder.newInstance("s2").setPickupLocation(Location.newInstance(20,0))
+        Shipment s2 = Shipment.Builder.newInstance("s2").setPickupLocation(Location.newInstance(20, 0))
             .setPickupServiceTime(10)
-            .setDeliveryLocation(Location.newInstance(40,0)).setMaxTimeInVehicle(20).build();
+            .setDeliveryLocation(Location.newInstance(40, 0)).setMaxTimeInVehicle(20).build();
 
         VehicleRoutingProblem vrp = VehicleRoutingProblem.Builder.newInstance().addJob(s1).addJob(s2).addVehicle(v).build();
 
@@ -119,10 +92,10 @@ public class MaxTimeInVehicleConstraintTest {
         UpdateMaxTimeInVehicle updater = new UpdateMaxTimeInVehicle(stateManager, minSlackId, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId);
         stateManager.addStateUpdater(updater);
         stateManager.addStateUpdater(new UpdateActivityTimes(vrp.getTransportCosts(), vrp.getActivityCosts()));
-        stateManager.informInsertionStarts(Arrays.asList(route),new ArrayList<Job>());
+        stateManager.informInsertionStarts(Arrays.asList(route), new ArrayList<Job>());
 
         MaxTimeInVehicleConstraint constraint = new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), minSlackId, stateManager, vrp, openJobsId);
-        JobInsertionContext c = new JobInsertionContext(route,s2,v,route.getDriver(),0.);
+        JobInsertionContext c = new JobInsertionContext(route, s2, v, route.getDriver(), 0.);
         List<AbstractActivity> acts = vrp.getActivities(s2);
 
         c.getAssociatedActivities().add(acts.get(0));
@@ -130,7 +103,7 @@ public class MaxTimeInVehicleConstraintTest {
 
         Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, route.getStart(), acts.get(0), route.getActivities().get(0), 0));
         Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.NOT_FULFILLED, constraint.fulfilled(c, act(route, 0), acts.get(0), act(route, 1), 20));
-        Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, act(route,1), acts.get(0), route.getEnd(), 40));
+        Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, act(route, 1), acts.get(0), route.getEnd(), 40));
 
         //insert pickup at 0
         c.setRelatedActivityContext(new ActivityContext());
@@ -138,16 +111,16 @@ public class MaxTimeInVehicleConstraintTest {
         c.getRelatedActivityContext().setEndTime(30);
         c.getRelatedActivityContext().setInsertionIndex(0);
 
-        Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, acts.get(0), acts.get(1), act(route,0), 30));
-        Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, act(route,0), acts.get(1), act(route,1), 30));
+        Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, acts.get(0), acts.get(1), act(route, 0), 30));
+        Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, act(route, 0), acts.get(1), act(route, 1), 30));
     }
 
-    private TourActivity act(VehicleRoute route, int index){
+    private TourActivity act(VehicleRoute route, int index) {
         return route.getActivities().get(index);
     }
 
     @Test
-    public void insertingDeliveryAtAnyPositionShouldWork(){
+    public void insertingDeliveryAtAnyPositionShouldWork() {
         ini(30d, Double.MAX_VALUE, Double.MAX_VALUE);
         StateManager stateManager = new StateManager(vrp);
         StateId latestStartId = stateManager.createStateId("latest-start-id");
@@ -156,10 +129,10 @@ public class MaxTimeInVehicleConstraintTest {
         UpdateMaxTimeInVehicle updater = new UpdateMaxTimeInVehicle(stateManager, latestStartId, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId);
         stateManager.addStateUpdater(updater);
         stateManager.addStateUpdater(new UpdateActivityTimes(vrp.getTransportCosts(), vrp.getActivityCosts()));
-        stateManager.informInsertionStarts(Arrays.asList(route),new ArrayList<Job>());
+        stateManager.informInsertionStarts(Arrays.asList(route), new ArrayList<Job>());
 
         MaxTimeInVehicleConstraint constraint = new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), latestStartId, stateManager, vrp, openJobsId);
-        JobInsertionContext c = new JobInsertionContext(route,d2,v,route.getDriver(),0.);
+        JobInsertionContext c = new JobInsertionContext(route, d2, v, route.getDriver(), 0.);
         List<AbstractActivity> acts = vrp.getActivities(d2);
         c.getAssociatedActivities().add(acts.get(0));
 
@@ -168,6 +141,33 @@ public class MaxTimeInVehicleConstraintTest {
         Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, route.getActivities().get(1), acts.get(0), route.getActivities().get(2), 20));
         Assert.assertEquals(HardActivityConstraint.ConstraintsStatus.FULFILLED, constraint.fulfilled(c, route.getActivities().get(2), acts.get(0), route.getEnd(), 40));
 
+    }
+
+    private void ini(double maxTimeShipment, double maxTimeDelivery, double maxTimePickup) {
+        d1 = Delivery.Builder.newInstance("d1").setLocation(Location.newInstance(10, 0)).build();
+
+        s1 = Shipment.Builder.newInstance("s1").setPickupLocation(Location.newInstance(20, 0))
+            .setDeliveryLocation(Location.newInstance(40, 0)).setMaxTimeInVehicle(maxTimeShipment).build();
+
+        s2 = Shipment.Builder.newInstance("s2").setPickupLocation(Location.newInstance(20, 0))
+            .setDeliveryLocation(Location.newInstance(40, 0)).setMaxTimeInVehicle(maxTimeShipment).build();
+
+        d2 = Delivery.Builder.newInstance("d2")
+            .setMaxTimeInVehicle(maxTimeDelivery)
+            .setLocation(Location.newInstance(30, 0)).setServiceTime(10).build();
+
+        p1 = Pickup.Builder.newInstance("p1").setLocation(Location.newInstance(10, 0)).build();
+        p2 = Pickup.Builder.newInstance("p2")
+//            .setMaxTimeInVehicle(maxTimePickup)
+            .setLocation(Location.newInstance(20, 0)).build();
+
+        v = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance(0, 0)).build();
+
+        vrp = VehicleRoutingProblem.Builder.newInstance().addJob(d1).addJob(s1).addJob(d2).addJob(p1).addJob(p2)
+            .addVehicle(v).build();
+
+        route = VehicleRoute.Builder.newInstance(v).setJobActivityFactory(vrp.getJobActivityFactory())
+            .addDelivery(d1).addPickup(s1).addDelivery(s1).build();
     }
 
     @Test
@@ -214,7 +214,7 @@ public class MaxTimeInVehicleConstraintTest {
     }
 
     @Test
-    public void insertingDeliveryInBetweenShipmentShouldFail(){
+    public void insertingDeliveryInBetweenShipmentShouldFail() {
         ini(20d, 30, Double.MAX_VALUE);
 
         StateManager stateManager = new StateManager(vrp);
@@ -224,10 +224,10 @@ public class MaxTimeInVehicleConstraintTest {
         UpdateMaxTimeInVehicle updater = new UpdateMaxTimeInVehicle(stateManager, latestStartId, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId);
         stateManager.addStateUpdater(updater);
         stateManager.addStateUpdater(new UpdateActivityTimes(vrp.getTransportCosts(), vrp.getActivityCosts()));
-        stateManager.informInsertionStarts(Arrays.asList(route),new ArrayList<Job>());
+        stateManager.informInsertionStarts(Arrays.asList(route), new ArrayList<Job>());
 
         MaxTimeInVehicleConstraint constraint = new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), latestStartId, stateManager, vrp, openJobsId);
-        JobInsertionContext c = new JobInsertionContext(route,d2,v,route.getDriver(),0.);
+        JobInsertionContext c = new JobInsertionContext(route, d2, v, route.getDriver(), 0.);
         List<AbstractActivity> acts = vrp.getActivities(d2);
         c.getAssociatedActivities().add(acts.get(0));
 
@@ -236,9 +236,8 @@ public class MaxTimeInVehicleConstraintTest {
     }
 
 
-
     @Test
-    public void insertingPickupShipmentAtAnyPositionShouldWork(){
+    public void insertingPickupShipmentAtAnyPositionShouldWork() {
         ini(25d, Double.MAX_VALUE, Double.MAX_VALUE);
         VehicleRoute r = VehicleRoute.Builder.newInstance(v).setJobActivityFactory(vrp.getJobActivityFactory())
             .addDelivery(d1).addDelivery(d2).build();
@@ -250,10 +249,10 @@ public class MaxTimeInVehicleConstraintTest {
         UpdateMaxTimeInVehicle updater = new UpdateMaxTimeInVehicle(stateManager, latestStartId, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId);
         stateManager.addStateUpdater(updater);
         stateManager.addStateUpdater(new UpdateActivityTimes(vrp.getTransportCosts(), vrp.getActivityCosts()));
-        stateManager.informInsertionStarts(Arrays.asList(r),new ArrayList<Job>());
+        stateManager.informInsertionStarts(Arrays.asList(r), new ArrayList<Job>());
 
         MaxTimeInVehicleConstraint constraint = new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), latestStartId, stateManager, vrp, openJobsId);
-        JobInsertionContext c = new JobInsertionContext(r, s1,v,r.getDriver(),0.);
+        JobInsertionContext c = new JobInsertionContext(r, s1, v, r.getDriver(), 0.);
         List<AbstractActivity> acts = vrp.getActivities(s1);
         c.getAssociatedActivities().add(acts.get(0));
         c.getAssociatedActivities().add(acts.get(1));
@@ -355,7 +354,7 @@ public class MaxTimeInVehicleConstraintTest {
 //    }
 
     @Test
-    public void whenPickupIsInsertedAt0_insertingDeliveryShipmentShouldFailWhereConstraintIsBroken(){
+    public void whenPickupIsInsertedAt0_insertingDeliveryShipmentShouldFailWhereConstraintIsBroken() {
         ini(25d, Double.MAX_VALUE, Double.MAX_VALUE);
         VehicleRoute r = VehicleRoute.Builder.newInstance(v).setJobActivityFactory(vrp.getJobActivityFactory())
             .addDelivery(d1).addDelivery(d2).build();
@@ -367,10 +366,10 @@ public class MaxTimeInVehicleConstraintTest {
         UpdateMaxTimeInVehicle updater = new UpdateMaxTimeInVehicle(stateManager, latestStartId, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId);
         stateManager.addStateUpdater(updater);
         stateManager.addStateUpdater(new UpdateActivityTimes(vrp.getTransportCosts(), vrp.getActivityCosts()));
-        stateManager.informInsertionStarts(Arrays.asList(r),new ArrayList<Job>());
+        stateManager.informInsertionStarts(Arrays.asList(r), new ArrayList<Job>());
 
         MaxTimeInVehicleConstraint constraint = new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), latestStartId, stateManager, vrp, openJobsId);
-        JobInsertionContext c = new JobInsertionContext(r, s1,v,r.getDriver(),0.);
+        JobInsertionContext c = new JobInsertionContext(r, s1, v, r.getDriver(), 0.);
         List<AbstractActivity> acts = vrp.getActivities(s1);
         c.getAssociatedActivities().add(acts.get(0));
         c.getAssociatedActivities().add(acts.get(1));
@@ -386,7 +385,7 @@ public class MaxTimeInVehicleConstraintTest {
     }
 
     @Test
-    public void whenPickupIsInsertedAt1_insertingDeliveryShipmentShouldFailWhereConstraintIsBroken(){
+    public void whenPickupIsInsertedAt1_insertingDeliveryShipmentShouldFailWhereConstraintIsBroken() {
         ini(25d, Double.MAX_VALUE, Double.MAX_VALUE);
         VehicleRoute r = VehicleRoute.Builder.newInstance(v).setJobActivityFactory(vrp.getJobActivityFactory())
             .addDelivery(d1).addDelivery(d2).build();
@@ -395,15 +394,15 @@ public class MaxTimeInVehicleConstraintTest {
         StateId latestStartId = stateManager.createStateId("latest-start-id");
         StateId openJobsId = stateManager.createStateId("open-jobs-id");
 
-        Map<String,Double> maxTimes = new HashMap<>();
-        maxTimes.put("s1",25d);
+        Map<String, Double> maxTimes = new HashMap<>();
+        maxTimes.put("s1", 25d);
         UpdateMaxTimeInVehicle updater = new UpdateMaxTimeInVehicle(stateManager, latestStartId, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId);
         stateManager.addStateUpdater(updater);
         stateManager.addStateUpdater(new UpdateActivityTimes(vrp.getTransportCosts(), vrp.getActivityCosts()));
-        stateManager.informInsertionStarts(Arrays.asList(r),new ArrayList<Job>());
+        stateManager.informInsertionStarts(Arrays.asList(r), new ArrayList<Job>());
 
         MaxTimeInVehicleConstraint constraint = new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), latestStartId, stateManager, vrp, openJobsId);
-        JobInsertionContext c = new JobInsertionContext(r, s1,v,r.getDriver(),0.);
+        JobInsertionContext c = new JobInsertionContext(r, s1, v, r.getDriver(), 0.);
         List<AbstractActivity> acts = vrp.getActivities(s1);
         c.getAssociatedActivities().add(acts.get(0));
         c.getAssociatedActivities().add(acts.get(1));

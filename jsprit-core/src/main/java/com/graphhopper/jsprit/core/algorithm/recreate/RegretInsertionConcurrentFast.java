@@ -45,13 +45,9 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
 
 
     private static Logger logger = LoggerFactory.getLogger(RegretInsertionConcurrentFast.class);
-
-    private ScoringFunction scoringFunction;
-
     private final JobInsertionCostsCalculator insertionCostsCalculator;
-
     private final ExecutorService executor;
-
+    private ScoringFunction scoringFunction;
     private VehicleFleetManager fleetManager;
 
     private Set<String> initialVehicleIds;
@@ -60,17 +56,6 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
 
     private DependencyType[] dependencyTypes = null;
 
-
-    /**
-     * Sets the scoring function.
-     * <p>
-     * <p>By default, the this.TimeWindowScorer is used.
-     *
-     * @param scoringFunction to score
-     */
-    public void setScoringFunction(ScoringFunction scoringFunction) {
-        this.scoringFunction = scoringFunction;
-    }
 
     public RegretInsertionConcurrentFast(JobInsertionCostsCalculator jobInsertionCalculator, VehicleRoutingProblem vehicleRoutingProblem, ExecutorService executorService, VehicleFleetManager fleetManager) {
         super(vehicleRoutingProblem);
@@ -83,6 +68,25 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
         logger.debug("initialise " + this);
     }
 
+    private Set<String> getInitialVehicleIds(VehicleRoutingProblem vehicleRoutingProblem) {
+        Set<String> ids = new HashSet<String>();
+        for (VehicleRoute r : vehicleRoutingProblem.getInitialVehicleRoutes()) {
+            ids.add(r.getVehicle().getId());
+        }
+        return ids;
+    }
+
+    /**
+     * Sets the scoring function.
+     * <p>
+     * <p>By default, the this.TimeWindowScorer is used.
+     *
+     * @param scoringFunction to score
+     */
+    public void setScoringFunction(ScoringFunction scoringFunction) {
+        this.scoringFunction = scoringFunction;
+    }
+
     @Override
     public String toString() {
         return "[name=regretInsertion][additionalScorer=" + scoringFunction + "]";
@@ -92,15 +96,7 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
         this.switchAllowed = switchAllowed;
     }
 
-    private Set<String> getInitialVehicleIds(VehicleRoutingProblem vehicleRoutingProblem) {
-        Set<String> ids = new HashSet<String>();
-        for(VehicleRoute r : vehicleRoutingProblem.getInitialVehicleRoutes()){
-            ids.add(r.getVehicle().getId());
-        }
-        return ids;
-    }
-
-    public void setDependencyTypes(DependencyType[] dependencyTypes){
+    public void setDependencyTypes(DependencyType[] dependencyTypes) {
         this.dependencyTypes = dependencyTypes;
     }
 
@@ -117,14 +113,13 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
         List<Job> badJobs = new ArrayList<Job>(unassignedJobs.size());
 
         Iterator<Job> jobIterator = unassignedJobs.iterator();
-        while (jobIterator.hasNext()){
+        while (jobIterator.hasNext()) {
             Job job = jobIterator.next();
-            if(job instanceof Break){
+            if (job instanceof Break) {
                 VehicleRoute route = InsertionDataUpdater.findRoute(routes, job);
-                if(route == null){
+                if (route == null) {
                     badJobs.add(job);
-                }
-                else {
+                } else {
                     InsertionData iData = insertionCostsCalculator.getInsertionData(route, job, NO_NEW_VEHICLE_YET, NO_NEW_DEPARTURE_TIME_YET, NO_NEW_DRIVER_YET, Double.MAX_VALUE);
                     if (iData instanceof InsertionData.NoInsertionFound) {
                         badJobs.add(job);
@@ -141,15 +136,15 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
         VehicleRoute lastModified = null;
         boolean firstRun = true;
         int updateRound = 0;
-        Map<VehicleRoute,Integer> updates = new HashMap<VehicleRoute, Integer>();
+        Map<VehicleRoute, Integer> updates = new HashMap<VehicleRoute, Integer>();
         while (!jobs.isEmpty()) {
             List<Job> unassignedJobList = new ArrayList<>(jobs);
             List<ScoredJob> badJobList = new ArrayList<>();
-            if(!firstRun && lastModified == null) throw new IllegalStateException("ho. this must not be.");
-            updateInsertionData(priorityQueues, routes, unassignedJobList, updateRound,firstRun,lastModified,updates);
-            if(firstRun) firstRun = false;
+            if (!firstRun && lastModified == null) throw new IllegalStateException("ho. this must not be.");
+            updateInsertionData(priorityQueues, routes, unassignedJobList, updateRound, firstRun, lastModified, updates);
+            if (firstRun) firstRun = false;
             updateRound++;
-            ScoredJob bestScoredJob = InsertionDataUpdater.getBest(switchAllowed,initialVehicleIds,fleetManager, insertionCostsCalculator, scoringFunction, priorityQueues, updates, unassignedJobList, badJobList);
+            ScoredJob bestScoredJob = InsertionDataUpdater.getBest(switchAllowed, initialVehicleIds, fleetManager, insertionCostsCalculator, scoringFunction, priorityQueues, updates, unassignedJobList, badJobList);
             if (bestScoredJob != null) {
                 if (bestScoredJob.isNewRoute()) {
                     routes.add(bestScoredJob.getRoute());
@@ -157,8 +152,7 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
                 insertJob(bestScoredJob.getJob(), bestScoredJob.getInsertionData(), bestScoredJob.getRoute());
                 jobs.remove(bestScoredJob.getJob());
                 lastModified = bestScoredJob.getRoute();
-            }
-            else lastModified = null;
+            } else lastModified = null;
             for (ScoredJob bad : badJobList) {
                 Job unassigned = bad.getJob();
                 jobs.remove(unassigned);
@@ -173,18 +167,16 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
         List<Callable<Boolean>> tasks = new ArrayList<Callable<Boolean>>();
         boolean updatedAllRoutes = false;
         for (final Job unassignedJob : unassignedJobList) {
-            if(priorityQueues[unassignedJob.getIndex()] == null){
+            if (priorityQueues[unassignedJob.getIndex()] == null) {
                 priorityQueues[unassignedJob.getIndex()] = new TreeSet<>(InsertionDataUpdater.getComparator());
             }
-            if(firstRun) {
+            if (firstRun) {
                 updatedAllRoutes = true;
                 makeCallables(tasks, updatedAllRoutes, priorityQueues[unassignedJob.getIndex()], updateRound, unassignedJob, routes, lastModified);
-            }
-            else{
-                if(dependencyTypes == null || dependencyTypes[unassignedJob.getIndex()] == null){
+            } else {
+                if (dependencyTypes == null || dependencyTypes[unassignedJob.getIndex()] == null) {
                     makeCallables(tasks, updatedAllRoutes, priorityQueues[unassignedJob.getIndex()], updateRound, unassignedJob, routes, lastModified);
-                }
-                else {
+                } else {
                     DependencyType dependencyType = dependencyTypes[unassignedJob.getIndex()];
                     if (dependencyType.equals(DependencyType.INTER_ROUTE) || dependencyType.equals(DependencyType.INTRA_ROUTE)) {
                         updatedAllRoutes = true;
@@ -195,11 +187,10 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
                 }
             }
         }
-        if(updatedAllRoutes){
-            for(VehicleRoute r : routes) updates.put(r,updateRound);
-        }
-        else{
-            updates.put(lastModified,updateRound);
+        if (updatedAllRoutes) {
+            for (VehicleRoute r : routes) updates.put(r, updateRound);
+        } else {
+            updates.put(lastModified, updateRound);
         }
         try {
             executor.invokeAll(tasks);
@@ -210,15 +201,14 @@ public class RegretInsertionConcurrentFast extends AbstractInsertionStrategy {
     }
 
     private void makeCallables(List<Callable<Boolean>> tasks, boolean updateAll, final TreeSet<VersionedInsertionData> priorityQueue, final int updateRound, final Job unassignedJob, final Collection<VehicleRoute> routes, final VehicleRoute lastModified) {
-        if(updateAll) {
+        if (updateAll) {
             tasks.add(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
                     return InsertionDataUpdater.update(switchAllowed, initialVehicleIds, fleetManager, insertionCostsCalculator, priorityQueue, updateRound, unassignedJob, routes);
                 }
             });
-        }
-        else {
+        } else {
             tasks.add(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {

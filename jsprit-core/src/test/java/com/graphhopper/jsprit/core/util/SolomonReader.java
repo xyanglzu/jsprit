@@ -44,23 +44,11 @@ import java.io.InputStreamReader;
 
 public class SolomonReader {
 
-    /**
-     * @param costProjectionFactor the costProjectionFactor to set
-     */
-    public void setVariableCostProjectionFactor(double costProjectionFactor) {
-        this.variableCostProjectionFactor = costProjectionFactor;
-    }
-
     private static Logger logger = LoggerFactory.getLogger(SolomonReader.class);
-
     private final VehicleRoutingProblem.Builder vrpBuilder;
-
     private double coordProjectionFactor = 1;
-
     private double timeProjectionFactor = 1;
-
     private double variableCostProjectionFactor = 1;
-
     private double fixedCostPerVehicle = 0.0;
 
     public SolomonReader(VehicleRoutingProblem.Builder vrpBuilder) {
@@ -72,6 +60,13 @@ public class SolomonReader {
         super();
         this.vrpBuilder = vrpBuilder;
         this.fixedCostPerVehicle = fixedCostPerVehicle;
+    }
+
+    /**
+     * @param costProjectionFactor the costProjectionFactor to set
+     */
+    public void setVariableCostProjectionFactor(double costProjectionFactor) {
+        this.variableCostProjectionFactor = costProjectionFactor;
     }
 
     public void read(InputStream inputStream) {
@@ -119,16 +114,8 @@ public class SolomonReader {
         close(reader);
     }
 
-    public void setCoordProjectionFactor(double coordProjectionFactor) {
-        this.coordProjectionFactor = coordProjectionFactor;
-    }
-
-    private void close(BufferedReader reader) {
-        try {
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private BufferedReader getReader(InputStream inputStream) {
+        return new BufferedReader(new InputStreamReader(inputStream));
     }
 
     private String readLine(BufferedReader reader) {
@@ -145,8 +132,16 @@ public class SolomonReader {
         return new Coordinate(x * coordProjectionFactor, y * coordProjectionFactor);
     }
 
-    private BufferedReader getReader(InputStream inputStream) {
-        return new BufferedReader(new InputStreamReader(inputStream));
+    private void close(BufferedReader reader) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCoordProjectionFactor(double coordProjectionFactor) {
+        this.coordProjectionFactor = coordProjectionFactor;
     }
 
     public void setTimeProjectionFactor(double timeProjection) {

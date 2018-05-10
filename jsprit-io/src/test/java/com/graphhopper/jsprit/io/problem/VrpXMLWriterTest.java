@@ -62,6 +62,28 @@ public class VrpXMLWriterTest {
         assertEquals(2.0, s1_read.getServiceDuration(), 0.01);
     }
 
+    private VehicleRoutingProblem.Builder twoVehicleTypesAndImpls() {
+        VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
+
+        VehicleTypeImpl type1 = VehicleTypeImpl.Builder.newInstance("vehType").addCapacityDimension(0, 20).build();
+        VehicleTypeImpl type2 = VehicleTypeImpl.Builder.newInstance("vehType2").addCapacityDimension(0, 200).build();
+        VehicleImpl v1 = VehicleImpl.Builder.newInstance("v1").setStartLocation(TestUtils.loc("loc")).setType(type1).build();
+        VehicleImpl v2 = VehicleImpl.Builder.newInstance("v2").setStartLocation(TestUtils.loc("loc")).setType(type2).build();
+
+        builder.addVehicle(v1);
+        builder.addVehicle(v2);
+        return builder;
+    }
+
+    private VehicleRoutingProblem writeAndRereadXml(VehicleRoutingProblem vrp) {
+        VrpXMLWriter vrpXMLWriter = new VrpXMLWriter(vrp, null);
+        ByteArrayOutputStream os = (ByteArrayOutputStream) vrpXMLWriter.write();
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        VehicleRoutingProblem.Builder vrpToReadBuilder = VehicleRoutingProblem.Builder.newInstance();
+        new VrpXMLReader(vrpToReadBuilder, null).read(is);
+        return vrpToReadBuilder.build();
+    }
+
     @Test
     public void shouldWriteNameOfService() {
         VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
@@ -241,6 +263,13 @@ public class VrpXMLWriterTest {
         assertTrue(veh1.getSkills().containsSkill("skill2"));
     }
 
+    private Vehicle getVehicle(String v1, VehicleRoutingProblem readVrp) {
+        for (Vehicle v : readVrp.getVehicles()) {
+            if (v.getId().equals(v1)) return v;
+        }
+        return null;
+    }
+
     @Test
     public void whenWritingVehicles_vehShouldHave0Skills() {
         VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
@@ -253,13 +282,6 @@ public class VrpXMLWriterTest {
         Vehicle veh = getVehicle("v1", readVrp);
 
         assertEquals(0, veh.getSkills().values().size());
-    }
-
-    private Vehicle getVehicle(String v1, VehicleRoutingProblem readVrp) {
-        for (Vehicle v : readVrp.getVehicles()) {
-            if (v.getId().equals(v1)) return v;
-        }
-        return null;
     }
 
     @Test
@@ -354,17 +376,9 @@ public class VrpXMLWriterTest {
 
     }
 
-    private VehicleRoutingProblem.Builder twoVehicleTypesAndImpls() {
-        VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
-
-        VehicleTypeImpl type1 = VehicleTypeImpl.Builder.newInstance("vehType").addCapacityDimension(0, 20).build();
-        VehicleTypeImpl type2 = VehicleTypeImpl.Builder.newInstance("vehType2").addCapacityDimension(0, 200).build();
-        VehicleImpl v1 = VehicleImpl.Builder.newInstance("v1").setStartLocation(TestUtils.loc("loc")).setType(type1).build();
-        VehicleImpl v2 = VehicleImpl.Builder.newInstance("v2").setStartLocation(TestUtils.loc("loc")).setType(type2).build();
-
-        builder.addVehicle(v1);
-        builder.addVehicle(v2);
-        return builder;
+    private Vehicle getVehicle(String string, Collection<Vehicle> vehicles) {
+        for (Vehicle v : vehicles) if (string.equals(v.getId())) return v;
+        return null;
     }
 
     @Test
@@ -383,7 +397,6 @@ public class VrpXMLWriterTest {
         assertTrue(readVrp.getJobs().get("1").getRequiredSkills().containsSkill("skill1"));
         assertTrue(readVrp.getJobs().get("1").getRequiredSkills().containsSkill("skill2"));
     }
-
 
     @Test
     public void whenWritingVehicleV1_itDoesNotReturnToDepotMustBeWrittenCorrectly() {
@@ -484,7 +497,6 @@ public class VrpXMLWriterTest {
         assertEquals(5.0, v.getEndLocation().getCoordinate().getY(), 0.01);
     }
 
-
     @Test
     public void whenWritingVehicleWithSeveralCapacityDimensions_itShouldBeWrittenAndRereadCorrectly() {
         VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
@@ -534,11 +546,6 @@ public class VrpXMLWriterTest {
         assertEquals(10000, v.getType().getCapacityDimensions().get(10));
     }
 
-    private Vehicle getVehicle(String string, Collection<Vehicle> vehicles) {
-        for (Vehicle v : vehicles) if (string.equals(v.getId())) return v;
-        return null;
-    }
-
     @Test
     public void solutionWithoutUnassignedJobsShouldBeWrittenCorrectly() {
         VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
@@ -564,6 +571,16 @@ public class VrpXMLWriterTest {
         assertEquals(1, solutionsToRead.size());
         assertEquals(10., Solutions.bestOf(solutionsToRead).getCost(), 0.01);
         assertTrue(Solutions.bestOf(solutionsToRead).getUnassignedJobs().isEmpty());
+    }
+
+    private List<VehicleRoutingProblemSolution> writeAndRereadXmlWithSolutions(VehicleRoutingProblem vrp, List<VehicleRoutingProblemSolution> solutions) {
+        VrpXMLWriter vrpXMLWriter = new VrpXMLWriter(vrp, solutions);
+        ByteArrayOutputStream os = (ByteArrayOutputStream) vrpXMLWriter.write();
+        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+        VehicleRoutingProblem.Builder vrpToReadBuilder = VehicleRoutingProblem.Builder.newInstance();
+        List<VehicleRoutingProblemSolution> solutionsToRead = new ArrayList<VehicleRoutingProblemSolution>();
+        new VrpXMLReader(vrpToReadBuilder, solutionsToRead).read(is);
+        return solutionsToRead;
     }
 
     @Test
@@ -608,25 +625,6 @@ public class VrpXMLWriterTest {
 
         assertEquals(outputStringFromFile, outputStringFromStream);
 
-    }
-
-    private VehicleRoutingProblem writeAndRereadXml(VehicleRoutingProblem vrp) {
-        VrpXMLWriter vrpXMLWriter = new VrpXMLWriter(vrp, null);
-        ByteArrayOutputStream os = (ByteArrayOutputStream) vrpXMLWriter.write();
-        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-        VehicleRoutingProblem.Builder vrpToReadBuilder = VehicleRoutingProblem.Builder.newInstance();
-        new VrpXMLReader(vrpToReadBuilder, null).read(is);
-        return vrpToReadBuilder.build();
-    }
-
-    private List<VehicleRoutingProblemSolution> writeAndRereadXmlWithSolutions(VehicleRoutingProblem vrp, List<VehicleRoutingProblemSolution> solutions) {
-        VrpXMLWriter vrpXMLWriter = new VrpXMLWriter(vrp, solutions);
-        ByteArrayOutputStream os = (ByteArrayOutputStream) vrpXMLWriter.write();
-        ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-        VehicleRoutingProblem.Builder vrpToReadBuilder = VehicleRoutingProblem.Builder.newInstance();
-        List<VehicleRoutingProblemSolution> solutionsToRead = new ArrayList<VehicleRoutingProblemSolution>();
-        new VrpXMLReader(vrpToReadBuilder, solutionsToRead).read(is);
-        return solutionsToRead;
     }
 
 }

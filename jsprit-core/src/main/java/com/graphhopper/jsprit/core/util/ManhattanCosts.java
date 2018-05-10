@@ -43,6 +43,16 @@ public class ManhattanCosts extends AbstractForwardVehicleRoutingTransportCosts 
     }
 
     @Override
+    public double getDistance(Location from, Location to, double departureTime, Vehicle vehicle) {
+        return calculateDistance(from, to);
+    }
+
+    @Override
+    public double getTransportTime(Location from, Location to, double time, Driver driver, Vehicle vehicle) {
+        return calculateDistance(from, to) / speed;
+    }
+
+    @Override
     public double getTransportCost(Location from, Location to, double time, Driver driver, Vehicle vehicle) {
         double distance;
         try {
@@ -57,11 +67,6 @@ public class ManhattanCosts extends AbstractForwardVehicleRoutingTransportCosts 
             }
         }
         return costs;
-    }
-
-    @Override
-    public double getTransportTime(Location from, Location to, double time, Driver driver, Vehicle vehicle) {
-        return calculateDistance(from, to) / speed;
     }
 
     private double calculateDistance(Location fromLocation, Location toLocation) {
@@ -80,10 +85,5 @@ public class ManhattanCosts extends AbstractForwardVehicleRoutingTransportCosts 
 
     private double calculateDistance(Coordinate from, Coordinate to) {
         return Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
-    }
-
-    @Override
-    public double getDistance(Location from, Location to, double departureTime, Vehicle vehicle) {
-        return calculateDistance(from, to);
     }
 }

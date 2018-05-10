@@ -40,41 +40,11 @@ import java.util.*;
 
 public final class RuinClusters extends AbstractRuinStrategy implements IterationStartsListener {
 
-    @Override
-    public void informIterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-        minPts = 1 + random.nextInt(2);
-        epsFactor = 0.5 + random.nextDouble();
-    }
-
-    public static class JobActivityWrapper implements Clusterable {
-
-        private TourActivity.JobActivity jobActivity;
-
-        public JobActivityWrapper(TourActivity.JobActivity jobActivity) {
-            this.jobActivity = jobActivity;
-        }
-
-        @Override
-        public double[] getPoint() {
-            return new double[]{jobActivity.getLocation().getCoordinate().getX(), jobActivity.getLocation().getCoordinate().getY()};
-        }
-
-        public TourActivity.JobActivity getActivity() {
-            return jobActivity;
-        }
-    }
-
     private Logger logger = LoggerFactory.getLogger(RuinClusters.class);
-
     private VehicleRoutingProblem vrp;
-
-
     private JobNeighborhoods jobNeighborhoods;
-
     private int noClusters = 2;
-
     private int minPts = 1;
-
     private double epsFactor = 0.8;
 
     public RuinClusters(VehicleRoutingProblem vrp, final int initialNumberJobsToRemove, JobNeighborhoods jobNeighborhoods) {
@@ -88,6 +58,12 @@ public final class RuinClusters extends AbstractRuinStrategy implements Iteratio
         });
         this.jobNeighborhoods = jobNeighborhoods;
         logger.debug("initialise {}", this);
+    }
+
+    @Override
+    public void informIterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+        minPts = 1 + random.nextInt(2);
+        epsFactor = 0.5 + random.nextDouble();
     }
 
     public void setNoClusters(int noClusters) {
@@ -157,14 +133,6 @@ public final class RuinClusters extends AbstractRuinStrategy implements Iteratio
         }
     }
 
-    private List<JobActivityWrapper> wrap(List<TourActivity> activities) {
-        List<JobActivityWrapper> wl = new ArrayList<JobActivityWrapper>();
-        for (TourActivity act : activities) {
-            wl.add(new JobActivityWrapper((TourActivity.JobActivity) act));
-        }
-        return wl;
-    }
-
     private Map<Job, VehicleRoute> map(Collection<VehicleRoute> vehicleRoutes) {
         Map<Job, VehicleRoute> map = new HashMap<Job, VehicleRoute>(vrp.getJobs().size());
         for (VehicleRoute r : vehicleRoutes) {
@@ -175,9 +143,35 @@ public final class RuinClusters extends AbstractRuinStrategy implements Iteratio
         return map;
     }
 
+    private List<JobActivityWrapper> wrap(List<TourActivity> activities) {
+        List<JobActivityWrapper> wl = new ArrayList<JobActivityWrapper>();
+        for (TourActivity act : activities) {
+            wl.add(new JobActivityWrapper((TourActivity.JobActivity) act));
+        }
+        return wl;
+    }
+
     @Override
     public String toString() {
         return "[name=clusterRuin]";
+    }
+
+    public static class JobActivityWrapper implements Clusterable {
+
+        private TourActivity.JobActivity jobActivity;
+
+        public JobActivityWrapper(TourActivity.JobActivity jobActivity) {
+            this.jobActivity = jobActivity;
+        }
+
+        @Override
+        public double[] getPoint() {
+            return new double[]{jobActivity.getLocation().getCoordinate().getX(), jobActivity.getLocation().getCoordinate().getY()};
+        }
+
+        public TourActivity.JobActivity getActivity() {
+            return jobActivity;
+        }
     }
 
 }

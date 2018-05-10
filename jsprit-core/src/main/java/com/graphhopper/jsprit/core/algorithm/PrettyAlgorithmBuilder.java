@@ -23,19 +23,15 @@ import com.graphhopper.jsprit.core.algorithm.acceptor.SolutionAcceptor;
 import com.graphhopper.jsprit.core.algorithm.listener.AlgorithmStartsListener;
 import com.graphhopper.jsprit.core.algorithm.recreate.InsertionStrategy;
 import com.graphhopper.jsprit.core.algorithm.recreate.VehicleSwitched;
-import com.graphhopper.jsprit.core.algorithm.state.*;
+import com.graphhopper.jsprit.core.algorithm.state.StateManager;
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
 import com.graphhopper.jsprit.core.problem.constraint.ConstraintManager;
-import com.graphhopper.jsprit.core.problem.constraint.SwitchNotFeasible;
 import com.graphhopper.jsprit.core.problem.solution.SolutionCostCalculator;
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
-import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
-import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleFleetManager;
-import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeKey;
-import com.graphhopper.jsprit.core.util.ActivityTimeTracker;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Random;
 
 /**
  * Created by schroeder on 10.12.14.
@@ -60,16 +56,16 @@ public class PrettyAlgorithmBuilder {
 
     private SolutionCostCalculator objectiveFunction = null;
 
-    public static PrettyAlgorithmBuilder newInstance(VehicleRoutingProblem vrp, VehicleFleetManager fleetManager, StateManager stateManager, ConstraintManager constraintManager) {
-        return new PrettyAlgorithmBuilder(vrp, fleetManager, stateManager, constraintManager);
-    }
-
     PrettyAlgorithmBuilder(VehicleRoutingProblem vrp, VehicleFleetManager fleetManager, StateManager stateManager, ConstraintManager constraintManager) {
         this.vrp = vrp;
         this.fleetManager = fleetManager;
         this.stateManager = stateManager;
         this.constraintManager = constraintManager;
         this.searchStrategyManager = new SearchStrategyManager();
+    }
+
+    public static PrettyAlgorithmBuilder newInstance(VehicleRoutingProblem vrp, VehicleFleetManager fleetManager, StateManager stateManager, ConstraintManager constraintManager) {
+        return new PrettyAlgorithmBuilder(vrp, fleetManager, stateManager, constraintManager);
     }
 
     public PrettyAlgorithmBuilder setRandom(Random random) {
@@ -90,7 +86,7 @@ public class PrettyAlgorithmBuilder {
 
     public VehicleRoutingAlgorithm build() {
         if (coreStuff) {
-            AlgorithmUtil.addCoreConstraints(constraintManager,stateManager,vrp);
+            AlgorithmUtil.addCoreConstraints(constraintManager, stateManager, vrp);
         }
         VehicleRoutingAlgorithm vra = new VehicleRoutingAlgorithm(vrp, searchStrategyManager, objectiveFunction);
         vra.addListener(stateManager);

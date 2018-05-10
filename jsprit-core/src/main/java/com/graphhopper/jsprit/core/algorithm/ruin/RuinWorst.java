@@ -51,10 +51,6 @@ public final class RuinWorst extends AbstractRuinStrategy {
         }
     };
 
-    public void setNoiseMaker(NoiseMaker noiseMaker) {
-        this.noiseMaker = noiseMaker;
-    }
-
     public RuinWorst(VehicleRoutingProblem vrp, final int initialNumberJobsToRemove) {
         super(vrp);
         this.vrp = vrp;
@@ -65,6 +61,10 @@ public final class RuinWorst extends AbstractRuinStrategy {
             }
         });
         logger.debug("initialise {}", this);
+    }
+
+    public void setNoiseMaker(NoiseMaker noiseMaker) {
+        this.noiseMaker = noiseMaker;
     }
 
     /**

@@ -95,15 +95,13 @@ public class ChristofidesReader {
                 Coordinate customerCoord = makeCoord(tokens[0].trim(), tokens[1].trim());
                 int demand = Integer.parseInt(tokens[2].trim());
                 String customer = Integer.valueOf(counter - 1).toString();
-                if(jobType.equals(JobType.SERVICE)) {
+                if (jobType.equals(JobType.SERVICE)) {
                     Service service = Service.Builder.newInstance(customer).addSizeDimension(0, demand).setServiceTime(serviceTime).setLocation(Location.newInstance(customerCoord.getX(), customerCoord.getY())).build();
                     vrpBuilder.addJob(service);
-                }
-                else if(jobType.equals(JobType.DELIVERY)){
+                } else if (jobType.equals(JobType.DELIVERY)) {
                     Delivery service = Delivery.Builder.newInstance(customer).addSizeDimension(0, demand).setServiceTime(serviceTime).setLocation(Location.newInstance(customerCoord.getX(), customerCoord.getY())).build();
                     vrpBuilder.addJob(service);
-                }
-                else if(jobType.equals(JobType.PICKUP)){
+                } else if (jobType.equals(JobType.PICKUP)) {
                     Pickup service = Pickup.Builder.newInstance(customer).addSizeDimension(0, demand).setServiceTime(serviceTime).setLocation(Location.newInstance(customerCoord.getX(), customerCoord.getY())).build();
                     vrpBuilder.addJob(service);
                 }
@@ -113,16 +111,8 @@ public class ChristofidesReader {
         close(reader);
     }
 
-    public void setCoordProjectionFactor(double coordProjectionFactor) {
-        this.coordProjectionFactor = coordProjectionFactor;
-    }
-
-    private void close(BufferedReader reader) {
-        try {
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private BufferedReader getReader(InputStream inputStream) {
+        return new BufferedReader(new InputStreamReader(inputStream));
     }
 
     private String readLine(BufferedReader reader) {
@@ -139,8 +129,16 @@ public class ChristofidesReader {
         return new Coordinate(x * coordProjectionFactor, y * coordProjectionFactor);
     }
 
-    private BufferedReader getReader(InputStream inputStream) {
-        return new BufferedReader(new InputStreamReader(inputStream));
+    private void close(BufferedReader reader) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCoordProjectionFactor(double coordProjectionFactor) {
+        this.coordProjectionFactor = coordProjectionFactor;
     }
 
     public ChristofidesReader setJobType(JobType jobType) {

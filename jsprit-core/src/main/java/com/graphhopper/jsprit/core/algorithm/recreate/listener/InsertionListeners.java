@@ -83,16 +83,16 @@ public class InsertionListeners {
         }
     }
 
-    public void addListener(InsertionListener insertionListener) {
-        listeners.add(insertionListener);
-    }
-
     public void removeListener(InsertionListener insertionListener) {
         listeners.remove(insertionListener);
     }
 
     public void addAllListeners(Collection<InsertionListener> listeners) {
         for (InsertionListener l : listeners) addListener(l);
+    }
+
+    public void addListener(InsertionListener insertionListener) {
+        listeners.add(insertionListener);
     }
 
 }

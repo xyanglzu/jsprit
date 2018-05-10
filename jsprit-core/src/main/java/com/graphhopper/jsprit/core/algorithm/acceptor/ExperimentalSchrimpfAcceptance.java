@@ -38,16 +38,11 @@ public class ExperimentalSchrimpfAcceptance implements SolutionAcceptor, Iterati
     final static Logger logger = LoggerFactory.getLogger(ExperimentalSchrimpfAcceptance.class.getName());
 
     private final double alpha;
-
-    private int nOfTotalIterations = 1000;
-
-    private int currentIteration = 0;
-
-    private double initialThreshold = 0.0;
-
     private final int nOfRandomWalks;
-
     private final int solutionMemory;
+    private int nOfTotalIterations = 1000;
+    private int currentIteration = 0;
+    private double initialThreshold = 0.0;
 
 
     public ExperimentalSchrimpfAcceptance(int solutionMemory, double alpha, int nOfWarmupIterations) {
@@ -85,11 +80,6 @@ public class ExperimentalSchrimpfAcceptance implements SolutionAcceptor, Iterati
         return solutionAccepted;
     }
 
-    @Override
-    public String toString() {
-        return "[name=schrimpfAcceptanceFunction][alpha=" + alpha + "][warmup=" + nOfRandomWalks + "]";
-    }
-
     private double getThreshold(int iteration) {
         double scheduleVariable = (double) iteration / (double) nOfTotalIterations;
 //		logger.debug("iter={} totalIter={} scheduling={}", iteration, nOfTotalIterations, scheduleVariable);
@@ -97,6 +87,10 @@ public class ExperimentalSchrimpfAcceptance implements SolutionAcceptor, Iterati
         return currentThreshold;
     }
 
+    @Override
+    public String toString() {
+        return "[name=schrimpfAcceptanceFunction][alpha=" + alpha + "][warmup=" + nOfRandomWalks + "]";
+    }
 
     @Override
     public void informAlgorithmStarts(VehicleRoutingProblem problem, VehicleRoutingAlgorithm algorithm, Collection<VehicleRoutingProblemSolution> solutions) {
@@ -107,9 +101,9 @@ public class ExperimentalSchrimpfAcceptance implements SolutionAcceptor, Iterati
         double now = System.currentTimeMillis();
         this.nOfTotalIterations = algorithm.getMaxIterations();
 
-		/*
+        /*
          * randomWalk to determine standardDev
-		 */
+         */
         final double[] results = new double[nOfRandomWalks];
 
         Jsprit.Builder builder = new GreedySchrimpfFactory().createGreedyAlgorithmBuilder(problem);

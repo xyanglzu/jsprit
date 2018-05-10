@@ -30,22 +30,20 @@ import java.util.Collection;
  */
 class SolutionCompletenessRatio implements InsertionStartsListener, JobInsertedListener {
 
-    protected double solutionCompletenessRatio = 0.5;
-
     private final int nuOfJobs;
-
+    protected double solutionCompletenessRatio = 0.5;
     private int nuOfJobsToRecreate;
 
     public SolutionCompletenessRatio(int nuOfJobs) {
         this.nuOfJobs = nuOfJobs;
     }
 
-    public void setSolutionCompletenessRatio(double ratio) {
-        solutionCompletenessRatio = ratio;
-    }
-
     public double getSolutionCompletenessRatio() {
         return solutionCompletenessRatio;
+    }
+
+    public void setSolutionCompletenessRatio(double ratio) {
+        solutionCompletenessRatio = ratio;
     }
 
     @Override

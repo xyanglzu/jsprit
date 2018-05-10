@@ -40,6 +40,9 @@ public class FastVehicleRoutingTransportCostsMatrixTest {
         assertEquals(2., matrix.getDistance(2, 1), 0.1);
     }
 
+    private Location loc(int index) {
+        return Location.Builder.newInstance().setIndex(index).build();
+    }
 
     @Test
     public void whenAddingDistanceToAsymmetricMatrix_itShouldReturnCorrectValues() {
@@ -48,11 +51,6 @@ public class FastVehicleRoutingTransportCostsMatrixTest {
         FastVehicleRoutingTransportCostsMatrix matrix = matrixBuilder.build();
         assertEquals(2., matrix.getTransportCost(loc(1), loc(2), 0.0, null, null), 0.1);
     }
-
-    private Location loc(int index) {
-        return Location.Builder.newInstance().setIndex(index).build();
-    }
-
 
     @Test
     public void whenAddingTimeToSymmetricMatrix_itShouldReturnCorrectValues() {

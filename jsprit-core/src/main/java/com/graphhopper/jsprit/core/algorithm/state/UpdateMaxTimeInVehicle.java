@@ -31,32 +31,20 @@ import java.util.*;
 /**
  * Created by schroeder on 15/09/16.
  */
-public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
-
-    private Map<Integer, Map<Job, Double>> openPickupEndTimesPerVehicle = new HashMap<>();
-
-    private Map<Integer, Map<TourActivity, Double>> slackTimesPerVehicle = new HashMap<>();
-
-    private Map<Integer, Map<TourActivity, Double>> actStartTimesPerVehicle = new HashMap<>();
-
-    private VehicleRoute route;
+public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor {
 
     private final StateManager stateManager;
-
     private final StateId minSlackId;
-
     private final StateId openJobsId;
-
-    private double[] prevActEndTimes;
-
-    private Location[] prevActLocations;
-
-    private Collection<Vehicle> vehicles;
-
     private final TransportTime transportTime;
-
     private final VehicleRoutingActivityCosts activityCosts;
-
+    private Map<Integer, Map<Job, Double>> openPickupEndTimesPerVehicle = new HashMap<>();
+    private Map<Integer, Map<TourActivity, Double>> slackTimesPerVehicle = new HashMap<>();
+    private Map<Integer, Map<TourActivity, Double>> actStartTimesPerVehicle = new HashMap<>();
+    private VehicleRoute route;
+    private double[] prevActEndTimes;
+    private Location[] prevActLocations;
+    private Collection<Vehicle> vehicles;
     private UpdateVehicleDependentPracticalTimeWindows.VehiclesToUpdate vehiclesToUpdate = new UpdateVehicleDependentPracticalTimeWindows.VehiclesToUpdate() {
 
         @Override
@@ -90,7 +78,7 @@ public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
         actStartTimesPerVehicle.clear();
         vehicles = vehiclesToUpdate.get(route);
         this.route = route;
-        for(Vehicle v : vehicles){
+        for (Vehicle v : vehicles) {
             int vehicleIndex = v.getVehicleTypeIdentifier().getIndex();
             openPickupEndTimesPerVehicle.put(vehicleIndex, new HashMap<Job, Double>());
             slackTimesPerVehicle.put(vehicleIndex, new HashMap<TourActivity, Double>());
@@ -104,13 +92,13 @@ public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
     public void visit(TourActivity activity) {
         double maxTime = getMaxTimeInVehicle(activity);
 
-        for(Vehicle v : vehicles) {
+        for (Vehicle v : vehicles) {
             int vehicleIndex = v.getVehicleTypeIdentifier().getIndex();
             Location prevActLocation = prevActLocations[vehicleIndex];
             double prevActEndTime = prevActEndTimes[v.getVehicleTypeIdentifier().getIndex()];
-            double activityArrival = prevActEndTimes[v.getVehicleTypeIdentifier().getIndex()] + transportTime.getTransportTime(prevActLocation,activity.getLocation(),prevActEndTime,route.getDriver(),v);
-            double activityStart = Math.max(activityArrival,activity.getTheoreticalEarliestOperationStartTime());
-            memorizeActStart(activity,v,activityStart);
+            double activityArrival = prevActEndTimes[v.getVehicleTypeIdentifier().getIndex()] + transportTime.getTransportTime(prevActLocation, activity.getLocation(), prevActEndTime, route.getDriver(), v);
+            double activityStart = Math.max(activityArrival, activity.getTheoreticalEarliestOperationStartTime());
+            memorizeActStart(activity, v, activityStart);
             double activityEnd = activityStart + activityCosts.getActivityDuration(activity, activityArrival, route.getDriver(), v);
             Map<Job, Double> openPickups = openPickupEndTimesPerVehicle.get(vehicleIndex);
             if (activity instanceof ServiceActivity || activity instanceof PickupActivity) {
@@ -133,7 +121,7 @@ public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
 
     private double getMaxTimeInVehicle(TourActivity activity) {
         double maxTime = Double.MAX_VALUE;
-        if(activity instanceof TourActivity.JobActivity){
+        if (activity instanceof TourActivity.JobActivity) {
             maxTime = ((TourActivity.JobActivity) activity).getJob().getMaxTimeInVehicle();
         }
         return maxTime;
@@ -145,13 +133,14 @@ public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
 
     @Override
     public void finish() {
-        for(Vehicle v : vehicles) {
+        for (Vehicle v : vehicles) {
             int vehicleIndex = v.getVehicleTypeIdentifier().getIndex();
 
             //!!! open routes !!!
             double routeEnd;
-            if(!v.isReturnToDepot()) routeEnd = prevActEndTimes[vehicleIndex];
-            else routeEnd = prevActEndTimes[vehicleIndex] + transportTime.getTransportTime(prevActLocations[vehicleIndex],v.getEndLocation(),prevActEndTimes[vehicleIndex],route.getDriver(),v);
+            if (!v.isReturnToDepot()) routeEnd = prevActEndTimes[vehicleIndex];
+            else
+                routeEnd = prevActEndTimes[vehicleIndex] + transportTime.getTransportTime(prevActLocations[vehicleIndex], v.getEndLocation(), prevActEndTimes[vehicleIndex], route.getDriver(), v);
 
             Map<Job, Double> openDeliveries = new HashMap<>();
             for (Job job : openPickupEndTimesPerVehicle.get(vehicleIndex).keySet()) {
@@ -185,6 +174,14 @@ public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
                 }
             }
         }
+    }
+
+    private double minSlackTime(Map<Job, Double> openDeliveries) {
+        double min = Double.MAX_VALUE;
+        for (Double value : openDeliveries.values()) {
+            if (value < min) min = value;
+        }
+        return min;
     }
 
     public void finish(List<TourActivity> activities, Job ignore) {
@@ -232,13 +229,5 @@ public class UpdateMaxTimeInVehicle implements StateUpdater, ActivityVisitor{
 
     private double actStart(TourActivity act, Vehicle v) {
         return actStartTimesPerVehicle.get(v.getVehicleTypeIdentifier().getIndex()).get(act);
-    }
-
-    private double minSlackTime(Map<Job, Double> openDeliveries) {
-        double min = Double.MAX_VALUE;
-        for(Double value : openDeliveries.values()){
-           if(value < min) min = value;
-        }
-        return min;
     }
 }

@@ -26,55 +26,12 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 public class BreakActivity extends AbstractActivity implements TourActivity.JobActivity {
 
     public static int counter = 0;
-
-    public double arrTime;
-
-    public double endTime;
-
-    private Location location;
-
-    private double duration;
-
-    /**
-     * @return the arrTime
-     */
-    public double getArrTime() {
-        return arrTime;
-    }
-
-    /**
-     * @param arrTime the arrTime to set
-     */
-    public void setArrTime(double arrTime) {
-        this.arrTime = arrTime;
-    }
-
-    /**
-     * @return the endTime
-     */
-    public double getEndTime() {
-        return endTime;
-    }
-
-    /**
-     * @param endTime the endTime to set
-     */
-    public void setEndTime(double endTime) {
-        this.endTime = endTime;
-    }
-
-    public static BreakActivity copyOf(BreakActivity breakActivity) {
-        return new BreakActivity(breakActivity);
-    }
-
-    public static BreakActivity newInstance(Break aBreak) {
-        return new BreakActivity(aBreak);
-    }
-
     private final Break aBreak;
-
+    public double arrTime;
+    public double endTime;
+    private Location location;
+    private double duration;
     private double earliest = 0;
-
     private double latest = Double.MAX_VALUE;
 
     protected BreakActivity(Break aBreak) {
@@ -95,6 +52,18 @@ public class BreakActivity extends AbstractActivity implements TourActivity.JobA
         this.duration = breakActivity.getOperationTime();
     }
 
+    public static BreakActivity copyOf(BreakActivity breakActivity) {
+        return new BreakActivity(breakActivity);
+    }
+
+    public static BreakActivity newInstance(Break aBreak) {
+        return new BreakActivity(aBreak);
+    }
+
+    @Override
+    public Service getJob() {
+        return aBreak;
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
@@ -127,38 +96,6 @@ public class BreakActivity extends AbstractActivity implements TourActivity.JobA
         return true;
     }
 
-    public double getTheoreticalEarliestOperationStartTime() {
-        return earliest;
-    }
-
-    public double getTheoreticalLatestOperationStartTime() {
-        return latest;
-    }
-
-    @Override
-    public double getOperationTime() {
-        return duration;
-    }
-
-    public void setOperationTime(double duration){
-        this.duration = duration;
-    }
-
-    @Override
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location breakLocation) {
-        this.location = breakLocation;
-    }
-
-    @Override
-    public Service getJob() {
-        return aBreak;
-    }
-
-
     @Override
     public String toString() {
         return "[type=" + getName() + "][location=" + getLocation()
@@ -168,8 +105,26 @@ public class BreakActivity extends AbstractActivity implements TourActivity.JobA
     }
 
     @Override
+    public String getName() {
+        return aBreak.getType();
+    }
+
+    @Override
+    public Location getLocation() {
+        return location;
+    }
+
+    public double getTheoreticalEarliestOperationStartTime() {
+        return earliest;
+    }
+
+    @Override
     public void setTheoreticalEarliestOperationStartTime(double earliest) {
         this.earliest = earliest;
+    }
+
+    public double getTheoreticalLatestOperationStartTime() {
+        return latest;
     }
 
     @Override
@@ -178,8 +133,41 @@ public class BreakActivity extends AbstractActivity implements TourActivity.JobA
     }
 
     @Override
-    public String getName() {
-        return aBreak.getType();
+    public double getOperationTime() {
+        return duration;
+    }
+
+    /**
+     * @return the arrTime
+     */
+    public double getArrTime() {
+        return arrTime;
+    }
+
+    /**
+     * @param arrTime the arrTime to set
+     */
+    public void setArrTime(double arrTime) {
+        this.arrTime = arrTime;
+    }
+
+    /**
+     * @return the endTime
+     */
+    public double getEndTime() {
+        return endTime;
+    }
+
+    /**
+     * @param endTime the endTime to set
+     */
+    public void setEndTime(double endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public Capacity getSize() {
+        return aBreak.getSize();
     }
 
     @Override
@@ -187,9 +175,12 @@ public class BreakActivity extends AbstractActivity implements TourActivity.JobA
         return new BreakActivity(this);
     }
 
-    @Override
-    public Capacity getSize() {
-        return aBreak.getSize();
+    public void setOperationTime(double duration) {
+        this.duration = duration;
+    }
+
+    public void setLocation(Location breakLocation) {
+        this.location = breakLocation;
     }
 
 

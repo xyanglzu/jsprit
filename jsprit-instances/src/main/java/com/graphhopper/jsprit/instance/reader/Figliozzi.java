@@ -34,17 +34,20 @@ public class Figliozzi {
 
     public static class TimeDependentTransportCostsFactory {
 
-        public static enum SpeedDistribution {
-
-            TD1a, TD1b, TD1c, TD2a, TD2b, TD2c, TD3a, TD3b, TD3c, TD1d, TD2d, TD3d, TD4, TD5, TD6, CLASSIC
-
-        }
-
-
         public static TDCosts createCosts(Locations locations, SpeedDistribution speedDistribution, double depotClosingTime) {
             List<Double> timeBins = createTimeBins(depotClosingTime);
             List<Double> speedValues = createSpeedValues(speedDistribution);
             return new TDCosts(locations, timeBins, speedValues);
+        }
+
+        private static List<Double> createTimeBins(double depotClosingTime) {
+            List<Double> timeBins = new ArrayList<Double>();
+            timeBins.add(.2 * depotClosingTime);
+            timeBins.add(.4 * depotClosingTime);
+            timeBins.add(.6 * depotClosingTime);
+            timeBins.add(.8 * depotClosingTime);
+            timeBins.add(depotClosingTime);
+            return timeBins;
         }
 
         static List<Double> createSpeedValues(SpeedDistribution speedDistribution) {
@@ -107,14 +110,10 @@ public class Figliozzi {
             return speedValues;
         }
 
-        private static List<Double> createTimeBins(double depotClosingTime) {
-            List<Double> timeBins = new ArrayList<Double>();
-            timeBins.add(.2 * depotClosingTime);
-            timeBins.add(.4 * depotClosingTime);
-            timeBins.add(.6 * depotClosingTime);
-            timeBins.add(.8 * depotClosingTime);
-            timeBins.add(depotClosingTime);
-            return timeBins;
+        public static enum SpeedDistribution {
+
+            TD1a, TD1b, TD1c, TD2a, TD2b, TD2c, TD3a, TD3b, TD3c, TD1d, TD2d, TD3d, TD4, TD5, TD6, CLASSIC
+
         }
 
     }
@@ -154,13 +153,6 @@ public class Figliozzi {
         }
 
         @Override
-        public double getBackwardTransportCost(Location from, Location to, double arrivalTime, Driver driver, Vehicle vehicle) {
-            return transportDistanceParameter * EuclideanDistanceCalculator.calculateDistance(locations.getCoord(from.getId()), locations.getCoord(to.getId())) +
-                transportTimeParameter * getBackwardTransportTime(from, to, arrivalTime, driver, vehicle);
-        }
-
-
-        @Override
         public double getTransportTime(Location from, Location to, double departureTime, Driver driver, Vehicle vehicle) {
             if (from.equals(to)) {
                 return 0.0;
@@ -185,6 +177,11 @@ public class Figliozzi {
             return Double.MAX_VALUE;
         }
 
+        @Override
+        public double getBackwardTransportCost(Location from, Location to, double arrivalTime, Driver driver, Vehicle vehicle) {
+            return transportDistanceParameter * EuclideanDistanceCalculator.calculateDistance(locations.getCoord(from.getId()), locations.getCoord(to.getId())) +
+                transportTimeParameter * getBackwardTransportTime(from, to, arrivalTime, driver, vehicle);
+        }
 
         @Override
         public double getBackwardTransportTime(Location from, Location to, double arrivalTime, Driver driver, Vehicle vehicle) {

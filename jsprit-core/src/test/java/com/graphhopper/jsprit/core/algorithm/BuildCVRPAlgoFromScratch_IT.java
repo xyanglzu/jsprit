@@ -39,7 +39,6 @@ import com.graphhopper.jsprit.core.util.ChristofidesReader;
 import com.graphhopper.jsprit.core.util.Solutions;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.util.Collection;
 

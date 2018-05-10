@@ -93,32 +93,32 @@ public class DeliveryTest {
     }
 
     @Test
-    public void whenSettingPriorities_itShouldBeSetCorrectly(){
+    public void whenSettingPriorities_itShouldBeSetCorrectly() {
         Delivery s = Delivery.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setPriority(3).build();
         Assert.assertEquals(3, s.getPriority());
     }
 
     @Test
-    public void whenNotSettingPriorities_defaultShouldBe(){
+    public void whenNotSettingPriorities_defaultShouldBe() {
         Delivery s = Delivery.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .build();
         Assert.assertEquals(2, s.getPriority());
     }
 
     @Test
-    public void whenAddingMaxTimeInVehicle_itShouldBeSet(){
+    public void whenAddingMaxTimeInVehicle_itShouldBeSet() {
         Delivery s = Delivery.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setMaxTimeInVehicle(10)
             .build();
-        Assert.assertEquals(10, s.getMaxTimeInVehicle(),0.001);
+        Assert.assertEquals(10, s.getMaxTimeInVehicle(), 0.001);
     }
 
     @Test
-    public void whenNotAddingMaxTimeInVehicle_itShouldBeDefault(){
+    public void whenNotAddingMaxTimeInVehicle_itShouldBeDefault() {
         Delivery s = Delivery.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .build();
-        Assert.assertEquals(Double.MAX_VALUE, s.getMaxTimeInVehicle(),0.001);
+        Assert.assertEquals(Double.MAX_VALUE, s.getMaxTimeInVehicle(), 0.001);
     }
 
 

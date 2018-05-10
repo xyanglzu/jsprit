@@ -254,6 +254,11 @@ public class GoldenReaderTest {
         assertEquals(18, job.getSize().get(0));
     }
 
+    private Coordinate getCoord(String string, VehicleRoutingProblem vrp) {
+        Job j = getJob(string, vrp);
+        return ((Service) j).getLocation().getCoordinate();
+    }
+
     @Test
     public void whenReadingInstance_service1MustHaveCorrectCoordinate() {
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
@@ -263,6 +268,15 @@ public class GoldenReaderTest {
         Coordinate coord = getCoord("1", vrp);
         assertEquals(22.0, coord.getX(), 0.01);
         assertEquals(22.0, coord.getY(), 0.01);
+    }
+
+    private Job getJob(String string, VehicleRoutingProblem vrp) {
+        for (Job j : vrp.getJobs().values()) {
+            if (j.getId().equals(string)) {
+                return j;
+            }
+        }
+        return null;
     }
 
     @Test
@@ -276,7 +290,6 @@ public class GoldenReaderTest {
         assertEquals(24.0, coord.getY(), 0.01);
     }
 
-
     @Test
     public void whenReadingInstance_service50MustHaveCorrectCoordinate() {
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
@@ -286,11 +299,6 @@ public class GoldenReaderTest {
         Coordinate coord = getCoord("50", vrp);
         assertEquals(15.0, coord.getX(), 0.01);
         assertEquals(56.0, coord.getY(), 0.01);
-    }
-
-    private Coordinate getCoord(String string, VehicleRoutingProblem vrp) {
-        Job j = getJob(string, vrp);
-        return ((Service) j).getLocation().getCoordinate();
     }
 
     @Test
@@ -311,15 +319,6 @@ public class GoldenReaderTest {
         VehicleRoutingProblem vrp = vrpBuilder.build();
         Job job = getJob("50", vrp);
         assertEquals(22, job.getSize().get(0));
-    }
-
-    private Job getJob(String string, VehicleRoutingProblem vrp) {
-        for (Job j : vrp.getJobs().values()) {
-            if (j.getId().equals(string)) {
-                return j;
-            }
-        }
-        return null;
     }
 
 

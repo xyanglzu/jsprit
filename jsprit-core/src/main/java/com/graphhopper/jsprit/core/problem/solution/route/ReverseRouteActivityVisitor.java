@@ -42,9 +42,9 @@ public class ReverseRouteActivityVisitor implements RouteVisitor {
         finish(route);
     }
 
-    private void finish(VehicleRoute route) {
+    private void begin(VehicleRoute route) {
         for (ReverseActivityVisitor visitor : visitors) {
-            visitor.finish();
+            visitor.begin(route);
         }
 
     }
@@ -55,9 +55,9 @@ public class ReverseRouteActivityVisitor implements RouteVisitor {
         }
     }
 
-    private void begin(VehicleRoute route) {
+    private void finish(VehicleRoute route) {
         for (ReverseActivityVisitor visitor : visitors) {
-            visitor.begin(route);
+            visitor.finish();
         }
 
     }

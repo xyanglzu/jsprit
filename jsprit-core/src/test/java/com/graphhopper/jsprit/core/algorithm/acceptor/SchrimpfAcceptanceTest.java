@@ -36,10 +36,6 @@ public class SchrimpfAcceptanceTest {
     protected SchrimpfAcceptance schrimpfAcceptance;
     protected Collection<VehicleRoutingProblemSolution> memory;
 
-    protected static VehicleRoutingProblemSolution createSolutionWithCost(double cost) {
-        return when(mock(VehicleRoutingProblemSolution.class).getCost()).thenReturn(cost).getMock();
-    }
-
     @SuppressWarnings("deprecation")
     @Before
     public void setup() {
@@ -50,6 +46,16 @@ public class SchrimpfAcceptanceTest {
         memory = new ArrayList<VehicleRoutingProblemSolution>(1);
         // insert the initial (worst) solution, will be accepted anyway since its the first in the memory
         assertTrue("Solution (initial cost = 2.0) should be accepted since the memory is empty", schrimpfAcceptance.acceptSolution(memory, createSolutionWithCost(2.0)));
+    }
+
+    @Test
+    public void respectsTheNonZeroThreshold_usingWorstCostSolution() {
+        schrimpfAcceptance.setInitialThreshold(0.5);
+        /*
+         * it should be accepted since 2.1 < 2.0 + 0.5 (2.0 is the best solution found so far and 0.5 the ini threshold
+         * since the threshold of 0.5 allows new solutions to be <0.5 worse than the current best solution
+         */
+        assertTrue("Worst cost solution (2.1 > 2.0) should be accepted", schrimpfAcceptance.acceptSolution(memory, createSolutionWithCost(2.1)));
     }
 
     @Test
@@ -67,14 +73,8 @@ public class SchrimpfAcceptanceTest {
         assertFalse("Same cost solution (2.0 == 2.0) should not be accepted", schrimpfAcceptance.acceptSolution(memory, createSolutionWithCost(2.0)));
     }
 
-    @Test
-    public void respectsTheNonZeroThreshold_usingWorstCostSolution() {
-        schrimpfAcceptance.setInitialThreshold(0.5);
-        /*
-         * it should be accepted since 2.1 < 2.0 + 0.5 (2.0 is the best solution found so far and 0.5 the ini threshold
-		 * since the threshold of 0.5 allows new solutions to be <0.5 worse than the current best solution
-		 */
-        assertTrue("Worst cost solution (2.1 > 2.0) should be accepted", schrimpfAcceptance.acceptSolution(memory, createSolutionWithCost(2.1)));
+    protected static VehicleRoutingProblemSolution createSolutionWithCost(double cost) {
+        return when(mock(VehicleRoutingProblemSolution.class).getCost()).thenReturn(cost).getMock();
     }
 
     @Test

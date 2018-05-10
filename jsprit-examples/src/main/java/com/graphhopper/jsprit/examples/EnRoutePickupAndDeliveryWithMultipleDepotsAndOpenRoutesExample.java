@@ -46,21 +46,21 @@ public class EnRoutePickupAndDeliveryWithMultipleDepotsAndOpenRoutesExample {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and a capacity of 2
-		 */
+         */
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         vehicleTypeBuilder.setCostPerDistance(1.0);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * define two vehicles and their start-locations
-		 *
-		 * the first two do need to return to depot
-		 */
+         *
+         * the first two do need to return to depot
+         */
         Builder vehicleBuilder1 = VehicleImpl.Builder.newInstance("vehicles@[10,10]");
         vehicleBuilder1.setStartLocation(loc(Coordinate.newInstance(10, 10))).setReturnToDepot(false);
         vehicleBuilder1.setType(vehicleType);
@@ -81,10 +81,10 @@ public class EnRoutePickupAndDeliveryWithMultipleDepotsAndOpenRoutesExample {
         vehicleBuilder4.setType(vehicleType);
         VehicleImpl vehicle4 = vehicleBuilder4.build();
 
-		/*
+        /*
          * build shipments at the required locations, each with a capacity-demand of 1.
 
-		 */
+         */
 
         Shipment shipment1 = Shipment.Builder.newInstance("1").addSizeDimension(0, 1).setPickupLocation(loc(Coordinate.newInstance(5, 7))).setDeliveryLocation(loc(Coordinate.newInstance(6, 9))).build();
         Shipment shipment2 = Shipment.Builder.newInstance("2").addSizeDimension(0, 1).setPickupLocation(loc(Coordinate.newInstance(5, 13))).setDeliveryLocation(loc(Coordinate.newInstance(6, 11))).build();
@@ -121,41 +121,41 @@ public class EnRoutePickupAndDeliveryWithMultipleDepotsAndOpenRoutesExample {
         vrpBuilder.setFleetSize(FleetSize.FINITE);
         VehicleRoutingProblem problem = vrpBuilder.build();
 
-		/*
+        /*
          * get the algorithm out-of-the-box.
-		 */
+         */
         VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);
 //		algorithm.setMaxIterations(30000);
         /*
          * and search a solution
-		 */
+         */
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
-		/*
+        /*
          * get the best
-		 */
+         */
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
-		/*
-		 * write out problem and solution to xml-file
-		 */
+        /*
+         * write out problem and solution to xml-file
+         */
         new VrpXMLWriter(problem, solutions).write("output/shipment-problem-with-solution.xml");
 
-		/*
-		 * print nRoutes and totalCosts of bestSolution
-		 */
+        /*
+         * print nRoutes and totalCosts of bestSolution
+         */
         SolutionPrinter.print(bestSolution);
 
-		/*
-		 * plot problem without solution
-		 */
+        /*
+         * plot problem without solution
+         */
         Plotter problemPlotter = new Plotter(problem);
         problemPlotter.plotShipments(true);
         problemPlotter.plot("output/enRoutePickupAndDeliveryWithMultipleLocationsExample_problem.png", "en-route pickup and delivery");
 
-		/*
-		 * plot problem with solution
-		 */
+        /*
+         * plot problem with solution
+         */
         Plotter solutionPlotter = new Plotter(problem, Arrays.asList(Solutions.bestOf(solutions).getRoutes().iterator().next()));
         solutionPlotter.plotShipments(true);
         solutionPlotter.plot("output/enRoutePickupAndDeliveryWithMultipleLocationsExample_solution.png", "en-route pickup and delivery");

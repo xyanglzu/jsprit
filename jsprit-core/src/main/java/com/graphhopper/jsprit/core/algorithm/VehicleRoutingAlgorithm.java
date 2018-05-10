@@ -47,69 +47,16 @@ import java.util.Set;
 public class VehicleRoutingAlgorithm {
 
 
-
-    private static class TerminationManager implements PrematureAlgorithmTermination {
-
-        private Collection<PrematureAlgorithmTermination> terminationCriteria = new ArrayList<PrematureAlgorithmTermination>();
-
-        void addTermination(PrematureAlgorithmTermination termination) {
-            terminationCriteria.add(termination);
-        }
-
-        @Override
-        public boolean isPrematureBreak(DiscoveredSolution discoveredSolution) {
-            for (PrematureAlgorithmTermination termination : terminationCriteria) {
-                if (termination.isPrematureBreak(discoveredSolution))
-                    return true;
-            }
-            return false;
-        }
-    }
-
-    private static class Counter {
-        private final String name;
-        private long counter = 0;
-        private long nextCounter = 1;
-        private static final Logger log = LoggerFactory.getLogger(Counter.class);
-
-        public Counter(final String name) {
-            this.name = name;
-        }
-
-        public void incCounter() {
-            long i = ++counter;
-            long n = nextCounter;
-            if (i >= n) {
-                nextCounter = n * 2;
-                log.info(this.name + n);
-            }
-        }
-
-        public void reset() {
-            counter = 0;
-            nextCounter = 1;
-        }
-    }
-
     private final static Logger logger = LoggerFactory.getLogger(VehicleRoutingAlgorithm.class);
-
     private final Counter counter = new Counter("iterations ");
-
     private final VehicleRoutingProblem problem;
-
     private final SearchStrategyManager searchStrategyManager;
-
     private final VehicleRoutingAlgorithmListeners algoListeners = new VehicleRoutingAlgorithmListeners();
-
     private final Collection<VehicleRoutingProblemSolution> initialSolutions;
-
-    private int maxIterations = 100;
-
-    private TerminationManager terminationManager = new TerminationManager();
-
-    private VehicleRoutingProblemSolution bestEver = null;
-
     private final SolutionCostCalculator objectiveFunction;
+    private int maxIterations = 100;
+    private TerminationManager terminationManager = new TerminationManager();
+    private VehicleRoutingProblemSolution bestEver = null;
 
     public VehicleRoutingAlgorithm(VehicleRoutingProblem problem, SearchStrategyManager searchStrategyManager) {
         super();
@@ -171,6 +118,10 @@ public class VehicleRoutingAlgorithm {
         //            logger.warn("number of jobs in initial solution ({}) is not equal nuJobs in vehicle routing problem ({})" +
         //                "\n this might yield unintended effects, e.g. initial solution cannot be improved anymore.", nuJobs, problem.getJobs().values().size());
         //        }
+    }
+
+    public SolutionCostCalculator getObjectiveFunction() {
+        return objectiveFunction;
     }
 
     /**
@@ -250,16 +201,50 @@ public class VehicleRoutingAlgorithm {
         return solutions;
     }
 
-    private void addBestEver(Collection<VehicleRoutingProblemSolution> solutions) {
-        if (bestEver != null) {
-            solutions.add(bestEver);
-        }
+    private void algorithmStarts(VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+        algoListeners.algorithmStarts(problem, this, solutions);
     }
 
     private void log(Collection<VehicleRoutingProblemSolution> solutions) {
         for (VehicleRoutingProblemSolution sol : solutions) {
             log(sol);
         }
+    }
+
+    private void iterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+        algoListeners.iterationStarts(i, problem, solutions);
+    }
+
+    private void log(DiscoveredSolution discoveredSolution) {
+        logger.trace("discovered solution: {}", discoveredSolution);
+        log(discoveredSolution.getSolution());
+    }
+
+    private void memorizeIfBestEver(DiscoveredSolution discoveredSolution) {
+        if (discoveredSolution == null) return;
+        if (bestEver == null) {
+            bestEver = discoveredSolution.getSolution();
+        } else if (discoveredSolution.getSolution().getCost() < bestEver.getCost()) {
+            bestEver = discoveredSolution.getSolution();
+        }
+    }
+
+    private void selectedStrategy(DiscoveredSolution discoveredSolution, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+        algoListeners.selectedStrategy(discoveredSolution, problem, solutions);
+    }
+
+    private void iterationEnds(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+        algoListeners.iterationEnds(i, problem, solutions);
+    }
+
+    private void addBestEver(Collection<VehicleRoutingProblemSolution> solutions) {
+        if (bestEver != null) {
+            solutions.add(bestEver);
+        }
+    }
+
+    private void algorithmEnds(VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+        algoListeners.algorithmEnds(problem, solutions);
     }
 
     private void log(VehicleRoutingProblemSolution solution) {
@@ -284,30 +269,6 @@ public class VehicleRoutingAlgorithm {
         logger.trace(b.toString());
     }
 
-    private void log(DiscoveredSolution discoveredSolution) {
-        logger.trace("discovered solution: {}", discoveredSolution);
-        log(discoveredSolution.getSolution());
-    }
-
-
-    private void memorizeIfBestEver(DiscoveredSolution discoveredSolution) {
-        if (discoveredSolution == null) return;
-        if (bestEver == null) {
-            bestEver = discoveredSolution.getSolution();
-        } else if (discoveredSolution.getSolution().getCost() < bestEver.getCost()) {
-            bestEver = discoveredSolution.getSolution();
-        }
-    }
-
-
-    private void selectedStrategy(DiscoveredSolution discoveredSolution, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-        algoListeners.selectedStrategy(discoveredSolution, problem, solutions);
-    }
-
-    private void algorithmEnds(VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-        algoListeners.algorithmEnds(problem, solutions);
-    }
-
     public VehicleRoutingAlgorithmListeners getAlgorithmListeners() {
         return algoListeners;
     }
@@ -322,16 +283,13 @@ public class VehicleRoutingAlgorithm {
         }
     }
 
-    private void iterationEnds(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-        algoListeners.iterationEnds(i, problem, solutions);
-    }
-
-    private void iterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-        algoListeners.iterationStarts(i, problem, solutions);
-    }
-
-    private void algorithmStarts(VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-        algoListeners.algorithmStarts(problem, this, solutions);
+    /**
+     * Gets max number of iterations.
+     *
+     * @return max number of iterations
+     */
+    public int getMaxIterations() {
+        return maxIterations;
     }
 
     /**
@@ -344,17 +302,47 @@ public class VehicleRoutingAlgorithm {
         logger.debug("set maxIterations to {}", this.maxIterations);
     }
 
-    /**
-     * Gets max number of iterations.
-     *
-     * @return max number of iterations
-     */
-    public int getMaxIterations() {
-        return maxIterations;
+    private static class TerminationManager implements PrematureAlgorithmTermination {
+
+        private Collection<PrematureAlgorithmTermination> terminationCriteria = new ArrayList<PrematureAlgorithmTermination>();
+
+        void addTermination(PrematureAlgorithmTermination termination) {
+            terminationCriteria.add(termination);
+        }
+
+        @Override
+        public boolean isPrematureBreak(DiscoveredSolution discoveredSolution) {
+            for (PrematureAlgorithmTermination termination : terminationCriteria) {
+                if (termination.isPrematureBreak(discoveredSolution))
+                    return true;
+            }
+            return false;
+        }
     }
 
-    public SolutionCostCalculator getObjectiveFunction(){
-        return objectiveFunction;
+    private static class Counter {
+        private static final Logger log = LoggerFactory.getLogger(Counter.class);
+        private final String name;
+        private long counter = 0;
+        private long nextCounter = 1;
+
+        public Counter(final String name) {
+            this.name = name;
+        }
+
+        public void incCounter() {
+            long i = ++counter;
+            long n = nextCounter;
+            if (i >= n) {
+                nextCounter = n * 2;
+                log.info(this.name + n);
+            }
+        }
+
+        public void reset() {
+            counter = 0;
+            nextCounter = 1;
+        }
     }
 
 }

@@ -46,31 +46,31 @@ public class SimpleEnRoutePickupAndDeliveryWithDepotBoundedDeliveriesExample {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and a capacity of 2
-		 */
+         */
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
         Builder vehicleBuilder = VehicleImpl.Builder.newInstance("vehicle");
         vehicleBuilder.setStartLocation(loc(Coordinate.newInstance(10, 10)));
         vehicleBuilder.setType(vehicleType);
         VehicleImpl vehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * build shipments at the required locations, each with a capacity-demand of 1.
-		 * 4 shipments
-		 * 1: (5,7)->(6,9)
-		 * 2: (5,13)->(6,11)
-		 * 3: (15,7)->(14,9)
-		 * 4: (15,13)->(14,11)
-		 */
+         * 4 shipments
+         * 1: (5,7)->(6,9)
+         * 2: (5,13)->(6,11)
+         * 3: (15,7)->(14,9)
+         * 4: (15,13)->(14,11)
+         */
 
         Shipment shipment1 = Shipment.Builder.newInstance("1").addSizeDimension(0, 1).setPickupLocation(loc(Coordinate.newInstance(5, 7))).setDeliveryLocation(loc(Coordinate.newInstance(6, 9))).build();
         Shipment shipment2 = Shipment.Builder.newInstance("2").addSizeDimension(0, 1).setPickupLocation(loc(Coordinate.newInstance(5, 13))).setDeliveryLocation(loc(Coordinate.newInstance(6, 11))).build();
@@ -80,11 +80,11 @@ public class SimpleEnRoutePickupAndDeliveryWithDepotBoundedDeliveriesExample {
 //
         /*
          * build deliveries, (implicitly picked up in the depot)
-		 * 1: (4,8)
-		 * 2: (4,12)
-		 * 3: (16,8)
-		 * 4: (16,12)
-		 */
+         * 1: (4,8)
+         * 2: (4,12)
+         * 3: (16,8)
+         * 4: (16,12)
+         */
         Delivery delivery1 = Delivery.Builder.newInstance("5").addSizeDimension(0, 1).setLocation(loc(Coordinate.newInstance(4, 8))).build();
         Delivery delivery2 = Delivery.Builder.newInstance("6").addSizeDimension(0, 1).setLocation(loc(Coordinate.newInstance(4, 12))).build();
         Delivery delivery3 = Delivery.Builder.newInstance("7").addSizeDimension(0, 1).setLocation(loc(Coordinate.newInstance(16, 8))).build();
@@ -97,33 +97,33 @@ public class SimpleEnRoutePickupAndDeliveryWithDepotBoundedDeliveriesExample {
 
         VehicleRoutingProblem problem = vrpBuilder.build();
 
-		/*
+        /*
          * build the algorithm
-		 */
+         */
 
         StateManager stateManager = new StateManager(problem);
         ConstraintManager constraintManager = new ConstraintManager(problem, stateManager);
         constraintManager.addConstraint(new ServiceDeliveriesFirstConstraint(), ConstraintManager.Priority.CRITICAL);
 
-        VehicleRoutingAlgorithm algorithm = Jsprit.Builder.newInstance(problem).setStateAndConstraintManager(stateManager,constraintManager).buildAlgorithm();
+        VehicleRoutingAlgorithm algorithm = Jsprit.Builder.newInstance(problem).setStateAndConstraintManager(stateManager, constraintManager).buildAlgorithm();
 
-		/*
+        /*
          * and search a solution
-		 */
+         */
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
-		/*
-		 * get the best
-		 */
+        /*
+         * get the best
+         */
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
         new VrpXMLWriter(problem, solutions).write("output/mixed-shipments-services-problem-with-solution.xml");
 
         SolutionPrinter.print(bestSolution);
 
-		/*
-		 * plot
-		 */
+        /*
+         * plot
+         */
         Plotter problemPlotter = new Plotter(problem);
         problemPlotter.plotShipments(true);
         problemPlotter.plot("output/simpleMixedEnRoutePickupAndDeliveryExample_problem.png", "en-route pd and depot bounded deliveries");

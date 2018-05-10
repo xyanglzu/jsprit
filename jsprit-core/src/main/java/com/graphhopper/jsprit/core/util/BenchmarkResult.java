@@ -21,17 +21,14 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 
 public class BenchmarkResult {
+    public final BenchmarkInstance instance;
+    public final int runs;
     private double[] results;
     private double[] vehicles;
     private double[] times;
-
     private DescriptiveStatistics statsResults;
     private DescriptiveStatistics statsVehicles;
     private DescriptiveStatistics statsTimes;
-
-    public final BenchmarkInstance instance;
-
-    public final int runs;
 
     public BenchmarkResult(BenchmarkInstance instance, int runs, double[] results, double[] compTimes, double[] vehicles) {
         super();

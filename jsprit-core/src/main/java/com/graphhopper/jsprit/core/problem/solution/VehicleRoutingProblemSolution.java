@@ -31,20 +31,8 @@ import java.util.Collection;
  */
 public class VehicleRoutingProblemSolution {
 
-    /**
-     * Makes a deep copy of the solution to be copied.
-     *
-     * @param solution2copy solution to be copied
-     * @return solution
-     */
-    public static VehicleRoutingProblemSolution copyOf(VehicleRoutingProblemSolution solution2copy) {
-        return new VehicleRoutingProblemSolution(solution2copy);
-    }
-
     private final Collection<VehicleRoute> routes;
-
     private Collection<Job> unassignedJobs = new ArrayList<Job>();
-
     private double cost;
 
     private VehicleRoutingProblemSolution(VehicleRoutingProblemSolution solution) {
@@ -55,32 +43,6 @@ public class VehicleRoutingProblemSolution {
         }
         this.cost = solution.getCost();
         unassignedJobs.addAll(solution.getUnassignedJobs());
-    }
-
-    /**
-     * Constructs a solution with a number of {@link VehicleRoute}s and their corresponding aggregate cost value.
-     *
-     * @param routes routes being part of the solution
-     * @param cost   total costs of solution
-     */
-    public VehicleRoutingProblemSolution(Collection<VehicleRoute> routes, double cost) {
-        super();
-        this.routes = routes;
-        this.cost = cost;
-    }
-
-    /**
-     * Constructs a solution with a number of {@link VehicleRoute}s, bad jobs and their corresponding aggregate cost value.
-     *
-     * @param routes         routes being part of the solution
-     * @param unassignedJobs jobs that could not be assigned to any vehicle
-     * @param cost           total costs of solution
-     */
-    public VehicleRoutingProblemSolution(Collection<VehicleRoute> routes, Collection<Job> unassignedJobs, double cost) {
-        super();
-        this.routes = routes;
-        this.unassignedJobs = unassignedJobs;
-        this.cost = cost;
     }
 
     /**
@@ -117,6 +79,42 @@ public class VehicleRoutingProblemSolution {
      */
     public Collection<Job> getUnassignedJobs() {
         return unassignedJobs;
+    }
+
+    /**
+     * Constructs a solution with a number of {@link VehicleRoute}s and their corresponding aggregate cost value.
+     *
+     * @param routes routes being part of the solution
+     * @param cost   total costs of solution
+     */
+    public VehicleRoutingProblemSolution(Collection<VehicleRoute> routes, double cost) {
+        super();
+        this.routes = routes;
+        this.cost = cost;
+    }
+
+    /**
+     * Constructs a solution with a number of {@link VehicleRoute}s, bad jobs and their corresponding aggregate cost value.
+     *
+     * @param routes         routes being part of the solution
+     * @param unassignedJobs jobs that could not be assigned to any vehicle
+     * @param cost           total costs of solution
+     */
+    public VehicleRoutingProblemSolution(Collection<VehicleRoute> routes, Collection<Job> unassignedJobs, double cost) {
+        super();
+        this.routes = routes;
+        this.unassignedJobs = unassignedJobs;
+        this.cost = cost;
+    }
+
+    /**
+     * Makes a deep copy of the solution to be copied.
+     *
+     * @param solution2copy solution to be copied
+     * @return solution
+     */
+    public static VehicleRoutingProblemSolution copyOf(VehicleRoutingProblemSolution solution2copy) {
+        return new VehicleRoutingProblemSolution(solution2copy);
     }
 
     @Override

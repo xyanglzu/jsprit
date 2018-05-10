@@ -46,6 +46,51 @@ import java.util.Collection;
 
 public class AdditionalDistanceConstraintExample {
 
+    public static void main(String[] args) {
+
+        //route length 618
+        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
+        new VrpXMLReader(vrpBuilder).read("input/pickups_and_deliveries_solomon_r101_withoutTWs.xml");
+        //builds a matrix based on euclidean distances; t_ij = euclidean(i,j) / 2; d_ij = euclidean(i,j);
+        VehicleRoutingTransportCostsMatrix costMatrix = createMatrix(vrpBuilder);
+        vrpBuilder.setRoutingCost(costMatrix);
+        VehicleRoutingProblem vrp = vrpBuilder.build();
+
+
+        StateManager stateManager = new StateManager(vrp); //head of development - upcoming release (v1.4)
+
+        StateId distanceStateId = stateManager.createStateId("distance"); //head of development - upcoming release (v1.4)
+        stateManager.addStateUpdater(new DistanceUpdater(distanceStateId, stateManager, costMatrix));
+
+        ConstraintManager constraintManager = new ConstraintManager(vrp, stateManager);
+        constraintManager.addConstraint(new DistanceConstraint(120., distanceStateId, stateManager, costMatrix), ConstraintManager.Priority.CRITICAL);
+
+        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setStateAndConstraintManager(stateManager, constraintManager)
+            .buildAlgorithm();
+//        vra.setMaxIterations(250); //v1.3.1
+        vra.setMaxIterations(250); //head of development - upcoming release (v1.4)
+
+        Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
+
+        SolutionPrinter.print(vrp, Solutions.bestOf(solutions), SolutionPrinter.Print.VERBOSE);
+
+        new Plotter(vrp, Solutions.bestOf(solutions)).plot("output/plot", "plot");
+    }
+
+    private static VehicleRoutingTransportCostsMatrix createMatrix(VehicleRoutingProblem.Builder vrpBuilder) {
+        VehicleRoutingTransportCostsMatrix.Builder matrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
+        for (String from : vrpBuilder.getLocationMap().keySet()) {
+            for (String to : vrpBuilder.getLocationMap().keySet()) {
+                Coordinate fromCoord = vrpBuilder.getLocationMap().get(from);
+                Coordinate toCoord = vrpBuilder.getLocationMap().get(to);
+                double distance = EuclideanDistanceCalculator.calculateDistance(fromCoord, toCoord);
+                matrixBuilder.addTransportDistance(from, to, distance);
+                matrixBuilder.addTransportTime(from, to, (distance / 2.));
+            }
+        }
+        return matrixBuilder.build();
+    }
+
     static class DistanceUpdater implements StateUpdater, ActivityVisitor {
 
         private final StateManager stateManager;
@@ -127,51 +172,6 @@ public class AdditionalDistanceConstraintExample {
             return costsMatrix.getDistance(from.getLocation().getId(), to.getLocation().getId());
         }
 
-    }
-
-    public static void main(String[] args) {
-
-        //route length 618
-        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
-        new VrpXMLReader(vrpBuilder).read("input/pickups_and_deliveries_solomon_r101_withoutTWs.xml");
-        //builds a matrix based on euclidean distances; t_ij = euclidean(i,j) / 2; d_ij = euclidean(i,j);
-        VehicleRoutingTransportCostsMatrix costMatrix = createMatrix(vrpBuilder);
-        vrpBuilder.setRoutingCost(costMatrix);
-        VehicleRoutingProblem vrp = vrpBuilder.build();
-
-
-        StateManager stateManager = new StateManager(vrp); //head of development - upcoming release (v1.4)
-
-        StateId distanceStateId = stateManager.createStateId("distance"); //head of development - upcoming release (v1.4)
-        stateManager.addStateUpdater(new DistanceUpdater(distanceStateId, stateManager, costMatrix));
-
-        ConstraintManager constraintManager = new ConstraintManager(vrp, stateManager);
-        constraintManager.addConstraint(new DistanceConstraint(120., distanceStateId, stateManager, costMatrix), ConstraintManager.Priority.CRITICAL);
-
-        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setStateAndConstraintManager(stateManager,constraintManager)
-            .buildAlgorithm();
-//        vra.setMaxIterations(250); //v1.3.1
-        vra.setMaxIterations(250); //head of development - upcoming release (v1.4)
-
-        Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
-
-        SolutionPrinter.print(vrp, Solutions.bestOf(solutions), SolutionPrinter.Print.VERBOSE);
-
-        new Plotter(vrp, Solutions.bestOf(solutions)).plot("output/plot", "plot");
-    }
-
-    private static VehicleRoutingTransportCostsMatrix createMatrix(VehicleRoutingProblem.Builder vrpBuilder) {
-        VehicleRoutingTransportCostsMatrix.Builder matrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
-        for (String from : vrpBuilder.getLocationMap().keySet()) {
-            for (String to : vrpBuilder.getLocationMap().keySet()) {
-                Coordinate fromCoord = vrpBuilder.getLocationMap().get(from);
-                Coordinate toCoord = vrpBuilder.getLocationMap().get(to);
-                double distance = EuclideanDistanceCalculator.calculateDistance(fromCoord, toCoord);
-                matrixBuilder.addTransportDistance(from, to, distance);
-                matrixBuilder.addTransportTime(from, to, (distance / 2.));
-            }
-        }
-        return matrixBuilder.build();
     }
 
 

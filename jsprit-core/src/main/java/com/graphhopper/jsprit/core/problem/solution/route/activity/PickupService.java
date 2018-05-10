@@ -54,6 +54,18 @@ public final class PickupService extends AbstractActivity implements PickupActiv
     }
 
     @Override
+    public Service getJob() {
+        return pickup;
+    }
+
+    public String toString() {
+        return "[type=" + getName() + "][locationId=" + getLocation().getId()
+            + "][size=" + getSize().toString()
+            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
+            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
+    }
+
+    @Override
     public String getName() {
         return pickup.getType();
     }
@@ -69,13 +81,13 @@ public final class PickupService extends AbstractActivity implements PickupActiv
     }
 
     @Override
-    public double getTheoreticalLatestOperationStartTime() {
-        return theoreticalLatest;
+    public void setTheoreticalEarliestOperationStartTime(double earliest) {
+        this.theoreticalEarliest = earliest;
     }
 
     @Override
-    public void setTheoreticalEarliestOperationStartTime(double earliest) {
-        this.theoreticalEarliest = earliest;
+    public double getTheoreticalLatestOperationStartTime() {
+        return theoreticalLatest;
     }
 
     @Override
@@ -94,13 +106,13 @@ public final class PickupService extends AbstractActivity implements PickupActiv
     }
 
     @Override
-    public double getEndTime() {
-        return depTime;
+    public void setArrTime(double arrTime) {
+        this.arrTime = arrTime;
     }
 
     @Override
-    public void setArrTime(double arrTime) {
-        this.arrTime = arrTime;
+    public double getEndTime() {
+        return depTime;
     }
 
     @Override
@@ -109,25 +121,13 @@ public final class PickupService extends AbstractActivity implements PickupActiv
     }
 
     @Override
-    public TourActivity duplicate() {
-        return new PickupService(this);
-    }
-
-    @Override
-    public Service getJob() {
-        return pickup;
-    }
-
-    public String toString() {
-        return "[type=" + getName() + "][locationId=" + getLocation().getId()
-            + "][size=" + getSize().toString()
-            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
-            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
-    }
-
-    @Override
     public Capacity getSize() {
         return pickup.getSize();
+    }
+
+    @Override
+    public TourActivity duplicate() {
+        return new PickupService(this);
     }
 
 }

@@ -37,7 +37,7 @@ public class SolomonExampleWithSpecifiedVehicleEndLocationsWithoutTWs {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         File dir = new File("output");
         // if the directory does not exist, create it
         if (!dir.exists()) {
@@ -46,32 +46,32 @@ public class SolomonExampleWithSpecifiedVehicleEndLocationsWithoutTWs {
             if (result) System.out.println("./output created");
         }
 
-		/*
+        /*
          * Build the problem.
-		 *
-		 * But define a problem-builder first.
-		 */
+         *
+         * But define a problem-builder first.
+         */
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
 
-		/*
+        /*
          * A solomonReader reads solomon-instance files, and stores the required information in the builder.
-		 */
+         */
         new VrpXMLReader(vrpBuilder).read("input/pickups_and_deliveries_solomon_c101_withoutTWs_and_specifiedVehicleEndLocations.xml");
 
-		/*
+        /*
          * Finally, the problem can be built. By default, transportCosts are crowFlyDistances (as usually used for vrp-instances).
-		 */
+         */
 //		vrpBuilder.addProblemConstraint(Constraint.DELIVERIES_FIRST);
         VehicleRoutingProblem vrp = vrpBuilder.build();
 
         Plotter pblmPlotter = new Plotter(vrp);
         pblmPlotter.plot("output/solomon_C101_specifiedVehicleEndLocations_withoutTWs.png", "C101");
 
-		/*
+        /*
          * Define the required vehicle-routing algorithms to solve the above problem.
-		 *
-		 * The algorithm can be defined and configured in an xml-file.
-		 */
+         *
+         * The algorithm can be defined and configured in an xml-file.
+         */
 //		VehicleRoutingAlgorithm vra = new SchrimpfFactory().createAlgorithm(vrp);
         VehicleRoutingAlgorithm vra = Jsprit.createAlgorithm(vrp);
         vra.setMaxIterations(20000);
@@ -79,24 +79,24 @@ public class SolomonExampleWithSpecifiedVehicleEndLocationsWithoutTWs {
 //		vra.getAlgorithmListeners().addListener(new AlgorithmSearchProgressChartListener("output/sol_progress.png"));
         /*
          * Solve the problem.
-		 *
-		 *
-		 */
+         *
+         *
+         */
         Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
 
-		/*
+        /*
          * Retrieve best solution.
-		 */
+         */
         VehicleRoutingProblemSolution solution = new SelectBest().selectSolution(solutions);
 
-		/*
-		 * print solution
-		 */
+        /*
+         * print solution
+         */
         SolutionPrinter.print(solution);
 
-		/*
-		 * Plot solution.
-		 */
+        /*
+         * Plot solution.
+         */
 //		SolutionPlotter.plotSolutionAsPNG(vrp, solution, "output/solomon_C101_specifiedVehicleEndLocations_solution.png","C101");
         Plotter solPlotter = new Plotter(vrp, solution);
         solPlotter.plot("output/solomon_C101_specifiedVehicleEndLocations_withoutTWs_solution.png", "C101");

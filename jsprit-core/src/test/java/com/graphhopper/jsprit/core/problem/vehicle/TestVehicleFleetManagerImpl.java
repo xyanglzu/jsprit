@@ -149,6 +149,13 @@ public class TestVehicleFleetManagerImpl {
         assertTrue(vehicleInCollection(v2, vehicles));
     }
 
+    private boolean vehicleInCollection(Vehicle v, Collection<Vehicle> vehicles) {
+        for (Vehicle veh : vehicles) {
+            if (veh == v) return true;
+        }
+        return false;
+    }
+
     @Test
     public void whenAddingTwoVehiclesWithDifferentStartLocation_getAvailableVehicleShouldReturnBoth() {
         VehicleTypeImpl type = VehicleTypeImpl.Builder.newInstance("standard").build();
@@ -207,13 +214,6 @@ public class TestVehicleFleetManagerImpl {
         assertEquals(2, vehicles.size());
         assertTrue(vehicleInCollection(v1, vehicles));
         assertTrue(vehicleInCollection(v2, vehicles));
-    }
-
-    private boolean vehicleInCollection(Vehicle v, Collection<Vehicle> vehicles) {
-        for (Vehicle veh : vehicles) {
-            if (veh == v) return true;
-        }
-        return false;
     }
 
 

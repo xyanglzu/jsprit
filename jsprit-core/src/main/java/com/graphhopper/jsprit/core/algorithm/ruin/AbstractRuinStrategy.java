@@ -34,30 +34,26 @@ import java.util.Random;
 public abstract class AbstractRuinStrategy implements RuinStrategy {
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractRuinStrategy.class);
-
+    protected Random random = RandomNumberGeneration.getRandom();
+    protected VehicleRoutingProblem vrp;
+    protected RuinShareFactory ruinShareFactory;
     private RuinListeners ruinListeners;
 
-    protected Random random = RandomNumberGeneration.getRandom();
-
-    protected VehicleRoutingProblem vrp;
+    protected AbstractRuinStrategy(VehicleRoutingProblem vrp) {
+        this.vrp = vrp;
+        ruinListeners = new RuinListeners();
+    }
 
     public void setRandom(Random random) {
         this.random = random;
-    }
-
-    protected RuinShareFactory ruinShareFactory;
-
-    public void setRuinShareFactory(RuinShareFactory ruinShareFactory) {
-        this.ruinShareFactory = ruinShareFactory;
     }
 
     public RuinShareFactory getRuinShareFactory() {
         return ruinShareFactory;
     }
 
-    protected AbstractRuinStrategy(VehicleRoutingProblem vrp) {
-        this.vrp = vrp;
-        ruinListeners = new RuinListeners();
+    public void setRuinShareFactory(RuinShareFactory ruinShareFactory) {
+        this.ruinShareFactory = ruinShareFactory;
     }
 
     @Override

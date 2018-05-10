@@ -62,22 +62,11 @@ class RouteLevelActivityInsertionCostsEstimator implements ActivityInsertionCost
             path.addAll(getForwardLookingPath(iFacts.getRoute(), actIndex));
         }
 
-		/*
+        /*
          * calculates the path costs with new vehicle, c(forwardPath,newVehicle).
-		 */
+         */
         double forwardPathCost_newVehicle = auxilliaryPathCostCalculator.costOfPath(path, depTimeAtPrevAct, iFacts.getNewDriver(), iFacts.getNewVehicle());
         return forwardPathCost_newVehicle - (actCostsOld(iFacts.getRoute(), path.get(path.size() - 1)) - actCostsOld(iFacts.getRoute(), prevAct));
-    }
-
-    private double actCostsOld(VehicleRoute vehicleRoute, TourActivity act) {
-        Double cost_at_act;
-        if (act instanceof End) {
-            cost_at_act = stateManager.getRouteState(vehicleRoute, InternalStates.COSTS, Double.class);
-        } else {
-            cost_at_act = stateManager.getActivityState(act, InternalStates.COSTS, Double.class);
-        }
-        if (cost_at_act == null) cost_at_act = 0.;
-        return cost_at_act;
     }
 
     private List<TourActivity> getForwardLookingPath(VehicleRoute route, int actIndex) {
@@ -93,6 +82,17 @@ class RouteLevelActivityInsertionCostsEstimator implements ActivityInsertionCost
             forwardLookingPath.add(route.getEnd());
         }
         return forwardLookingPath;
+    }
+
+    private double actCostsOld(VehicleRoute vehicleRoute, TourActivity act) {
+        Double cost_at_act;
+        if (act instanceof End) {
+            cost_at_act = stateManager.getRouteState(vehicleRoute, InternalStates.COSTS, Double.class);
+        } else {
+            cost_at_act = stateManager.getActivityState(act, InternalStates.COSTS, Double.class);
+        }
+        if (cost_at_act == null) cost_at_act = 0.;
+        return cost_at_act;
     }
 
     public void setForwardLooking(int nActivities) {

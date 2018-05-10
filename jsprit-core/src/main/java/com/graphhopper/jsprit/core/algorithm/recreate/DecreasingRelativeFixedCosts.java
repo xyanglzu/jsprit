@@ -53,12 +53,6 @@ public final class DecreasingRelativeFixedCosts extends SolutionCompletenessRati
         return "[name=DecreasingRelativeFixedCosts][weightOfFixedCostSavings=" + weightDeltaFixCost + "]";
     }
 
-    private Capacity getCurrentMaxLoadInRoute(VehicleRoute route) {
-        Capacity maxLoad = stateGetter.getRouteState(route, InternalStates.MAXLOAD, Capacity.class);
-        if (maxLoad == null) maxLoad = Capacity.Builder.newInstance().build();
-        return maxLoad;
-    }
-
     @Override
     public double getCosts(JobInsertionContext insertionContext) {
         VehicleRoute route = insertionContext.getRoute();
@@ -71,6 +65,12 @@ public final class DecreasingRelativeFixedCosts extends SolutionCompletenessRati
         double newRelFix = insertionContext.getNewVehicle().getType().getVehicleCostParams().fix * (Capacity.divide(load, insertionContext.getNewVehicle().getType().getCapacityDimensions()));
         double decreasingRelativeFixedCosts = (1 - solutionCompletenessRatio) * (newRelFix - currentRelFix);
         return weightDeltaFixCost * solutionCompletenessRatio * decreasingRelativeFixedCosts;
+    }
+
+    private Capacity getCurrentMaxLoadInRoute(VehicleRoute route) {
+        Capacity maxLoad = stateGetter.getRouteState(route, InternalStates.MAXLOAD, Capacity.class);
+        if (maxLoad == null) maxLoad = Capacity.Builder.newInstance().build();
+        return maxLoad;
     }
 
 

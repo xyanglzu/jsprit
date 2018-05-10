@@ -40,26 +40,10 @@ import static org.mockito.Mockito.when;
 
 public class StateManagerTest {
 
-    static class ActFac implements JobActivityFactory {
-
-        @Override
-        public List<AbstractActivity> createActivities(Job job) {
-            ServiceActivity act = mock(ServiceActivity.class);
-            when(act.getIndex()).thenReturn(1);
-            List<AbstractActivity> acts = new ArrayList<AbstractActivity>();
-            acts.add(act);
-            return acts;
-        }
-    }
-
-    private VehicleRoute getRoute(Vehicle vehicle) {
-        return VehicleRoute.Builder.newInstance(vehicle).setJobActivityFactory(new ActFac()).addService(Service.Builder.newInstance("s").setLocation(Location.newInstance("loc")).build()).build();
-    }
-
     private VehicleRoutingProblem vrpMock;
 
     @Before
-    public void doBefore(){
+    public void doBefore() {
         vrpMock = mock(VehicleRoutingProblem.class);
         when(vrpMock.getFleetSize()).thenReturn(VehicleRoutingProblem.FleetSize.INFINITE);
     }
@@ -71,6 +55,10 @@ public class StateManagerTest {
         StateId id = InternalStates.COSTS;
         stateManager.putTypedInternalRouteState(route, id, 10.);
         assertEquals(10., stateManager.getRouteState(route, id, Double.class), 0.01);
+    }
+
+    private VehicleRoute getRoute(Vehicle vehicle) {
+        return VehicleRoute.Builder.newInstance(vehicle).setJobActivityFactory(new ActFac()).addService(Service.Builder.newInstance("s").setLocation(Location.newInstance("loc")).build()).build();
     }
 
     @Test
@@ -138,7 +126,6 @@ public class StateManagerTest {
         Capacity getCap = stateManager.getRouteState(route, id, Capacity.class);
         assertEquals(500, getCap.get(0));
     }
-
 
     @Test
     public void whenActivityStateIsSetWithGenericMethodAndBoolean_itMustBeSetCorrectly() {
@@ -337,7 +324,7 @@ public class StateManagerTest {
     }
 
     @Test
-    public void arrayIniShouldWork(){
+    public void arrayIniShouldWork() {
         VehicleType type = VehicleTypeImpl.Builder.newInstance("t").setCostPerDistance(4.).build();
         VehicleImpl vehicle = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance("loc")).build();
         VehicleImpl vehicle2 = VehicleImpl.Builder.newInstance("v2").setStartLocation(Location.newInstance("loc")).setType(type).build();
@@ -351,9 +338,21 @@ public class StateManagerTest {
 
         StateManager stateManager = new StateManager(vrp);
         StateId myState = null;
-        for(int i=0;i<10;i++){
-            myState = stateManager.createStateId("myState"+i);
+        for (int i = 0; i < 10; i++) {
+            myState = stateManager.createStateId("myState" + i);
         }
-        stateManager.putTypedInternalRouteState(route,myState,1.);
+        stateManager.putTypedInternalRouteState(route, myState, 1.);
+    }
+
+    static class ActFac implements JobActivityFactory {
+
+        @Override
+        public List<AbstractActivity> createActivities(Job job) {
+            ServiceActivity act = mock(ServiceActivity.class);
+            when(act.getIndex()).thenReturn(1);
+            List<AbstractActivity> acts = new ArrayList<AbstractActivity>();
+            acts.add(act);
+            return acts;
+        }
     }
 }

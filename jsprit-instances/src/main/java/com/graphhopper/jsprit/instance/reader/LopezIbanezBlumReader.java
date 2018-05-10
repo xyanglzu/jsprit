@@ -45,6 +45,19 @@ public class LopezIbanezBlumReader {
         this.builder = builder;
     }
 
+    public static void main(String[] args) {
+        VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
+        new LopezIbanezBlumReader(builder).read("input/Dumas/n20w20.001.txt");
+        VehicleRoutingProblem vrp = builder.build();
+        System.out.println("0->1: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(0), Location.newInstance(1), 0, null, null));
+        System.out.println("0->20: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(0), Location.newInstance(20), 0, null, null));
+        System.out.println("4->18: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(4), Location.newInstance(18), 0, null, null));
+        System.out.println("20->8: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(20), Location.newInstance(8), 0, null, null));
+        System.out.println("18: " + ((Service) vrp.getJobs().get("" + 18)).getTimeWindow().getStart() + " " + ((Service) vrp.getJobs().get("" + 18)).getTimeWindow().getEnd());
+        System.out.println("20: " + ((Service) vrp.getJobs().get("" + 20)).getTimeWindow().getStart() + " " + ((Service) vrp.getJobs().get("" + 20)).getTimeWindow().getEnd());
+        System.out.println("1: " + ((Service) vrp.getJobs().get("" + 1)).getTimeWindow().getStart() + " " + ((Service) vrp.getJobs().get("" + 1)).getTimeWindow().getEnd());
+    }
+
     public void read(String instanceFile) {
         builder.setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
         BufferedReader reader = getReader(instanceFile);
@@ -87,25 +100,14 @@ public class LopezIbanezBlumReader {
         close(reader);
     }
 
-    public static void main(String[] args) {
-        VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
-        new LopezIbanezBlumReader(builder).read("input/Dumas/n20w20.001.txt");
-        VehicleRoutingProblem vrp = builder.build();
-        System.out.println("0->1: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(0), Location.newInstance(1), 0, null, null));
-        System.out.println("0->20: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(0), Location.newInstance(20), 0, null, null));
-        System.out.println("4->18: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(4), Location.newInstance(18), 0, null, null));
-        System.out.println("20->8: " + vrp.getTransportCosts().getTransportCost(Location.newInstance(20), Location.newInstance(8), 0, null, null));
-        System.out.println("18: " + ((Service) vrp.getJobs().get("" + 18)).getTimeWindow().getStart() + " " + ((Service) vrp.getJobs().get("" + 18)).getTimeWindow().getEnd());
-        System.out.println("20: " + ((Service) vrp.getJobs().get("" + 20)).getTimeWindow().getStart() + " " + ((Service) vrp.getJobs().get("" + 20)).getTimeWindow().getEnd());
-        System.out.println("1: " + ((Service) vrp.getJobs().get("" + 1)).getTimeWindow().getStart() + " " + ((Service) vrp.getJobs().get("" + 1)).getTimeWindow().getEnd());
-    }
-
-    private void close(BufferedReader reader) {
+    private BufferedReader getReader(String solomonFile) {
+        BufferedReader reader = null;
         try {
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            reader = new BufferedReader(new FileReader(solomonFile));
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
         }
+        return reader;
     }
 
     private String readLine(BufferedReader reader) {
@@ -116,13 +118,11 @@ public class LopezIbanezBlumReader {
         }
     }
 
-    private BufferedReader getReader(String solomonFile) {
-        BufferedReader reader = null;
+    private void close(BufferedReader reader) {
         try {
-            reader = new BufferedReader(new FileReader(solomonFile));
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return reader;
     }
 }

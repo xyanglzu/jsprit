@@ -32,22 +32,9 @@ import java.util.Iterator;
 
 public class UpdateVehicleDependentPracticalTimeWindows implements RouteVisitor, StateUpdater {
 
-    @Override
-    public void visit(VehicleRoute route) {
-        begin(route);
-        Iterator<TourActivity> revIterator = route.getTourActivities().reverseActivityIterator();
-        while (revIterator.hasNext()) {
-            visit(revIterator.next());
-        }
-        finish();
-    }
-
-    public static interface VehiclesToUpdate {
-
-        public Collection<Vehicle> get(VehicleRoute route);
-
-    }
-
+    private final StateManager stateManager;
+    private final VehicleRoutingTransportCosts transportCosts;
+    private final VehicleRoutingActivityCosts activityCosts;
     private VehiclesToUpdate vehiclesToUpdate = new VehiclesToUpdate() {
 
         @Override
@@ -56,19 +43,9 @@ public class UpdateVehicleDependentPracticalTimeWindows implements RouteVisitor,
         }
 
     };
-
-    private final StateManager stateManager;
-
-    private final VehicleRoutingTransportCosts transportCosts;
-
-    private final VehicleRoutingActivityCosts activityCosts;
-
     private VehicleRoute route;
-
     private double[] latest_arrTimes_at_prevAct;
-
     private Location[] location_of_prevAct;
-
     private Collection<Vehicle> vehicles;
 
     public UpdateVehicleDependentPracticalTimeWindows(StateManager stateManager, VehicleRoutingTransportCosts tpCosts, VehicleRoutingActivityCosts activityCosts) {
@@ -80,10 +57,15 @@ public class UpdateVehicleDependentPracticalTimeWindows implements RouteVisitor,
         location_of_prevAct = new Location[stateManager.getMaxIndexOfVehicleTypeIdentifiers() + 1];
     }
 
-    public void setVehiclesToUpdate(VehiclesToUpdate vehiclesToUpdate) {
-        this.vehiclesToUpdate = vehiclesToUpdate;
+    @Override
+    public void visit(VehicleRoute route) {
+        begin(route);
+        Iterator<TourActivity> revIterator = route.getTourActivities().reverseActivityIterator();
+        while (revIterator.hasNext()) {
+            visit(revIterator.next());
+        }
+        finish();
     }
-
 
     public void begin(VehicleRoute route) {
         this.route = route;
@@ -91,13 +73,12 @@ public class UpdateVehicleDependentPracticalTimeWindows implements RouteVisitor,
         for (Vehicle vehicle : vehicles) {
             latest_arrTimes_at_prevAct[vehicle.getVehicleTypeIdentifier().getIndex()] = vehicle.getLatestArrival();
             Location location = vehicle.getEndLocation();
-            if(!vehicle.isReturnToDepot()){
+            if (!vehicle.isReturnToDepot()) {
                 location = route.getEnd().getLocation();
             }
             location_of_prevAct[vehicle.getVehicleTypeIdentifier().getIndex()] = location;
         }
     }
-
 
     public void visit(TourActivity activity) {
         for (Vehicle vehicle : vehicles) {
@@ -115,8 +96,18 @@ public class UpdateVehicleDependentPracticalTimeWindows implements RouteVisitor,
         }
     }
 
-
     public void finish() {
+    }
+
+    public void setVehiclesToUpdate(VehiclesToUpdate vehiclesToUpdate) {
+        this.vehiclesToUpdate = vehiclesToUpdate;
+    }
+
+
+    public static interface VehiclesToUpdate {
+
+        public Collection<Vehicle> get(VehicleRoute route);
+
     }
 
 }

@@ -45,23 +45,11 @@ import java.io.IOException;
 
 public class SolomonReader {
 
-    /**
-     * @param costProjectionFactor the costProjectionFactor to set
-     */
-    public void setVariableCostProjectionFactor(double costProjectionFactor) {
-        this.variableCostProjectionFactor = costProjectionFactor;
-    }
-
     private static Logger logger = LoggerFactory.getLogger(SolomonReader.class);
-
     private final VehicleRoutingProblem.Builder vrpBuilder;
-
     private double coordProjectionFactor = 1;
-
     private double timeProjectionFactor = 1;
-
     private double variableCostProjectionFactor = 1;
-
     private double fixedCostPerVehicle = 0.0;
 
     public SolomonReader(VehicleRoutingProblem.Builder vrpBuilder) {
@@ -73,6 +61,13 @@ public class SolomonReader {
         super();
         this.vrpBuilder = vrpBuilder;
         this.fixedCostPerVehicle = fixedCostPerVehicle;
+    }
+
+    /**
+     * @param costProjectionFactor the costProjectionFactor to set
+     */
+    public void setVariableCostProjectionFactor(double costProjectionFactor) {
+        this.variableCostProjectionFactor = costProjectionFactor;
     }
 
     public void read(String solomonFile) {
@@ -120,16 +115,14 @@ public class SolomonReader {
         close(reader);
     }
 
-    public void setCoordProjectionFactor(double coordProjectionFactor) {
-        this.coordProjectionFactor = coordProjectionFactor;
-    }
-
-    private void close(BufferedReader reader) {
+    private BufferedReader getReader(String solomonFile) {
+        BufferedReader reader = null;
         try {
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            reader = new BufferedReader(new FileReader(solomonFile));
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
         }
+        return reader;
     }
 
     private String readLine(BufferedReader reader) {
@@ -146,14 +139,16 @@ public class SolomonReader {
         return new Coordinate(x * coordProjectionFactor, y * coordProjectionFactor);
     }
 
-    private BufferedReader getReader(String solomonFile) {
-        BufferedReader reader = null;
+    private void close(BufferedReader reader) {
         try {
-            reader = new BufferedReader(new FileReader(solomonFile));
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return reader;
+    }
+
+    public void setCoordProjectionFactor(double coordProjectionFactor) {
+        this.coordProjectionFactor = coordProjectionFactor;
     }
 
     public void setTimeProjectionFactor(double timeProjection) {

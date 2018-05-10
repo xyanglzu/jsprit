@@ -45,6 +45,14 @@ public class InitialRoutesTest {
         assertTrue(vrp.getJobs().containsKey("2"));
     }
 
+    private int getNuServices(VehicleRoutingProblem vrp) {
+        int nuServices = 0;
+        for (Job job : vrp.getJobs().values()) {
+            if (job instanceof Service) nuServices++;
+        }
+        return nuServices;
+    }
+
     @Test
     public void whenReadingProblem2_jobMapShouldContain_service2() {
 
@@ -73,14 +81,6 @@ public class InitialRoutesTest {
             if (job instanceof Shipment) nuShipments++;
         }
         return nuShipments;
-    }
-
-    private int getNuServices(VehicleRoutingProblem vrp) {
-        int nuServices = 0;
-        for (Job job : vrp.getJobs().values()) {
-            if (job instanceof Service) nuServices++;
-        }
-        return nuServices;
     }
 
     @Test

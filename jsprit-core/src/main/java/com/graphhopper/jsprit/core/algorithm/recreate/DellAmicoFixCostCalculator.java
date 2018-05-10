@@ -29,11 +29,9 @@ import java.util.Collection;
 
 public class DellAmicoFixCostCalculator implements SoftRouteConstraint, InsertionStartsListener, JobInsertedListener {
 
-    private int nuOfJobsToRecreate;
-
     private final IncreasingAbsoluteFixedCosts calculator;
-
     private final int nuOfJobs;
+    private int nuOfJobsToRecreate;
 
     public DellAmicoFixCostCalculator(final int nuOfJobs, final RouteAndActivityStateGetter stateGetter) {
         super();

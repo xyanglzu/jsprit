@@ -31,28 +31,6 @@ import com.graphhopper.jsprit.core.problem.job.Job;
  */
 public interface TourActivity extends HasIndex {
 
-	public void setTheoreticalEarliestOperationStartTime(double earliest);
-
-	public void setTheoreticalLatestOperationStartTime(double latest);
-
-    /**
-     * Basic interface of job-activies.
-     * <p>
-     * <p>A job activity is related to a {@link Job}.
-     *
-     * @author schroeder
-     */
-    public interface JobActivity extends TourActivity {
-
-        /**
-         * Returns the job that is involved with this activity.
-         *
-         * @return job
-         */
-        public Job getJob();
-
-    }
-
     /**
      * Returns the name of this activity.
      *
@@ -75,6 +53,8 @@ public interface TourActivity extends HasIndex {
      */
     public abstract double getTheoreticalEarliestOperationStartTime();
 
+    public void setTheoreticalEarliestOperationStartTime(double earliest);
+
     /**
      * Returns the theoretical latest operation start time, which is the time that is just allowed
      * (not later) to start this activity, that is for example <code>service.getTimeWindow().getEnd()</code>.
@@ -82,6 +62,8 @@ public interface TourActivity extends HasIndex {
      * @return latest start time
      */
     public abstract double getTheoreticalLatestOperationStartTime();
+
+    public void setTheoreticalLatestOperationStartTime(double latest);
 
     /**
      * Returns the operation-time this activity takes.
@@ -101,18 +83,18 @@ public interface TourActivity extends HasIndex {
     public abstract double getArrTime();
 
     /**
-     * Returns end-time of this activity.
-     *
-     * @return end time
-     */
-    public abstract double getEndTime();
-
-    /**
      * Sets the arrival time of that activity.
      *
      * @param arrTime
      */
     public abstract void setArrTime(double arrTime);
+
+    /**
+     * Returns end-time of this activity.
+     *
+     * @return end time
+     */
+    public abstract double getEndTime();
 
     /**
      * Sets the end-time of this activity.
@@ -135,5 +117,23 @@ public interface TourActivity extends HasIndex {
      * @return copied activity
      */
     public abstract TourActivity duplicate();
+
+    /**
+     * Basic interface of job-activies.
+     * <p>
+     * <p>A job activity is related to a {@link Job}.
+     *
+     * @author schroeder
+     */
+    public interface JobActivity extends TourActivity {
+
+        /**
+         * Returns the job that is involved with this activity.
+         *
+         * @return job
+         */
+        public Job getJob();
+
+    }
 
 }

@@ -55,8 +55,8 @@ public class VehicleRouteBuilderTest {
         Shipment s = mock(Shipment.class);
         Capacity capacity = Capacity.Builder.newInstance().build();
         when(s.getSize()).thenReturn(capacity);
-        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         VehicleRoute.Builder builder = VehicleRoute.Builder.newInstance(mock(Vehicle.class), mock(Driver.class));
         builder.addPickup(s);
         builder.addDelivery(s);
@@ -70,10 +70,10 @@ public class VehicleRouteBuilderTest {
         Shipment s2 = mock(Shipment.class);
         when(s2.getSize()).thenReturn(capacity);
         when(s.getSize()).thenReturn(capacity);
-        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         VehicleRoute.Builder builder = VehicleRoute.Builder.newInstance(mock(Vehicle.class), mock(Driver.class));
         builder.addPickup(s);
         builder.addPickup(s2);
@@ -88,10 +88,10 @@ public class VehicleRouteBuilderTest {
         Capacity capacity = Capacity.Builder.newInstance().build();
         when(s.getSize()).thenReturn(capacity);
         when(s2.getSize()).thenReturn(capacity);
-        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         VehicleRoute.Builder builder = VehicleRoute.Builder.newInstance(mock(Vehicle.class), mock(Driver.class));
         builder.addPickup(s);
         builder.addPickup(s2);
@@ -108,10 +108,10 @@ public class VehicleRouteBuilderTest {
         Capacity capacity = Capacity.Builder.newInstance().build();
         when(s.getSize()).thenReturn(capacity);
         when(s2.getSize()).thenReturn(capacity);
-        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         Vehicle vehicle = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance("vehLoc")).setEndLocation(Location.newInstance("vehLoc"))
             .build();
 
@@ -132,10 +132,10 @@ public class VehicleRouteBuilderTest {
         when(s.getSize()).thenReturn(capacity);
         when(s2.getSize()).thenReturn(capacity);
         when(s2.getDeliveryLocation()).thenReturn(loc("delLoc"));
-        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         Vehicle vehicle = mock(Vehicle.class);
         when(vehicle.isReturnToDepot()).thenReturn(false);
         when(vehicle.getStartLocation()).thenReturn(loc("vehLoc"));
@@ -160,10 +160,10 @@ public class VehicleRouteBuilderTest {
         when(s.getSize()).thenReturn(capacity);
         when(s2.getSize()).thenReturn(capacity);
         when(s2.getDeliveryLocation()).thenReturn(Location.Builder.newInstance().setId("delLoc").build());
-        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
-        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
+        when(s.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         when(s2.getPickupTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
-        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0.,10.));
+        when(s2.getDeliveryTimeWindow()).thenReturn(TimeWindow.newInstance(0., 10.));
         Vehicle vehicle = mock(Vehicle.class);
         when(vehicle.isReturnToDepot()).thenReturn(false);
         when(vehicle.getStartLocation()).thenReturn(Location.Builder.newInstance().setId("vehLoc").build());
@@ -177,7 +177,6 @@ public class VehicleRouteBuilderTest {
         assertEquals(100.0, route.getDepartureTime(), 0.01);
         assertEquals(100.0, route.getStart().getEndTime(), 0.01);
     }
-
 
 
 }

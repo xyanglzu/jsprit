@@ -32,11 +32,11 @@ import java.util.*;
 class InsertionDataUpdater {
 
     static boolean update(boolean addAllAvailable, Set<String> initialVehicleIds, VehicleFleetManager fleetManager, JobInsertionCostsCalculator insertionCostsCalculator, TreeSet<VersionedInsertionData> insertionDataSet, int updateRound, Job unassignedJob, Collection<VehicleRoute> routes) {
-        for(VehicleRoute route : routes) {
+        for (VehicleRoute route : routes) {
             Collection<Vehicle> relevantVehicles = new ArrayList<>();
             if (!(route.getVehicle() instanceof VehicleImpl.NoVehicle)) {
                 relevantVehicles.add(route.getVehicle());
-                if(addAllAvailable && !initialVehicleIds.contains(route.getVehicle().getId())){
+                if (addAllAvailable && !initialVehicleIds.contains(route.getVehicle().getId())) {
                     relevantVehicles.addAll(fleetManager.getAvailableVehicles(route.getVehicle()));
                 }
             } else relevantVehicles.addAll(fleetManager.getAvailableVehicles());
@@ -53,19 +53,18 @@ class InsertionDataUpdater {
     }
 
 
-
     static VehicleRoute findRoute(Collection<VehicleRoute> routes, Job job) {
-        for(VehicleRoute r : routes){
-            if(r.getVehicle().getBreak() == job) return r;
+        for (VehicleRoute r : routes) {
+            if (r.getVehicle().getBreak() == job) return r;
         }
         return null;
     }
 
-    static Comparator<VersionedInsertionData> getComparator(){
+    static Comparator<VersionedInsertionData> getComparator() {
         return new Comparator<VersionedInsertionData>() {
             @Override
             public int compare(VersionedInsertionData o1, VersionedInsertionData o2) {
-                if(o1.getiData().getInsertionCost() < o2.getiData().getInsertionCost()) return -1;
+                if (o1.getiData().getInsertionCost() < o2.getiData().getInsertionCost()) return -1;
                 return 1;
             }
         };
@@ -73,17 +72,17 @@ class InsertionDataUpdater {
 
     static ScoredJob getBest(boolean switchAllowed, Set<String> initialVehicleIds, VehicleFleetManager fleetManager, JobInsertionCostsCalculator insertionCostsCalculator, ScoringFunction scoringFunction, TreeSet<VersionedInsertionData>[] priorityQueues, Map<VehicleRoute, Integer> updates, List<Job> unassignedJobList, List<ScoredJob> badJobs) {
         ScoredJob bestScoredJob = null;
-        for(Job j : unassignedJobList){
+        for (Job j : unassignedJobList) {
             VehicleRoute bestRoute = null;
             InsertionData best = null;
             InsertionData secondBest = null;
             TreeSet<VersionedInsertionData> priorityQueue = priorityQueues[j.getIndex()];
             Iterator<VersionedInsertionData> iterator = priorityQueue.iterator();
             List<String> failedConstraintNames = new ArrayList<>();
-            while(iterator.hasNext()){
+            while (iterator.hasNext()) {
                 VersionedInsertionData versionedIData = iterator.next();
-                if(bestRoute != null){
-                    if(versionedIData.getRoute() == bestRoute){
+                if (bestRoute != null) {
+                    if (versionedIData.getRoute() == bestRoute) {
                         continue;
                     }
                 }
@@ -91,13 +90,13 @@ class InsertionDataUpdater {
                     failedConstraintNames.addAll(versionedIData.getiData().getFailedConstraintNames());
                     continue;
                 }
-                if(!(versionedIData.getRoute().getVehicle() instanceof VehicleImpl.NoVehicle)) {
+                if (!(versionedIData.getRoute().getVehicle() instanceof VehicleImpl.NoVehicle)) {
                     if (versionedIData.getiData().getSelectedVehicle() != versionedIData.getRoute().getVehicle()) {
                         if (!switchAllowed) continue;
                         if (initialVehicleIds.contains(versionedIData.getRoute().getVehicle().getId())) continue;
                     }
                 }
-                if(versionedIData.getiData().getSelectedVehicle() != versionedIData.getRoute().getVehicle()) {
+                if (versionedIData.getiData().getSelectedVehicle() != versionedIData.getRoute().getVehicle()) {
                     if (fleetManager.isLocked(versionedIData.getiData().getSelectedVehicle())) {
                         Vehicle available = fleetManager.getAvailableVehicle(versionedIData.getiData().getSelectedVehicle().getVehicleTypeIdentifier());
                         if (available != null) {
@@ -105,23 +104,21 @@ class InsertionDataUpdater {
                             InsertionData newData = new InsertionData(oldData.getInsertionCost(), oldData.getPickupInsertionIndex(),
                                 oldData.getDeliveryInsertionIndex(), available, oldData.getSelectedDriver());
                             newData.setVehicleDepartureTime(oldData.getVehicleDepartureTime());
-                            for(Event e : oldData.getEvents()){
-                                if(e instanceof SwitchVehicle){
-                                    newData.getEvents().add(new SwitchVehicle(versionedIData.getRoute(),available,oldData.getVehicleDepartureTime()));
-                                }
-                                else newData.getEvents().add(e);
+                            for (Event e : oldData.getEvents()) {
+                                if (e instanceof SwitchVehicle) {
+                                    newData.getEvents().add(new SwitchVehicle(versionedIData.getRoute(), available, oldData.getVehicleDepartureTime()));
+                                } else newData.getEvents().add(e);
                             }
                             versionedIData = new VersionedInsertionData(newData, versionedIData.getVersion(), versionedIData.getRoute());
                         } else continue;
                     }
                 }
                 int currentDataVersion = updates.get(versionedIData.getRoute());
-                if(versionedIData.getVersion() == currentDataVersion){
-                    if(best == null) {
+                if (versionedIData.getVersion() == currentDataVersion) {
+                    if (best == null) {
                         best = versionedIData.getiData();
                         bestRoute = versionedIData.getRoute();
-                    }
-                    else {
+                    } else {
                         secondBest = versionedIData.getiData();
                         break;
                     }
@@ -129,7 +126,7 @@ class InsertionDataUpdater {
             }
             VehicleRoute emptyRoute = VehicleRoute.emptyRoute();
             InsertionData iData = insertionCostsCalculator.getInsertionData(emptyRoute, j, null, -1, null, Double.MAX_VALUE);
-            if(!(iData instanceof InsertionData.NoInsertionFound)){
+            if (!(iData instanceof InsertionData.NoInsertionFound)) {
                 if (best == null) {
                     best = iData;
                     bestRoute = emptyRoute;
@@ -151,10 +148,9 @@ class InsertionDataUpdater {
                 scoredJob = new ScoredJob(j, score, best, bestRoute, true);
             } else scoredJob = new ScoredJob(j, score, best, bestRoute, false);
 
-            if(bestScoredJob == null){
+            if (bestScoredJob == null) {
                 bestScoredJob = scoredJob;
-            }
-            else if(scoredJob.getScore() > bestScoredJob.getScore()){
+            } else if (scoredJob.getScore() > bestScoredJob.getScore()) {
                 bestScoredJob = scoredJob;
             }
         }
@@ -162,7 +158,7 @@ class InsertionDataUpdater {
     }
 
     static double score(Job unassignedJob, InsertionData best, InsertionData secondBest, ScoringFunction scoringFunction) {
-        return Scorer.score(unassignedJob,best,secondBest,scoringFunction);
+        return Scorer.score(unassignedJob, best, secondBest, scoringFunction);
     }
 
 }

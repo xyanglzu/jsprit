@@ -48,55 +48,15 @@ import java.util.*;
 
 public class VrpXMLReader {
 
-    public interface ServiceBuilderFactory {
-        Service.Builder createBuilder(String serviceType, String id, Integer size);
-    }
-
-    static class DefaultServiceBuilderFactory implements ServiceBuilderFactory {
-
-        @Override
-        public Service.Builder createBuilder(String serviceType, String id, Integer size) {
-            if (serviceType.equals("pickup")) {
-                if (size != null) return Pickup.Builder.newInstance(id).addSizeDimension(0, size);
-                else return Pickup.Builder.newInstance(id);
-            } else if (serviceType.equals("delivery")) {
-                if (size != null) return Delivery.Builder.newInstance(id).addSizeDimension(0, size);
-                else return Delivery.Builder.newInstance(id);
-            } else {
-                if (size != null) return Service.Builder.newInstance(id).addSizeDimension(0, size);
-                else return Service.Builder.newInstance(id);
-
-            }
-        }
-    }
-
     private static Logger logger = LoggerFactory.getLogger(VrpXMLReader.class);
-
     private VehicleRoutingProblem.Builder vrpBuilder;
-
     private Map<String, Vehicle> vehicleMap;
-
     private Map<String, Service> serviceMap;
-
     private Map<String, Shipment> shipmentMap;
-
     private Set<String> freezedJobIds = new HashSet<String>();
-
     private boolean schemaValidation = true;
-
     private Collection<VehicleRoutingProblemSolution> solutions;
-
     private ServiceBuilderFactory serviceBuilderFactory = new DefaultServiceBuilderFactory();
-
-
-
-    /**
-     * @param schemaValidation the schemaValidation to set
-     */
-    @SuppressWarnings("UnusedDeclaration")
-    public void setSchemaValidation(boolean schemaValidation) {
-        this.schemaValidation = schemaValidation;
-    }
 
     public VrpXMLReader(VehicleRoutingProblem.Builder vrpBuilder, Collection<VehicleRoutingProblemSolution> solutions) {
         this.vrpBuilder = vrpBuilder;
@@ -114,21 +74,21 @@ public class VrpXMLReader {
         this.solutions = null;
     }
 
+    private static Coordinate getCoord(HierarchicalConfiguration serviceConfig, String prefix) {
+        Coordinate pickupCoord = null;
+        if (serviceConfig.getString(prefix + "coord[@x]") != null && serviceConfig.getString(prefix + "coord[@y]") != null) {
+            double x = Double.parseDouble(serviceConfig.getString(prefix + "coord[@x]"));
+            double y = Double.parseDouble(serviceConfig.getString(prefix + "coord[@y]"));
+            pickupCoord = Coordinate.newInstance(x, y);
+        }
+        return pickupCoord;
+    }
+
     public void read(String filename) {
         logger.debug("read vrp: {}", filename);
         XMLConfiguration xmlConfig = createXMLConfiguration();
         try {
             xmlConfig.load(filename);
-        } catch (ConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-        read(xmlConfig);
-    }
-
-    public void read(InputStream fileContents) {
-        XMLConfiguration xmlConfig = createXMLConfiguration();
-        try {
-            xmlConfig.load(fileContents);
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -175,177 +135,20 @@ public class VrpXMLReader {
         addJobsAndTheirLocationsToVrp();
     }
 
-    private void addJobsAndTheirLocationsToVrp() {
-        for (Service service : serviceMap.values()) {
-            if (!freezedJobIds.contains(service.getId())) {
-                vrpBuilder.addJob(service);
-            }
-        }
-        for (Shipment shipment : shipmentMap.values()) {
-            if (!freezedJobIds.contains(shipment.getId())) {
-                vrpBuilder.addJob(shipment);
-            }
-        }
-    }
-
-    private void readInitialRoutes(XMLConfiguration xmlConfig) {
-        List<HierarchicalConfiguration> initialRouteConfigs = xmlConfig.configurationsAt("initialRoutes.route");
-        for (HierarchicalConfiguration routeConfig : initialRouteConfigs) {
-            Driver driver = DriverImpl.noDriver();
-            String vehicleId = routeConfig.getString("vehicleId");
-            Vehicle vehicle = getVehicle(vehicleId);
-            if (vehicle == null) throw new IllegalArgumentException("vehicle is missing.");
-            String start = routeConfig.getString("start");
-            if (start == null) throw new IllegalArgumentException("route start-time is missing.");
-            double departureTime = Double.parseDouble(start);
-
-            VehicleRoute.Builder routeBuilder = VehicleRoute.Builder.newInstance(vehicle, driver);
-            routeBuilder.setDepartureTime(departureTime);
-
-            List<HierarchicalConfiguration> actConfigs = routeConfig.configurationsAt("act");
-            for (HierarchicalConfiguration actConfig : actConfigs) {
-                String type = actConfig.getString("[@type]");
-                if (type == null) throw new IllegalArgumentException("act[@type] is missing.");
-                double arrTime = 0.;
-                double endTime = 0.;
-                String arrTimeS = actConfig.getString("arrTime");
-                if (arrTimeS != null) arrTime = Double.parseDouble(arrTimeS);
-                String endTimeS = actConfig.getString("endTime");
-                if (endTimeS != null) endTime = Double.parseDouble(endTimeS);
-
-                String serviceId = actConfig.getString("serviceId");
-                if(type.equals("break")) {
-                    Break currentbreak = getBreak(vehicleId);
-                    routeBuilder.addBreak(currentbreak);
-                }
-                else {
-                    if (serviceId != null) {
-                        Service service = getService(serviceId);
-                        if (service == null)
-                            throw new IllegalArgumentException("service to serviceId " + serviceId + " is missing (reference in one of your initial routes). make sure you define the service you refer to here in <services> </services>.");
-                        //!!!since job is part of initial route, it does not belong to jobs in problem, i.e. variable jobs that can be assigned/scheduled
-                        freezedJobIds.add(serviceId);
-                        routeBuilder.addService(service);
-                    } else {
-                        String shipmentId = actConfig.getString("shipmentId");
-                        if (shipmentId == null)
-                            throw new IllegalArgumentException("either serviceId or shipmentId is missing");
-                        Shipment shipment = getShipment(shipmentId);
-                        if (shipment == null)
-                            throw new IllegalArgumentException("shipment to shipmentId " + shipmentId + " is missing (reference in one of your initial routes). make sure you define the shipment you refer to here in <shipments> </shipments>.");
-                        freezedJobIds.add(shipmentId);
-                        if (type.equals("pickupShipment")) {
-                            routeBuilder.addPickup(shipment);
-                        } else if (type.equals("deliverShipment")) {
-                            routeBuilder.addDelivery(shipment);
-                        } else
-                            throw new IllegalArgumentException("type " + type + " is not supported. Use 'pickupShipment' or 'deliverShipment' here");
-                    }
-                }
-            }
-            VehicleRoute route = routeBuilder.build();
-            vrpBuilder.addInitialVehicleRoute(route);
-        }
-
-    }
-
-    private void readSolutions(XMLConfiguration vrpProblem) {
-        if (solutions == null) return;
-        List<HierarchicalConfiguration> solutionConfigs = vrpProblem.configurationsAt("solutions.solution");
-        for (HierarchicalConfiguration solutionConfig : solutionConfigs) {
-            String totalCost = solutionConfig.getString("cost");
-            double cost = -1;
-            if (totalCost != null) cost = Double.parseDouble(totalCost);
-            List<HierarchicalConfiguration> routeConfigs = solutionConfig.configurationsAt("routes.route");
-            List<VehicleRoute> routes = new ArrayList<VehicleRoute>();
-            for (HierarchicalConfiguration routeConfig : routeConfigs) {
-                //! here, driverId is set to noDriver, no matter whats in driverId.
-                Driver driver = DriverImpl.noDriver();
-                String vehicleId = routeConfig.getString("vehicleId");
-                Vehicle vehicle = getVehicle(vehicleId);
-                if (vehicle == null) throw new IllegalArgumentException("vehicle is missing.");
-                String start = routeConfig.getString("start");
-                if (start == null) throw new IllegalArgumentException("route start-time is missing.");
-                double departureTime = Double.parseDouble(start);
-
-                String end = routeConfig.getString("end");
-                if (end == null) throw new IllegalArgumentException("route end-time is missing.");
-
-                VehicleRoute.Builder routeBuilder = VehicleRoute.Builder.newInstance(vehicle, driver);
-                routeBuilder.setDepartureTime(departureTime);
-                List<HierarchicalConfiguration> actConfigs = routeConfig.configurationsAt("act");
-                for (HierarchicalConfiguration actConfig : actConfigs) {
-                    String type = actConfig.getString("[@type]");
-                    if (type == null) throw new IllegalArgumentException("act[@type] is missing.");
-                    double arrTime = 0.;
-                    double endTime = 0.;
-                    String arrTimeS = actConfig.getString("arrTime");
-                    if (arrTimeS != null) arrTime = Double.parseDouble(arrTimeS);
-                    String endTimeS = actConfig.getString("endTime");
-                    if (endTimeS != null) endTime = Double.parseDouble(endTimeS);
-                    if(type.equals("break")) {
-                        Break currentbreak = getBreak(vehicleId);
-                        routeBuilder.addBreak(currentbreak);
-                    }
-                    else {
-                        String serviceId = actConfig.getString("serviceId");
-                        if (serviceId != null) {
-                            Service service = getService(serviceId);
-                            routeBuilder.addService(service);
-                        } else {
-                            String shipmentId = actConfig.getString("shipmentId");
-                            if (shipmentId == null)
-                                throw new IllegalArgumentException("either serviceId or shipmentId is missing");
-                            Shipment shipment = getShipment(shipmentId);
-                            if (shipment == null)
-                                throw new IllegalArgumentException("shipment with id " + shipmentId + " does not exist.");
-                            if (type.equals("pickupShipment")) {
-                                routeBuilder.addPickup(shipment);
-                            } else if (type.equals("deliverShipment")) {
-                                routeBuilder.addDelivery(shipment);
-                            } else
-                                throw new IllegalArgumentException("type " + type + " is not supported. Use 'pickupShipment' or 'deliverShipment' here");
-                        }
-                    }
-                }
-                routes.add(routeBuilder.build());
-            }
-            VehicleRoutingProblemSolution solution = new VehicleRoutingProblemSolution(routes, cost);
-            List<HierarchicalConfiguration> unassignedJobConfigs = solutionConfig.configurationsAt("unassignedJobs.job");
-            for (HierarchicalConfiguration unassignedJobConfig : unassignedJobConfigs) {
-                String jobId = unassignedJobConfig.getString("[@id]");
-                Job job = getShipment(jobId);
-                if (job == null) job = getService(jobId);
-                if (job == null) throw new IllegalArgumentException("cannot find unassignedJob with id " + jobId);
-                solution.getUnassignedJobs().add(job);
-            }
-
-            solutions.add(solution);
-        }
-    }
-
-    private Shipment getShipment(String shipmentId) {
-        return shipmentMap.get(shipmentId);
-    }
-
-    private Service getService(String serviceId) {
-        return serviceMap.get(serviceId);
-    }
-
-    private Vehicle getVehicle(String vehicleId) {
-        return vehicleMap.get(vehicleId);
-    }
-
-    private Break getBreak(String vehicleId) {
-        return vehicleMap.get(vehicleId).getBreak();
-    }
-
     private void readProblemType(XMLConfiguration vrpProblem) {
         String fleetSize = vrpProblem.getString("problemType.fleetSize");
         if (fleetSize == null) vrpBuilder.setFleetSize(FleetSize.INFINITE);
         else if (fleetSize.toUpperCase().equals(FleetSize.INFINITE.toString()))
             vrpBuilder.setFleetSize(FleetSize.INFINITE);
         else vrpBuilder.setFleetSize(FleetSize.FINITE);
+    }
+
+    /**
+     * @param schemaValidation the schemaValidation to set
+     */
+    @SuppressWarnings("UnusedDeclaration")
+    public void setSchemaValidation(boolean schemaValidation) {
+        this.schemaValidation = schemaValidation;
     }
 
     private void readShipments(XMLConfiguration config) {
@@ -462,16 +265,6 @@ public class VrpXMLReader {
         }
     }
 
-    private static Coordinate getCoord(HierarchicalConfiguration serviceConfig, String prefix) {
-        Coordinate pickupCoord = null;
-        if (serviceConfig.getString(prefix + "coord[@x]") != null && serviceConfig.getString(prefix + "coord[@y]") != null) {
-            double x = Double.parseDouble(serviceConfig.getString(prefix + "coord[@x]"));
-            double y = Double.parseDouble(serviceConfig.getString(prefix + "coord[@y]"));
-            pickupCoord = Coordinate.newInstance(x, y);
-        }
-        return pickupCoord;
-    }
-
     private void readServices(XMLConfiguration vrpProblem) {
         List<HierarchicalConfiguration> serviceConfigs = vrpProblem.configurationsAt("services.service");
         for (HierarchicalConfiguration serviceConfig : serviceConfigs) {
@@ -584,12 +377,12 @@ public class VrpXMLReader {
             Double fix = typeConfig.getDouble("costs.fixed");
             Double timeC = typeConfig.getDouble("costs.time");
             Double distC = typeConfig.getDouble("costs.distance");
-            if(typeConfig.containsKey("costs.service")){
+            if (typeConfig.containsKey("costs.service")) {
                 Double serviceC = typeConfig.getDouble("costs.service");
                 if (serviceC != null) typeBuilder.setCostPerServiceTime(serviceC);
             }
 
-            if(typeConfig.containsKey("costs.wait")){
+            if (typeConfig.containsKey("costs.wait")) {
                 Double waitC = typeConfig.getDouble("costs.wait");
                 if (waitC != null) typeBuilder.setCostPerWaitingTime(waitC);
             }
@@ -705,7 +498,7 @@ public class VrpXMLReader {
                 Break.Builder current_break = Break.Builder.newInstance(id);
                 current_break.setServiceTime(Double.parseDouble(breakDurationString));
                 for (HierarchicalConfiguration twConfig : breakTWConfigs) {
-                	current_break.addTimeWindow(TimeWindow.newInstance(twConfig.getDouble("start"), twConfig.getDouble("end")));
+                    current_break.addTimeWindow(TimeWindow.newInstance(twConfig.getDouble("start"), twConfig.getDouble("end")));
                 }
                 builder.setBreak(current_break.build());
             }
@@ -717,6 +510,201 @@ public class VrpXMLReader {
             vehicleMap.put(vehicleId, vehicle);
         }
 
+    }
+
+    private void readInitialRoutes(XMLConfiguration xmlConfig) {
+        List<HierarchicalConfiguration> initialRouteConfigs = xmlConfig.configurationsAt("initialRoutes.route");
+        for (HierarchicalConfiguration routeConfig : initialRouteConfigs) {
+            Driver driver = DriverImpl.noDriver();
+            String vehicleId = routeConfig.getString("vehicleId");
+            Vehicle vehicle = getVehicle(vehicleId);
+            if (vehicle == null) throw new IllegalArgumentException("vehicle is missing.");
+            String start = routeConfig.getString("start");
+            if (start == null) throw new IllegalArgumentException("route start-time is missing.");
+            double departureTime = Double.parseDouble(start);
+
+            VehicleRoute.Builder routeBuilder = VehicleRoute.Builder.newInstance(vehicle, driver);
+            routeBuilder.setDepartureTime(departureTime);
+
+            List<HierarchicalConfiguration> actConfigs = routeConfig.configurationsAt("act");
+            for (HierarchicalConfiguration actConfig : actConfigs) {
+                String type = actConfig.getString("[@type]");
+                if (type == null) throw new IllegalArgumentException("act[@type] is missing.");
+                double arrTime = 0.;
+                double endTime = 0.;
+                String arrTimeS = actConfig.getString("arrTime");
+                if (arrTimeS != null) arrTime = Double.parseDouble(arrTimeS);
+                String endTimeS = actConfig.getString("endTime");
+                if (endTimeS != null) endTime = Double.parseDouble(endTimeS);
+
+                String serviceId = actConfig.getString("serviceId");
+                if (type.equals("break")) {
+                    Break currentbreak = getBreak(vehicleId);
+                    routeBuilder.addBreak(currentbreak);
+                } else {
+                    if (serviceId != null) {
+                        Service service = getService(serviceId);
+                        if (service == null)
+                            throw new IllegalArgumentException("service to serviceId " + serviceId + " is missing (reference in one of your initial routes). make sure you define the service you refer to here in <services> </services>.");
+                        //!!!since job is part of initial route, it does not belong to jobs in problem, i.e. variable jobs that can be assigned/scheduled
+                        freezedJobIds.add(serviceId);
+                        routeBuilder.addService(service);
+                    } else {
+                        String shipmentId = actConfig.getString("shipmentId");
+                        if (shipmentId == null)
+                            throw new IllegalArgumentException("either serviceId or shipmentId is missing");
+                        Shipment shipment = getShipment(shipmentId);
+                        if (shipment == null)
+                            throw new IllegalArgumentException("shipment to shipmentId " + shipmentId + " is missing (reference in one of your initial routes). make sure you define the shipment you refer to here in <shipments> </shipments>.");
+                        freezedJobIds.add(shipmentId);
+                        if (type.equals("pickupShipment")) {
+                            routeBuilder.addPickup(shipment);
+                        } else if (type.equals("deliverShipment")) {
+                            routeBuilder.addDelivery(shipment);
+                        } else
+                            throw new IllegalArgumentException("type " + type + " is not supported. Use 'pickupShipment' or 'deliverShipment' here");
+                    }
+                }
+            }
+            VehicleRoute route = routeBuilder.build();
+            vrpBuilder.addInitialVehicleRoute(route);
+        }
+
+    }
+
+    private Vehicle getVehicle(String vehicleId) {
+        return vehicleMap.get(vehicleId);
+    }
+
+    private Break getBreak(String vehicleId) {
+        return vehicleMap.get(vehicleId).getBreak();
+    }
+
+    private Service getService(String serviceId) {
+        return serviceMap.get(serviceId);
+    }
+
+    private Shipment getShipment(String shipmentId) {
+        return shipmentMap.get(shipmentId);
+    }
+
+    private void readSolutions(XMLConfiguration vrpProblem) {
+        if (solutions == null) return;
+        List<HierarchicalConfiguration> solutionConfigs = vrpProblem.configurationsAt("solutions.solution");
+        for (HierarchicalConfiguration solutionConfig : solutionConfigs) {
+            String totalCost = solutionConfig.getString("cost");
+            double cost = -1;
+            if (totalCost != null) cost = Double.parseDouble(totalCost);
+            List<HierarchicalConfiguration> routeConfigs = solutionConfig.configurationsAt("routes.route");
+            List<VehicleRoute> routes = new ArrayList<VehicleRoute>();
+            for (HierarchicalConfiguration routeConfig : routeConfigs) {
+                //! here, driverId is set to noDriver, no matter whats in driverId.
+                Driver driver = DriverImpl.noDriver();
+                String vehicleId = routeConfig.getString("vehicleId");
+                Vehicle vehicle = getVehicle(vehicleId);
+                if (vehicle == null) throw new IllegalArgumentException("vehicle is missing.");
+                String start = routeConfig.getString("start");
+                if (start == null) throw new IllegalArgumentException("route start-time is missing.");
+                double departureTime = Double.parseDouble(start);
+
+                String end = routeConfig.getString("end");
+                if (end == null) throw new IllegalArgumentException("route end-time is missing.");
+
+                VehicleRoute.Builder routeBuilder = VehicleRoute.Builder.newInstance(vehicle, driver);
+                routeBuilder.setDepartureTime(departureTime);
+                List<HierarchicalConfiguration> actConfigs = routeConfig.configurationsAt("act");
+                for (HierarchicalConfiguration actConfig : actConfigs) {
+                    String type = actConfig.getString("[@type]");
+                    if (type == null) throw new IllegalArgumentException("act[@type] is missing.");
+                    double arrTime = 0.;
+                    double endTime = 0.;
+                    String arrTimeS = actConfig.getString("arrTime");
+                    if (arrTimeS != null) arrTime = Double.parseDouble(arrTimeS);
+                    String endTimeS = actConfig.getString("endTime");
+                    if (endTimeS != null) endTime = Double.parseDouble(endTimeS);
+                    if (type.equals("break")) {
+                        Break currentbreak = getBreak(vehicleId);
+                        routeBuilder.addBreak(currentbreak);
+                    } else {
+                        String serviceId = actConfig.getString("serviceId");
+                        if (serviceId != null) {
+                            Service service = getService(serviceId);
+                            routeBuilder.addService(service);
+                        } else {
+                            String shipmentId = actConfig.getString("shipmentId");
+                            if (shipmentId == null)
+                                throw new IllegalArgumentException("either serviceId or shipmentId is missing");
+                            Shipment shipment = getShipment(shipmentId);
+                            if (shipment == null)
+                                throw new IllegalArgumentException("shipment with id " + shipmentId + " does not exist.");
+                            if (type.equals("pickupShipment")) {
+                                routeBuilder.addPickup(shipment);
+                            } else if (type.equals("deliverShipment")) {
+                                routeBuilder.addDelivery(shipment);
+                            } else
+                                throw new IllegalArgumentException("type " + type + " is not supported. Use 'pickupShipment' or 'deliverShipment' here");
+                        }
+                    }
+                }
+                routes.add(routeBuilder.build());
+            }
+            VehicleRoutingProblemSolution solution = new VehicleRoutingProblemSolution(routes, cost);
+            List<HierarchicalConfiguration> unassignedJobConfigs = solutionConfig.configurationsAt("unassignedJobs.job");
+            for (HierarchicalConfiguration unassignedJobConfig : unassignedJobConfigs) {
+                String jobId = unassignedJobConfig.getString("[@id]");
+                Job job = getShipment(jobId);
+                if (job == null) job = getService(jobId);
+                if (job == null) throw new IllegalArgumentException("cannot find unassignedJob with id " + jobId);
+                solution.getUnassignedJobs().add(job);
+            }
+
+            solutions.add(solution);
+        }
+    }
+
+    private void addJobsAndTheirLocationsToVrp() {
+        for (Service service : serviceMap.values()) {
+            if (!freezedJobIds.contains(service.getId())) {
+                vrpBuilder.addJob(service);
+            }
+        }
+        for (Shipment shipment : shipmentMap.values()) {
+            if (!freezedJobIds.contains(shipment.getId())) {
+                vrpBuilder.addJob(shipment);
+            }
+        }
+    }
+
+    public void read(InputStream fileContents) {
+        XMLConfiguration xmlConfig = createXMLConfiguration();
+        try {
+            xmlConfig.load(fileContents);
+        } catch (ConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+        read(xmlConfig);
+    }
+
+    public interface ServiceBuilderFactory {
+        Service.Builder createBuilder(String serviceType, String id, Integer size);
+    }
+
+    static class DefaultServiceBuilderFactory implements ServiceBuilderFactory {
+
+        @Override
+        public Service.Builder createBuilder(String serviceType, String id, Integer size) {
+            if (serviceType.equals("pickup")) {
+                if (size != null) return Pickup.Builder.newInstance(id).addSizeDimension(0, size);
+                else return Pickup.Builder.newInstance(id);
+            } else if (serviceType.equals("delivery")) {
+                if (size != null) return Delivery.Builder.newInstance(id).addSizeDimension(0, size);
+                else return Delivery.Builder.newInstance(id);
+            } else {
+                if (size != null) return Service.Builder.newInstance(id).addSizeDimension(0, size);
+                else return Service.Builder.newInstance(id);
+
+            }
+        }
     }
 
 

@@ -25,6 +25,21 @@ import com.graphhopper.jsprit.core.util.Coordinate;
  */
 public final class Location implements HasIndex, HasId {
 
+    public final static int NO_INDEX = -1;
+    private final int index;
+    private final Coordinate coordinate;
+    private final String id;
+    private final String name;
+    private Object userData;
+
+    private Location(Builder builder) {
+        this.userData = builder.userData;
+        this.index = builder.index;
+        this.coordinate = builder.coordinate;
+        this.id = builder.id;
+        this.name = builder.name;
+    }
+
     /**
      * Factory method (and shortcut) for creating a location object just with x and y coordinates.
      *
@@ -54,6 +69,58 @@ public final class Location implements HasIndex, HasId {
      */
     public static Location newInstance(int index) {
         return Location.Builder.newInstance().setIndex(index).build();
+    }
+
+    /**
+     * @return User-specific domain data associated by the job
+     */
+    public Object getUserData() {
+        return userData;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
+    }
+
+    public Coordinate getCoordinate() {
+        return coordinate;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = index;
+        result = 31 * result + (coordinate != null ? coordinate.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Location)) return false;
+
+        Location location = (Location) o;
+
+        if (index != location.index) return false;
+        if (coordinate != null ? !coordinate.equals(location.coordinate) : location.coordinate != null) return false;
+        if (id != null ? !id.equals(location.id) : location.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "[id=" + id + "][index=" + index + "][coordinate=" + coordinate + "]";
     }
 
     public static class Builder {
@@ -147,77 +214,5 @@ public final class Location implements HasIndex, HasId {
             return new Location(this);
         }
 
-    }
-
-    public final static int NO_INDEX = -1;
-
-    private final int index;
-
-    private final Coordinate coordinate;
-
-    private final String id;
-
-    private final String name;
-
-    private Object userData;
-
-    private Location(Builder builder) {
-        this.userData = builder.userData;
-        this.index = builder.index;
-        this.coordinate = builder.coordinate;
-        this.id = builder.id;
-        this.name = builder.name;
-    }
-
-    /**
-     * @return User-specific domain data associated by the job
-     */
-    public Object getUserData() {
-        return userData;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public int getIndex() {
-        return index;
-    }
-
-    public Coordinate getCoordinate() {
-        return coordinate;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Location)) return false;
-
-        Location location = (Location) o;
-
-        if (index != location.index) return false;
-        if (coordinate != null ? !coordinate.equals(location.coordinate) : location.coordinate != null) return false;
-        if (id != null ? !id.equals(location.id) : location.id != null) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = index;
-        result = 31 * result + (coordinate != null ? coordinate.hashCode() : 0);
-        result = 31 * result + (id != null ? id.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "[id=" + id + "][index=" + index + "][coordinate=" + coordinate + "]";
     }
 }

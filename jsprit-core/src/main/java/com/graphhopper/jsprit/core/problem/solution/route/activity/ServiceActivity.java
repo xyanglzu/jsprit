@@ -24,52 +24,11 @@ import com.graphhopper.jsprit.core.problem.job.Service;
 
 public class ServiceActivity extends AbstractActivity implements TourActivity.JobActivity {
 
-    public double arrTime;
-
-    public double endTime;
-
-    private double theoreticalEarliest;
-
-    private double theoreticalLatest;
-
-    /**
-     * @return the arrTime
-     */
-    public double getArrTime() {
-        return arrTime;
-    }
-
-    /**
-     * @param arrTime the arrTime to set
-     */
-    public void setArrTime(double arrTime) {
-        this.arrTime = arrTime;
-    }
-
-    /**
-     * @return the endTime
-     */
-    public double getEndTime() {
-        return endTime;
-    }
-
-    /**
-     * @param endTime the endTime to set
-     */
-    public void setEndTime(double endTime) {
-        this.endTime = endTime;
-    }
-
-    public static ServiceActivity copyOf(ServiceActivity serviceActivity) {
-        return new ServiceActivity(serviceActivity);
-    }
-
-    public static ServiceActivity newInstance(Service service) {
-        return new ServiceActivity(service);
-    }
-
-
     private final Service service;
+    public double arrTime;
+    public double endTime;
+    private double theoreticalEarliest;
+    private double theoreticalLatest;
 
     protected ServiceActivity(Service service) {
         this.service = service;
@@ -84,6 +43,18 @@ public class ServiceActivity extends AbstractActivity implements TourActivity.Jo
         this.theoreticalLatest = serviceActivity.getTheoreticalLatestOperationStartTime();
     }
 
+    public static ServiceActivity copyOf(ServiceActivity serviceActivity) {
+        return new ServiceActivity(serviceActivity);
+    }
+
+    public static ServiceActivity newInstance(Service service) {
+        return new ServiceActivity(service);
+    }
+
+    @Override
+    public Service getJob() {
+        return service;
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
@@ -116,41 +87,6 @@ public class ServiceActivity extends AbstractActivity implements TourActivity.Jo
         return true;
     }
 
-    public double getTheoreticalEarliestOperationStartTime() {
-        return theoreticalEarliest;
-    }
-
-    public double getTheoreticalLatestOperationStartTime() {
-        return theoreticalLatest;
-    }
-
-    @Override
-    public void setTheoreticalEarliestOperationStartTime(double earliest) {
-        theoreticalEarliest = earliest;
-    }
-
-    @Override
-    public void setTheoreticalLatestOperationStartTime(double latest) {
-        theoreticalLatest = latest;
-    }
-
-    @Override
-    public double getOperationTime() {
-        return service.getServiceDuration();
-    }
-
-    @Override
-    public Location getLocation() {
-        return service.getLocation();
-    }
-
-
-    @Override
-    public Service getJob() {
-        return service;
-    }
-
-
     @Override
     public String toString() {
         return "[type=" + getName() + "][locationId=" + getLocation().getId()
@@ -165,13 +101,69 @@ public class ServiceActivity extends AbstractActivity implements TourActivity.Jo
     }
 
     @Override
-    public TourActivity duplicate() {
-        return new ServiceActivity(this);
+    public Location getLocation() {
+        return service.getLocation();
+    }
+
+    public double getTheoreticalEarliestOperationStartTime() {
+        return theoreticalEarliest;
+    }
+
+    @Override
+    public void setTheoreticalEarliestOperationStartTime(double earliest) {
+        theoreticalEarliest = earliest;
+    }
+
+    public double getTheoreticalLatestOperationStartTime() {
+        return theoreticalLatest;
+    }
+
+    @Override
+    public void setTheoreticalLatestOperationStartTime(double latest) {
+        theoreticalLatest = latest;
+    }
+
+    @Override
+    public double getOperationTime() {
+        return service.getServiceDuration();
+    }
+
+    /**
+     * @return the arrTime
+     */
+    public double getArrTime() {
+        return arrTime;
+    }
+
+    /**
+     * @param arrTime the arrTime to set
+     */
+    public void setArrTime(double arrTime) {
+        this.arrTime = arrTime;
+    }
+
+    /**
+     * @return the endTime
+     */
+    public double getEndTime() {
+        return endTime;
+    }
+
+    /**
+     * @param endTime the endTime to set
+     */
+    public void setEndTime(double endTime) {
+        this.endTime = endTime;
     }
 
     @Override
     public Capacity getSize() {
         return service.getSize();
+    }
+
+    @Override
+    public TourActivity duplicate() {
+        return new ServiceActivity(this);
     }
 
 

@@ -43,33 +43,6 @@ public class SolutionPrinter {
     private static final PrintWriter SYSTEM_OUT_AS_PRINT_WRITER = new PrintWriter(System.out);
 
     /**
-     * Enum to indicate verbose-level.
-     * <p>
-     * <p>
-     * Print.CONCISE and Print.VERBOSE are available.
-     *
-     * @author stefan schroeder
-     */
-    public enum Print {
-
-        CONCISE, VERBOSE
-    }
-
-    private static class Jobs {
-        int nServices;
-        int nShipments;
-        int nBreaks;
-
-        public Jobs(int nServices, int nShipments, int nBreaks) {
-            super();
-            this.nServices = nServices;
-            this.nShipments = nShipments;
-            this.nBreaks = nBreaks;
-        }
-    }
-
-
-    /**
      * Prints costs and #vehicles to stdout (out.println).
      *
      * @param solution the solution to be printed
@@ -141,9 +114,31 @@ public class SolutionPrinter {
         }
     }
 
+    private static Jobs getNuOfJobs(VehicleRoutingProblem problem) {
+        int nShipments = 0;
+        int nServices = 0;
+        int nBreaks = 0;
+        for (Job j : problem.getJobs().values()) {
+            if (j instanceof Shipment) {
+                nShipments++;
+            }
+            if (j instanceof Service) {
+                nServices++;
+            }
+            if (j instanceof Break) {
+                nBreaks++;
+            }
+        }
+        return new Jobs(nServices, nShipments, nBreaks);
+    }
+
     private static void printVerbose(VehicleRoutingProblem problem, VehicleRoutingProblemSolution solution) {
         printVerbose(SYSTEM_OUT_AS_PRINT_WRITER, problem, solution);
         SYSTEM_OUT_AS_PRINT_WRITER.flush();
+    }
+
+    private static String getVehicleString(VehicleRoute route) {
+        return route.getVehicle().getId();
     }
 
     private static void printVerbose(PrintWriter out, VehicleRoutingProblem problem, VehicleRoutingProblemSolution solution) {
@@ -155,7 +150,7 @@ public class SolutionPrinter {
         int routeNu = 1;
 
         List<VehicleRoute> list = new ArrayList<VehicleRoute>(solution.getRoutes());
-        Collections.sort(list , new com.graphhopper.jsprit.core.util.VehicleIndexComparator());
+        Collections.sort(list, new com.graphhopper.jsprit.core.util.VehicleIndexComparator());
         for (VehicleRoute route : list) {
             out.format("+---------+----------------------+-----------------------+-----------------+-----------------+-----------------+-----------------+%n");
             double costs = 0;
@@ -198,26 +193,30 @@ public class SolutionPrinter {
         }
     }
 
-    private static String getVehicleString(VehicleRoute route) {
-        return route.getVehicle().getId();
+    /**
+     * Enum to indicate verbose-level.
+     * <p>
+     * <p>
+     * Print.CONCISE and Print.VERBOSE are available.
+     *
+     * @author stefan schroeder
+     */
+    public enum Print {
+
+        CONCISE, VERBOSE
     }
 
-    private static Jobs getNuOfJobs(VehicleRoutingProblem problem) {
-        int nShipments = 0;
-        int nServices = 0;
-        int nBreaks = 0;
-        for (Job j : problem.getJobs().values()) {
-            if (j instanceof Shipment) {
-                nShipments++;
-            }
-            if (j instanceof Service) {
-                nServices++;
-            }
-            if (j instanceof Break) {
-                nBreaks++;
-            }
+    private static class Jobs {
+        int nServices;
+        int nShipments;
+        int nBreaks;
+
+        public Jobs(int nServices, int nShipments, int nBreaks) {
+            super();
+            this.nServices = nServices;
+            this.nShipments = nShipments;
+            this.nBreaks = nBreaks;
         }
-        return new Jobs(nServices, nShipments, nBreaks);
     }
 
 }

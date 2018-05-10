@@ -25,21 +25,8 @@ package com.graphhopper.jsprit.core.problem.solution.route.activity;
 
 public class TimeWindow {
 
-    /**
-     * Returns new instance of TimeWindow.
-     *
-     * @param start
-     * @param end
-     * @return TimeWindow
-     * @throw IllegalArgumentException either if start or end < 0.0 or end < start
-     */
-    public static TimeWindow newInstance(double start, double end) {
-        return new TimeWindow(start, end);
-    }
-
     private final double start;
     private final double end;
-
     /**
      * Constructs the timeWindow
      *
@@ -58,6 +45,18 @@ public class TimeWindow {
     }
 
     /**
+     * Returns new instance of TimeWindow.
+     *
+     * @param start
+     * @param end
+     * @return TimeWindow
+     * @throw IllegalArgumentException either if start or end < 0.0 or end < start
+     */
+    public static TimeWindow newInstance(double start, double end) {
+        return new TimeWindow(start, end);
+    }
+
+    /**
      * Returns startTime of TimeWindow.
      *
      * @return startTime
@@ -73,11 +72,6 @@ public class TimeWindow {
      */
     public double getEnd() {
         return end;
-    }
-
-    @Override
-    public String toString() {
-        return "[start=" + start + "][end=" + end + "]";
     }
 
     @Override
@@ -110,6 +104,11 @@ public class TimeWindow {
             .doubleToLongBits(other.start))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "[start=" + start + "][end=" + end + "]";
     }
 
 

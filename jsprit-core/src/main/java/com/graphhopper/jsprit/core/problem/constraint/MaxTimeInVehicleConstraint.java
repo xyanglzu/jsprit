@@ -70,32 +70,30 @@ public class MaxTimeInVehicleConstraint implements HardActivityConstraint {
         2. check whether insertion of new shipment satisfies all other max-in-vehicle-constraints
          */
         //************ 1. check whether insertion of new shipment satisfies own max-in-vehicle-constraint
-        double newActArrival = prevActDepTime + transportTime.getTransportTime(prevAct.getLocation(),newAct.getLocation(),prevActDepTime,iFacts.getNewDriver(),iFacts.getNewVehicle());
+        double newActArrival = prevActDepTime + transportTime.getTransportTime(prevAct.getLocation(), newAct.getLocation(), prevActDepTime, iFacts.getNewDriver(), iFacts.getNewVehicle());
         double newActStart = Math.max(newActArrival, newAct.getTheoreticalEarliestOperationStartTime());
         double newActDeparture = newActStart + activityCosts.getActivityDuration(newAct, newActArrival, iFacts.getNewDriver(), iFacts.getNewVehicle());
-        double nextActArrival = newActDeparture + transportTime.getTransportTime(newAct.getLocation(),nextAct.getLocation(),newActDeparture,iFacts.getNewDriver(),iFacts.getNewVehicle());
-        double nextActStart = Math.max(nextActArrival,nextAct.getTheoreticalEarliestOperationStartTime());
-        if(newAct instanceof DeliveryActivity){
+        double nextActArrival = newActDeparture + transportTime.getTransportTime(newAct.getLocation(), nextAct.getLocation(), newActDeparture, iFacts.getNewDriver(), iFacts.getNewVehicle());
+        double nextActStart = Math.max(nextActArrival, nextAct.getTheoreticalEarliestOperationStartTime());
+        if (newAct instanceof DeliveryActivity) {
             double pickupEnd;
-            if(iFacts.getAssociatedActivities().size() == 1){
+            if (iFacts.getAssociatedActivities().size() == 1) {
                 pickupEnd = iFacts.getNewDepTime();
-            }
-            else {
+            } else {
                 pickupEnd = iFacts.getRelatedActivityContext().getEndTime();
             }
             double timeInVehicle = newActStart - pickupEnd;
-            double maxTimeInVehicle = ((TourActivity.JobActivity)newAct).getJob().getMaxTimeInVehicle();
-            if(timeInVehicle > maxTimeInVehicle) return ConstraintsStatus.NOT_FULFILLED;
+            double maxTimeInVehicle = ((TourActivity.JobActivity) newAct).getJob().getMaxTimeInVehicle();
+            if (timeInVehicle > maxTimeInVehicle) return ConstraintsStatus.NOT_FULFILLED;
 
-        }
-        else if(newActIsPickup){
-            if(iFacts.getAssociatedActivities().size() == 1){
-                double maxTimeInVehicle = ((TourActivity.JobActivity)newAct).getJob().getMaxTimeInVehicle();
+        } else if (newActIsPickup) {
+            if (iFacts.getAssociatedActivities().size() == 1) {
+                double maxTimeInVehicle = ((TourActivity.JobActivity) newAct).getJob().getMaxTimeInVehicle();
                 //ToDo - estimate in vehicle time of pickups here - This seems to trickier than I thought
                 double nextActDeparture = nextActStart + activityCosts.getActivityDuration(nextAct, nextActArrival, iFacts.getNewDriver(), iFacts.getNewVehicle());
 //                if(!nextAct instanceof End)
                 double timeToEnd = 0; //newAct.end + tt(newAct,nextAct) + t@nextAct + t_to_end
-                if(timeToEnd > maxTimeInVehicle) return ConstraintsStatus.NOT_FULFILLED;
+                if (timeToEnd > maxTimeInVehicle) return ConstraintsStatus.NOT_FULFILLED;
             }
         }
 

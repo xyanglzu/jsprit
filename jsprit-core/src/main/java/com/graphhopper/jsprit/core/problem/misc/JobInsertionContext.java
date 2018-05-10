@@ -48,6 +48,24 @@ public class JobInsertionContext {
     private ActivityContext relatedActivityContext;
 
     /**
+     * Constructs the context.
+     *
+     * @param route      the existing route where the job needs to be inserted in
+     * @param job        the job to be inserted
+     * @param newVehicle the new vehicle that should operate the new route
+     * @param newDriver  the new driver that should operate the new route
+     * @param newDepTime the new departure time at the new vehicle's start location
+     */
+    public JobInsertionContext(VehicleRoute route, Job job, Vehicle newVehicle, Driver newDriver, double newDepTime) {
+        super();
+        this.route = route;
+        this.job = job;
+        this.newVehicle = newVehicle;
+        this.newDriver = newDriver;
+        this.newDepTime = newDepTime;
+    }
+
+    /**
      * Returns the existing route where the .getJob() needs to be inserted in.
      *
      * @return the route
@@ -94,35 +112,8 @@ public class JobInsertionContext {
         return newDepTime;
     }
 
-    /**
-     * Constructs the context.
-     *
-     * @param route      the existing route where the job needs to be inserted in
-     * @param job        the job to be inserted
-     * @param newVehicle the new vehicle that should operate the new route
-     * @param newDriver  the new driver that should operate the new route
-     * @param newDepTime the new departure time at the new vehicle's start location
-     */
-    public JobInsertionContext(VehicleRoute route, Job job, Vehicle newVehicle, Driver newDriver, double newDepTime) {
-        super();
-        this.route = route;
-        this.job = job;
-        this.newVehicle = newVehicle;
-        this.newDriver = newDriver;
-        this.newDepTime = newDepTime;
-    }
-
     public List<TourActivity> getAssociatedActivities() {
         return associatedActivities;
-    }
-
-    /**
-     * Sets pickup context.
-     *
-     * @param relatedActivityContext pickup context
-     */
-    public void setRelatedActivityContext(ActivityContext relatedActivityContext) {
-        this.relatedActivityContext = relatedActivityContext;
     }
 
     /**
@@ -134,11 +125,20 @@ public class JobInsertionContext {
         return this.relatedActivityContext;
     }
 
-    public void setActivityContext(ActivityContext activityContext){
-        this.activityContext = activityContext;
+    /**
+     * Sets pickup context.
+     *
+     * @param relatedActivityContext pickup context
+     */
+    public void setRelatedActivityContext(ActivityContext relatedActivityContext) {
+        this.relatedActivityContext = relatedActivityContext;
     }
 
-    public ActivityContext getActivityContext(){
+    public ActivityContext getActivityContext() {
         return this.activityContext;
+    }
+
+    public void setActivityContext(ActivityContext activityContext) {
+        this.activityContext = activityContext;
     }
 }

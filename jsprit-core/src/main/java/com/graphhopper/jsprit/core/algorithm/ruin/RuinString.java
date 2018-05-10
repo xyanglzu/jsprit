@@ -121,6 +121,41 @@ public final class RuinString extends AbstractRuinStrategy {
         return null;
     }
 
+    private void ruinRouteWithStringRuin(VehicleRoute seedRoute, Job prevJob, Set<Job> unassignedJobs) {
+        int stringLength = lMin + random.nextInt(lMax - lMin);
+        stringLength = Math.min(stringLength, seedRoute.getActivities().size());
+        List<AbstractActivity> acts = vrp.getActivities(prevJob);
+        AbstractActivity randomSeedAct = RandomUtils.nextItem(acts, random);
+        int seedIndex = 0;
+        int noActivities = seedRoute.getActivities().size();
+        int index = 0;
+        for (TourActivity act : seedRoute.getActivities()) {
+            if (act.getIndex() == randomSeedAct.getIndex()) {
+                seedIndex = index;
+                break;
+            }
+            index++;
+        }
+        List<Integer> stringBounds = StringUtil.getLowerBoundsOfAllStrings(stringLength, seedIndex, noActivities);
+        if (stringBounds.isEmpty()) return;
+        int lowerBound = RandomUtils.nextItem(stringBounds, random);
+        List<Job> jobs2Remove = new ArrayList<>();
+        for (int i = lowerBound; i < (lowerBound + stringLength); i++) {
+            TourActivity act = seedRoute.getActivities().get(i);
+            if (act instanceof TourActivity.JobActivity) {
+                Job job = ((TourActivity.JobActivity) act).getJob();
+                if (vrp.getJobs().containsKey(job.getId())) {
+                    jobs2Remove.add(job);
+                }
+            }
+        }
+        for (Job job : jobs2Remove) {
+            removeJob(job, seedRoute);
+            unassignedJobs.add(job);
+        }
+
+    }
+
     private void ruinRouteWithSplitStringRuin(VehicleRoute seedRoute, Job prevJob, Set<Job> unassignedJobs) {
         int noActivities = seedRoute.getActivities().size();
         int stringLength;
@@ -170,42 +205,6 @@ public final class RuinString extends AbstractRuinStrategy {
                 }
             } else noStringsInPreservedSubstring++;
             position++;
-        }
-        for (Job job : jobs2Remove) {
-            removeJob(job, seedRoute);
-            unassignedJobs.add(job);
-        }
-
-    }
-
-
-    private void ruinRouteWithStringRuin(VehicleRoute seedRoute, Job prevJob, Set<Job> unassignedJobs) {
-        int stringLength = lMin + random.nextInt(lMax - lMin);
-        stringLength = Math.min(stringLength, seedRoute.getActivities().size());
-        List<AbstractActivity> acts = vrp.getActivities(prevJob);
-        AbstractActivity randomSeedAct = RandomUtils.nextItem(acts, random);
-        int seedIndex = 0;
-        int noActivities = seedRoute.getActivities().size();
-        int index = 0;
-        for (TourActivity act : seedRoute.getActivities()) {
-            if (act.getIndex() == randomSeedAct.getIndex()) {
-                seedIndex = index;
-                break;
-            }
-            index++;
-        }
-        List<Integer> stringBounds = StringUtil.getLowerBoundsOfAllStrings(stringLength, seedIndex, noActivities);
-        if (stringBounds.isEmpty()) return;
-        int lowerBound = RandomUtils.nextItem(stringBounds, random);
-        List<Job> jobs2Remove = new ArrayList<>();
-        for (int i = lowerBound; i < (lowerBound + stringLength); i++) {
-            TourActivity act = seedRoute.getActivities().get(i);
-            if (act instanceof TourActivity.JobActivity) {
-                Job job = ((TourActivity.JobActivity) act).getJob();
-                if (vrp.getJobs().containsKey(job.getId())) {
-                    jobs2Remove.add(job);
-                }
-            }
         }
         for (Job job : jobs2Remove) {
             removeJob(job, seedRoute);

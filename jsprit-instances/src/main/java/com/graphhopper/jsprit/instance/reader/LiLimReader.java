@@ -50,51 +50,14 @@ import java.util.Map;
 
 public class LiLimReader {
 
-    static class CustomerData {
-        public Coordinate coord;
-        public double start;
-        public double end;
-        public double serviceTime;
-
-        public CustomerData(Coordinate coord, double start, double end, double serviceTime) {
-            super();
-            this.coord = coord;
-            this.start = start;
-            this.end = end;
-            this.serviceTime = serviceTime;
-        }
-    }
-
-    static class Relation {
-        public String from;
-        public String to;
-        public int demand;
-
-        public Relation(String from, String to, int demand) {
-            super();
-            this.from = from;
-            this.to = to;
-            this.demand = demand;
-        }
-
-    }
-
     private static Logger logger = LoggerFactory.getLogger(LiLimReader.class);
-
     private VehicleRoutingProblem.Builder vrpBuilder;
-
     private int vehicleCapacity;
-
     private String depotId;
-
     private Map<String, CustomerData> customers;
-
     private Collection<Relation> relations;
-
     private double depotOpeningTime;
-
     private double depotClosingTime;
-
     private int fixCosts = 0;
 
     public LiLimReader(Builder vrpBuilder) {
@@ -119,33 +82,6 @@ public class LiLimReader {
             .setEarliestStart(depotOpeningTime).setLatestArrival(depotClosingTime)
             .setStartLocation(Location.Builder.newInstance().setCoordinate(customers.get(depotId).coord).build()).setType(type).build();
         vrpBuilder.addVehicle(vehicle);
-    }
-
-    private void buildShipments() {
-        Integer counter = 0;
-        for (Relation rel : relations) {
-            counter++;
-            String from = rel.from;
-            String to = rel.to;
-            int demand = rel.demand;
-            Shipment s = Shipment.Builder.newInstance(counter.toString()).addSizeDimension(0, demand)
-                .setPickupLocation(Location.Builder.newInstance().setCoordinate(customers.get(from).coord).build()).setPickupServiceTime(customers.get(from).serviceTime)
-                .setPickupTimeWindow(TimeWindow.newInstance(customers.get(from).start, customers.get(from).end))
-                .setDeliveryLocation(Location.Builder.newInstance().setCoordinate(customers.get(to).coord).build()).setDeliveryServiceTime(customers.get(to).serviceTime)
-                .setDeliveryTimeWindow(TimeWindow.newInstance(customers.get(to).start, customers.get(to).end)).build();
-            vrpBuilder.addJob(s);
-        }
-
-    }
-
-    private BufferedReader getReader(String file) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
-        }
-        return reader;
     }
 
     private void readShipments(String file) {
@@ -188,6 +124,37 @@ public class LiLimReader {
 
     }
 
+    private void buildShipments() {
+        Integer counter = 0;
+        for (Relation rel : relations) {
+            counter++;
+            String from = rel.from;
+            String to = rel.to;
+            int demand = rel.demand;
+            Shipment s = Shipment.Builder.newInstance(counter.toString()).addSizeDimension(0, demand)
+                .setPickupLocation(Location.Builder.newInstance().setCoordinate(customers.get(from).coord).build()).setPickupServiceTime(customers.get(from).serviceTime)
+                .setPickupTimeWindow(TimeWindow.newInstance(customers.get(from).start, customers.get(from).end))
+                .setDeliveryLocation(Location.Builder.newInstance().setCoordinate(customers.get(to).coord).build()).setDeliveryServiceTime(customers.get(to).serviceTime)
+                .setDeliveryTimeWindow(TimeWindow.newInstance(customers.get(to).start, customers.get(to).end)).build();
+            vrpBuilder.addJob(s);
+        }
+
+    }
+
+    private BufferedReader getReader(String file) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
+        }
+        return reader;
+    }
+
+    private int getInt(String string) {
+        return Integer.parseInt(string);
+    }
+
     private Coordinate makeCoord(String xString, String yString) {
         double x = Double.parseDouble(xString);
         double y = Double.parseDouble(yString);
@@ -198,8 +165,33 @@ public class LiLimReader {
         return Double.parseDouble(string);
     }
 
-    private int getInt(String string) {
-        return Integer.parseInt(string);
+    static class CustomerData {
+        public Coordinate coord;
+        public double start;
+        public double end;
+        public double serviceTime;
+
+        public CustomerData(Coordinate coord, double start, double end, double serviceTime) {
+            super();
+            this.coord = coord;
+            this.start = start;
+            this.end = end;
+            this.serviceTime = serviceTime;
+        }
+    }
+
+    static class Relation {
+        public String from;
+        public String to;
+        public int demand;
+
+        public Relation(String from, String to, int demand) {
+            super();
+            this.from = from;
+            this.to = to;
+            this.demand = demand;
+        }
+
     }
 
 

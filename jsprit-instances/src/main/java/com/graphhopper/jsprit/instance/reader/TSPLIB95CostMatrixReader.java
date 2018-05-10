@@ -60,12 +60,14 @@ public class TSPLIB95CostMatrixReader {
         close(reader);
     }
 
-    private void close(BufferedReader reader) {
+    private BufferedReader getBufferedReader(String filename) {
+        BufferedReader bufferedReader = null;
         try {
-            reader.close();
-        } catch (IOException e) {
+            bufferedReader = new BufferedReader(new FileReader(new File(filename)));
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        return bufferedReader;
     }
 
     private String getLine(BufferedReader reader) {
@@ -78,13 +80,11 @@ public class TSPLIB95CostMatrixReader {
         return s;
     }
 
-    private BufferedReader getBufferedReader(String filename) {
-        BufferedReader bufferedReader = null;
+    private void close(BufferedReader reader) {
         try {
-            bufferedReader = new BufferedReader(new FileReader(new File(filename)));
-        } catch (FileNotFoundException e) {
+            reader.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return bufferedReader;
     }
 }

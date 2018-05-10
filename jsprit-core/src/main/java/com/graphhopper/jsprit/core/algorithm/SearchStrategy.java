@@ -33,51 +33,12 @@ import java.util.Collections;
 
 public class SearchStrategy {
 
-    public static class DiscoveredSolution {
-
-        private VehicleRoutingProblemSolution solution;
-
-        private boolean accepted;
-
-        private String strategyId;
-
-        public DiscoveredSolution(VehicleRoutingProblemSolution solution, boolean accepted, String strategyId) {
-            super();
-            this.solution = solution;
-            this.accepted = accepted;
-            this.strategyId = strategyId;
-        }
-
-        public VehicleRoutingProblemSolution getSolution() {
-            return solution;
-        }
-
-        public boolean isAccepted() {
-            return accepted;
-        }
-
-        public String getStrategyId() {
-            return strategyId;
-        }
-
-        @Override
-        public String toString() {
-            return "[strategyId=" + strategyId + "][solution=" + solution + "][accepted=" + accepted + "]";
-        }
-    }
-
     private static Logger logger = LoggerFactory.getLogger(SearchStrategy.class);
-
     private final Collection<SearchStrategyModule> searchStrategyModules = new ArrayList<SearchStrategyModule>();
-
     private final SolutionSelector solutionSelector;
-
     private final SolutionCostCalculator solutionCostCalculator;
-
     private final SolutionAcceptor solutionAcceptor;
-
     private final String id;
-
     private String name;
 
     public SearchStrategy(String id, SolutionSelector solutionSelector, SolutionAcceptor solutionAcceptor, SolutionCostCalculator solutionCostCalculator) {
@@ -87,10 +48,6 @@ public class SearchStrategy {
         this.solutionCostCalculator = solutionCostCalculator;
         this.id = id;
         logger.debug("initialise {}", this);
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getName() {
@@ -113,11 +70,6 @@ public class SearchStrategy {
     @SuppressWarnings("UnusedDeclaration")
     public SolutionAcceptor getSolutionAcceptor() {
         return solutionAcceptor;
-    }
-
-    @Override
-    public String toString() {
-        return "searchStrategy [#modules=" + searchStrategyModules.size() + "][selector=" + solutionSelector + "][acceptor=" + solutionAcceptor + "]";
     }
 
     /**
@@ -153,6 +105,14 @@ public class SearchStrategy {
             + " or let the algorithm create an initial solution for you. then add the <construction>...</construction> xml-snippet to your algorithm's config file.";
     }
 
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "searchStrategy [#modules=" + searchStrategyModules.size() + "][selector=" + solutionSelector + "][acceptor=" + solutionAcceptor + "]";
+    }
 
     public void addModule(SearchStrategyModule module) {
         if (module == null) throw new IllegalStateException("module to be added is null.");
@@ -166,5 +126,40 @@ public class SearchStrategy {
         }
 
     }
+
+    public static class DiscoveredSolution {
+
+        private VehicleRoutingProblemSolution solution;
+
+        private boolean accepted;
+
+        private String strategyId;
+
+        public DiscoveredSolution(VehicleRoutingProblemSolution solution, boolean accepted, String strategyId) {
+            super();
+            this.solution = solution;
+            this.accepted = accepted;
+            this.strategyId = strategyId;
+        }
+
+        public VehicleRoutingProblemSolution getSolution() {
+            return solution;
+        }
+
+        public boolean isAccepted() {
+            return accepted;
+        }
+
+        public String getStrategyId() {
+            return strategyId;
+        }
+
+        @Override
+        public String toString() {
+            return "[strategyId=" + strategyId + "][solution=" + solution + "][accepted=" + accepted + "]";
+        }
+    }
+
+
 
 }

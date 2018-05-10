@@ -42,12 +42,12 @@ public class TSPLIB95Reader {
 
     private boolean switchCoordinates = false;
 
-    public void setSwitchCoordinates(boolean switchCoordinates) {
-        this.switchCoordinates = switchCoordinates;
-    }
-
     public TSPLIB95Reader(VehicleRoutingProblem.Builder vrpBuilder) {
         this.vrpBuilder = vrpBuilder;
+    }
+
+    public void setSwitchCoordinates(boolean switchCoordinates) {
+        this.switchCoordinates = switchCoordinates;
     }
 
     public void read(String filename) {
@@ -263,6 +263,35 @@ public class TSPLIB95Reader {
 
     }
 
+    private BufferedReader getBufferedReader(String filename) {
+        BufferedReader bufferedReader = null;
+        try {
+            bufferedReader = new BufferedReader(new FileReader(new File(filename)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return bufferedReader;
+    }
+
+    private String getLine(BufferedReader reader) {
+        String s = null;
+        try {
+            s = reader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+    private void close(BufferedReader reader) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ;
+    }
+
     private VehicleRoutingTransportCosts getGEOMatrix(List<Location> noLocations) {
         FastVehicleRoutingTransportCostsMatrix.Builder matrixBuilder = FastVehicleRoutingTransportCostsMatrix.Builder.newInstance(noLocations.size(), true);
         for (Location i : noLocations) {
@@ -285,45 +314,15 @@ public class TSPLIB95Reader {
         return 6378.388 * Math.acos(.5 * ((1. + q1) * q2 - (1. - q1) * q3)) + 1.;
     }
 
-    private double getLatitude(Location loc) {
-        int deg = (int) loc.getCoordinate().getX();
-        double min = loc.getCoordinate().getX() - deg;
-        return Math.PI * (deg + 5. * min / 3.) / 180.;
-    }
-
     private double getLongitude(Location loc) {
         int deg = (int) loc.getCoordinate().getY();
         double min = loc.getCoordinate().getY() - deg;
         return Math.PI * (deg + 5. * min / 3.) / 180.;
     }
 
-
-    private void close(BufferedReader reader) {
-        try {
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        ;
-    }
-
-    private String getLine(BufferedReader reader) {
-        String s = null;
-        try {
-            s = reader.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return s;
-    }
-
-    private BufferedReader getBufferedReader(String filename) {
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new FileReader(new File(filename)));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return bufferedReader;
+    private double getLatitude(Location loc) {
+        int deg = (int) loc.getCoordinate().getX();
+        double min = loc.getCoordinate().getX() - deg;
+        return Math.PI * (deg + 5. * min / 3.) / 180.;
     }
 }

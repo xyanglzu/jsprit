@@ -38,9 +38,9 @@ public class RouteActivityVisitor implements RouteVisitor {
         end(route);
     }
 
-    private void end(VehicleRoute route) {
+    private void begin(VehicleRoute route) {
         for (ActivityVisitor visitor : visitors) {
-            visitor.finish();
+            visitor.begin(route);
         }
 
     }
@@ -51,9 +51,9 @@ public class RouteActivityVisitor implements RouteVisitor {
         }
     }
 
-    private void begin(VehicleRoute route) {
+    private void end(VehicleRoute route) {
         for (ActivityVisitor visitor : visitors) {
-            visitor.begin(route);
+            visitor.finish();
         }
 
     }

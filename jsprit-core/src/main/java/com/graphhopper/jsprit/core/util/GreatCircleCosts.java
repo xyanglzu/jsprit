@@ -32,6 +32,16 @@ public class GreatCircleCosts extends AbstractForwardVehicleRoutingTransportCost
     private double speed = 1.;
 
     private double detour = 1.;
+    private DistanceUnit distanceUnit = DistanceUnit.Kilometer;
+
+    public GreatCircleCosts() {
+        super();
+    }
+
+    public GreatCircleCosts(DistanceUnit distanceUnit) {
+        super();
+        this.distanceUnit = distanceUnit;
+    }
 
     public void setSpeed(double speed) {
         this.speed = speed;
@@ -49,17 +59,15 @@ public class GreatCircleCosts extends AbstractForwardVehicleRoutingTransportCost
         this.detour = detour;
     }
 
-    private DistanceUnit distanceUnit = DistanceUnit.Kilometer;
-
-   public GreatCircleCosts() {
-        super();
+    @Override
+    public double getDistance(Location from, Location to, double departureTime, Vehicle vehicle) {
+        return calculateDistance(from, to);
     }
 
-    public GreatCircleCosts(DistanceUnit distanceUnit) {
-        super();
-        this.distanceUnit = distanceUnit;
+    @Override
+    public double getTransportTime(Location from, Location to, double time, Driver driver, Vehicle vehicle) {
+        return calculateDistance(from, to) / speed;
     }
-
 
     @Override
     public double getTransportCost(Location from, Location to, double time, Driver driver, Vehicle vehicle) {
@@ -87,15 +95,5 @@ public class GreatCircleCosts extends AbstractForwardVehicleRoutingTransportCost
         }
         if (from == null || to == null) throw new NullPointerException("either from or to location is null");
         return GreatCircleDistanceCalculator.calculateDistance(from, to, distanceUnit) * detour;
-    }
-
-    @Override
-    public double getTransportTime(Location from, Location to, double time, Driver driver, Vehicle vehicle) {
-        return calculateDistance(from, to) / speed;
-    }
-
-    @Override
-    public double getDistance(Location from, Location to, double departureTime, Vehicle vehicle) {
-        return calculateDistance(from, to);
     }
 }

@@ -63,6 +63,10 @@ public final class RuinRandom extends AbstractRuinStrategy {
         logger.debug("initialise {}", this);
     }
 
+    private int selectNuOfJobs2BeRemoved() {
+        return (int) Math.ceil(vrp.getJobs().values().size() * fractionOfAllNodes2beRuined);
+    }
+
     /**
      * Removes a fraction of jobs from vehicleRoutes.
      * <p>
@@ -92,10 +96,6 @@ public final class RuinRandom extends AbstractRuinStrategy {
     @Override
     public String toString() {
         return "[name=randomRuin][noJobsToBeRemoved=" + selectNuOfJobs2BeRemoved() + "]";
-    }
-
-    private int selectNuOfJobs2BeRemoved() {
-        return (int) Math.ceil(vrp.getJobs().values().size() * fractionOfAllNodes2beRuined);
     }
 
 

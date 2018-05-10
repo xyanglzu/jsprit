@@ -50,9 +50,9 @@ public class SchrimpfInitialThresholdGenerator implements AlgorithmStartsListene
         logger.info("prepare schrimpfAcceptanceFunction, i.e. determine initial threshold");
         double now = System.currentTimeMillis();
 
-		/*
+        /*
          * randomWalk to determine standardDev
-		 */
+         */
         final double[] results = new double[nOfRandomWalks];
 
         Jsprit.Builder builder = new GreedySchrimpfFactory().createGreedyAlgorithmBuilder(problem);

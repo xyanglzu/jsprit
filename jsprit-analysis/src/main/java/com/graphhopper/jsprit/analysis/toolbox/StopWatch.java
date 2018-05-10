@@ -43,8 +43,13 @@ public class StopWatch implements AlgorithmStartsListener, AlgorithmEndsListener
         start();
     }
 
-    public double getCompTimeInSeconds() {
-        return (ran) / 1000.0;
+    public void reset() {
+        startTime = 0;
+        ran = 0;
+    }
+
+    public void start() {
+        startTime = System.currentTimeMillis();
     }
 
     @Override
@@ -57,13 +62,8 @@ public class StopWatch implements AlgorithmStartsListener, AlgorithmEndsListener
         ran += System.currentTimeMillis() - startTime;
     }
 
-    public void start() {
-        startTime = System.currentTimeMillis();
-    }
-
-    public void reset() {
-        startTime = 0;
-        ran = 0;
+    public double getCompTimeInSeconds() {
+        return (ran) / 1000.0;
     }
 
     @Override

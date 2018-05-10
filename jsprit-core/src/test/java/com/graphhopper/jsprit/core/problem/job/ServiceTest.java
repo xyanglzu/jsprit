@@ -123,8 +123,8 @@ public class ServiceTest {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance(1, 2)).build();
         assertEquals(1.0, s.getLocation().getCoordinate().getX(), 0.01);
         assertEquals(2.0, s.getLocation().getCoordinate().getY(), 0.01);
-        assertEquals(1.0,s.getLocation().getCoordinate().getX(),0.01);
-        assertEquals(2.0,s.getLocation().getCoordinate().getY(),0.01);
+        assertEquals(1.0, s.getLocation().getCoordinate().getX(), 0.01);
+        assertEquals(2.0, s.getLocation().getCoordinate().getY(), 0.01);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -176,7 +176,7 @@ public class ServiceTest {
     }
 
     @Test
-    public void whenAddingSeveralTimeWindows_itShouldBeSetCorrectly(){
+    public void whenAddingSeveralTimeWindows_itShouldBeSetCorrectly() {
         TimeWindow tw1 = TimeWindow.newInstance(1.0, 2.0);
         TimeWindow tw2 = TimeWindow.newInstance(3.0, 5.0);
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
@@ -184,19 +184,17 @@ public class ServiceTest {
             .addTimeWindow(tw2)
             .build();
         assertEquals(2, s.getTimeWindows().size());
-        assertThat(s.getTimeWindows(),hasItem(is(tw1)));
-        assertThat(s.getTimeWindows(),hasItem(is(tw2)));
+        assertThat(s.getTimeWindows(), hasItem(is(tw1)));
+        assertThat(s.getTimeWindows(), hasItem(is(tw2)));
     }
 
     @Test
-    public void whenAddingTimeWindow_itShouldBeSetCorrectly(){
+    public void whenAddingTimeWindow_itShouldBeSetCorrectly() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .addTimeWindow(TimeWindow.newInstance(1.0, 2.0)).build();
         assertEquals(1.0, s.getTimeWindow().getStart(), 0.01);
         assertEquals(2.0, s.getTimeWindow().getEnd(), 0.01);
     }
-
-
 
 
     @Test
@@ -239,14 +237,14 @@ public class ServiceTest {
     }
 
     @Test
-    public void whenSettingPriorities_itShouldBeSetCorrectly(){
+    public void whenSettingPriorities_itShouldBeSetCorrectly() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setPriority(1).build();
         Assert.assertEquals(1, s.getPriority());
     }
 
     @Test
-    public void whenSettingPriorities_itShouldBeSetCorrectly2(){
+    public void whenSettingPriorities_itShouldBeSetCorrectly2() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setPriority(3).build();
         Assert.assertEquals(3, s.getPriority());
@@ -260,38 +258,38 @@ public class ServiceTest {
     }
 
     @Test
-    public void whenNotSettingPriorities_defaultShouldBe2(){
+    public void whenNotSettingPriorities_defaultShouldBe2() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .build();
         Assert.assertEquals(2, s.getPriority());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenSettingIncorrectPriorities_itShouldThrowException(){
+    public void whenSettingIncorrectPriorities_itShouldThrowException() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setPriority(30).build();
 
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void whenSettingIncorrectPriorities_itShouldThrowException2(){
+    public void whenSettingIncorrectPriorities_itShouldThrowException2() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setPriority(0).build();
 
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void whenAddingMaxTimeInVehicle_itShouldThrowEx(){
+    public void whenAddingMaxTimeInVehicle_itShouldThrowEx() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setMaxTimeInVehicle(10)
             .build();
     }
 
     @Test
-    public void whenNotAddingMaxTimeInVehicle_itShouldBeDefault(){
+    public void whenNotAddingMaxTimeInVehicle_itShouldBeDefault() {
         Service s = Service.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .build();
-        Assert.assertEquals(Double.MAX_VALUE, s.getMaxTimeInVehicle(),0.001);
+        Assert.assertEquals(Double.MAX_VALUE, s.getMaxTimeInVehicle(), 0.001);
     }
 
 

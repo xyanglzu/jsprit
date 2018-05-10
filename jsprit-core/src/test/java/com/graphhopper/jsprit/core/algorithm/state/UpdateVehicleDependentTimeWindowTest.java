@@ -206,22 +206,22 @@ public class UpdateVehicleDependentTimeWindowTest {
 
 
     @Test
-    public void twUpdateShouldWorkWithMultipleTWs(){
+    public void twUpdateShouldWorkWithMultipleTWs() {
         //
         VehicleImpl vehicle = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance("0,0")).setEarliestStart(0.).setLatestArrival(100.).build();
         Service service = Service.Builder.newInstance("s1").setLocation(Location.newInstance("10,0"))
-                .addTimeWindow(10,20).addTimeWindow(30,40).build();
+            .addTimeWindow(10, 20).addTimeWindow(30, 40).build();
         Service service2 = Service.Builder.newInstance("s2")
-                .addTimeWindow(20,30).addTimeWindow(40,60).addTimeWindow(70,80).setLocation(Location.newInstance("20,0")).build();
+            .addTimeWindow(20, 30).addTimeWindow(40, 60).addTimeWindow(70, 80).setLocation(Location.newInstance("20,0")).build();
 
         VehicleRoutingProblem vrp = VehicleRoutingProblem.Builder.newInstance().addJob(service).addJob(service2).addVehicle(vehicle)
-                .setRoutingCost(routingCosts).build();
+            .setRoutingCost(routingCosts).build();
 
         VehicleRoute route = VehicleRoute.Builder.newInstance(vehicle).setJobActivityFactory(vrp.getJobActivityFactory())
-                .addService(service).addService(service2, TimeWindow.newInstance(70, 80)).build();
+            .addService(service).addService(service2, TimeWindow.newInstance(70, 80)).build();
 
         StateManager stateManager = new StateManager(vrp);
-        UpdateVehicleDependentPracticalTimeWindows updater = new UpdateVehicleDependentPracticalTimeWindows(stateManager,routingCosts,activityCosts);
+        UpdateVehicleDependentPracticalTimeWindows updater = new UpdateVehicleDependentPracticalTimeWindows(stateManager, routingCosts, activityCosts);
         updater.setVehiclesToUpdate(new UpdateVehicleDependentPracticalTimeWindows.VehiclesToUpdate() {
 
             @Override
@@ -236,12 +236,12 @@ public class UpdateVehicleDependentTimeWindowTest {
         stateManager.addStateUpdater(updater);
         stateManager.informInsertionStarts(Arrays.asList(route), Collections.<Job>emptyList());
 
-        assertEquals(80.,stateManager.getActivityState(route.getActivities().get(1),vehicle,
-                InternalStates.LATEST_OPERATION_START_TIME, Double.class),0.01);
+        assertEquals(80., stateManager.getActivityState(route.getActivities().get(1), vehicle,
+            InternalStates.LATEST_OPERATION_START_TIME, Double.class), 0.01);
     }
 
     @Test
-    public void updateOfOpenRoutesShouldBeDoneCorrectly(){
+    public void updateOfOpenRoutesShouldBeDoneCorrectly() {
         VehicleImpl vehicle = VehicleImpl.Builder.newInstance("v")
             .setReturnToDepot(false)
             .setStartLocation(Location.Builder.newInstance().setCoordinate(Coordinate.newInstance(0, 0)).build())
@@ -263,7 +263,7 @@ public class UpdateVehicleDependentTimeWindowTest {
         stateManager.addStateUpdater(updater);
         stateManager.reCalculateStates(route);
 
-        Double activityState = stateManager.getActivityState(route.getActivities().get(0),route.getVehicle(), InternalStates.LATEST_OPERATION_START_TIME, Double.class);
+        Double activityState = stateManager.getActivityState(route.getActivities().get(0), route.getVehicle(), InternalStates.LATEST_OPERATION_START_TIME, Double.class);
         Assert.assertEquals(51d, activityState, 0.01);
 
     }

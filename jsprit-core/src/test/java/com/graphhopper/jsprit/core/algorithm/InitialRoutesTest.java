@@ -57,11 +57,11 @@ public class InitialRoutesTest {
     private VehicleRoute initialRoute;
 
     @Before
-    public void before(){
+    public void before() {
         VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
-        VehicleImpl v = VehicleImpl.Builder.newInstance("veh1").setStartLocation(Location.newInstance(0,0)).setLatestArrival(48600).build();
-        Service s1 = Service.Builder.newInstance("s1").setLocation(Location.newInstance(1000,0)).build();
-        Service s2 = Service.Builder.newInstance("s2").setLocation(Location.newInstance(1000,1000)).build();
+        VehicleImpl v = VehicleImpl.Builder.newInstance("veh1").setStartLocation(Location.newInstance(0, 0)).setLatestArrival(48600).build();
+        Service s1 = Service.Builder.newInstance("s1").setLocation(Location.newInstance(1000, 0)).build();
+        Service s2 = Service.Builder.newInstance("s2").setLocation(Location.newInstance(1000, 1000)).build();
         builder.addVehicle(v).addJob(s1).addJob(s2);
         initialRoute = VehicleRoute.Builder.newInstance(v).addService(s1).build();
         builder.addInitialVehicleRoute(initialRoute);
@@ -103,18 +103,6 @@ public class InitialRoutesTest {
         return null;
     }
 
-    private boolean hasActivityIn(Collection<VehicleRoute> routes, String jobId) {
-        boolean isInRoute = false;
-        for (VehicleRoute route : routes) {
-            for (TourActivity act : route.getActivities()) {
-                if (act instanceof TourActivity.JobActivity) {
-                    if (((TourActivity.JobActivity) act).getJob().getId().equals(jobId)) isInRoute = true;
-                }
-            }
-        }
-        return isInRoute;
-    }
-
     private boolean hasActivityIn(VehicleRoutingProblemSolution solution, String vehicleId, Job job) {
         for (VehicleRoute route : solution.getRoutes()) {
             String vehicleId_ = route.getVehicle().getId();
@@ -127,12 +115,13 @@ public class InitialRoutesTest {
         return false;
     }
 
-
-    private boolean hasActivityIn(VehicleRoute route, String jobId) {
+    private boolean hasActivityIn(Collection<VehicleRoute> routes, String jobId) {
         boolean isInRoute = false;
-        for (TourActivity act : route.getActivities()) {
-            if (act instanceof TourActivity.JobActivity) {
-                if (((TourActivity.JobActivity) act).getJob().getId().equals(jobId)) isInRoute = true;
+        for (VehicleRoute route : routes) {
+            for (TourActivity act : route.getActivities()) {
+                if (act instanceof TourActivity.JobActivity) {
+                    if (((TourActivity.JobActivity) act).getJob().getId().equals(jobId)) isInRoute = true;
+                }
             }
         }
         return isInRoute;
@@ -145,6 +134,16 @@ public class InitialRoutesTest {
         VehicleRoutingProblemSolution solution = Solutions.bestOf(solutions);
 
         assertTrue(hasActivityIn(solution.getRoutes().iterator().next(), "s2"));
+    }
+
+    private boolean hasActivityIn(VehicleRoute route, String jobId) {
+        boolean isInRoute = false;
+        for (TourActivity act : route.getActivities()) {
+            if (act instanceof TourActivity.JobActivity) {
+                if (((TourActivity.JobActivity) act).getJob().getId().equals(jobId)) isInRoute = true;
+            }
+        }
+        return isInRoute;
     }
 
     @Test

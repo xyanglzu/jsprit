@@ -24,10 +24,6 @@ public class StopWatch {
 
     private double startTime;
 
-    public double getCompTimeInSeconds() {
-        return (ran) / 1000.0;
-    }
-
     public void stop() {
         ran += System.currentTimeMillis() - startTime;
     }
@@ -44,6 +40,10 @@ public class StopWatch {
     @Override
     public String toString() {
         return getCompTimeInSeconds() + " sec";
+    }
+
+    public double getCompTimeInSeconds() {
+        return (ran) / 1000.0;
     }
 
     public double getCurrTimeInSeconds() {

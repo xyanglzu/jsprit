@@ -103,13 +103,17 @@ public class VariationCoefficientTermination implements PrematureAlgorithmTermin
         return false;
     }
 
+    @Override
+    public void informAlgorithmStarts(VehicleRoutingProblem problem, VehicleRoutingAlgorithm algorithm, Collection<VehicleRoutingProblemSolution> solutions) {
+        reset();
+    }
+
     private void reset() {
         currentIteration = 0;
     }
 
-    @Override
-    public void informAlgorithmStarts(VehicleRoutingProblem problem, VehicleRoutingAlgorithm algorithm, Collection<VehicleRoutingProblemSolution> solutions) {
-        reset();
+    public void informIterationEnds(int i, VehicleRoutingProblem problem, VehicleRoutingProblemSolution solution) {
+        informIterationEnds(i, problem, toList(solution));
     }
 
     @Override
@@ -121,22 +125,18 @@ public class VariationCoefficientTermination implements PrematureAlgorithmTermin
         }
     }
 
-    public void informIterationEnds(int i, VehicleRoutingProblem problem, VehicleRoutingProblemSolution solution) {
-        informIterationEnds(i, problem, toList(solution));
-    }
-
     private List<VehicleRoutingProblemSolution> toList(VehicleRoutingProblemSolution solution) {
         List<VehicleRoutingProblemSolution> solutions = new ArrayList<>();
         solutions.add(solution);
         return solutions;
     }
 
+    public void informIterationStarts(int i, VehicleRoutingProblem problem, VehicleRoutingProblemSolution solution) {
+        informIterationStarts(i, problem, toList(solution));
+    }
+
     @Override
     public void informIterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
         if (lastAccepted == null) lastAccepted = Solutions.bestOf(solutions);
-    }
-
-    public void informIterationStarts(int i, VehicleRoutingProblem problem, VehicleRoutingProblemSolution solution) {
-        informIterationStarts(i, problem, toList(solution));
     }
 }

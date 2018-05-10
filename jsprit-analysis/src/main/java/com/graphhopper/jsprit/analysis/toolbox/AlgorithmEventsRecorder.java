@@ -56,17 +56,11 @@ import java.util.zip.GZIPOutputStream;
  */
 public class AlgorithmEventsRecorder implements RuinListener, IterationStartsListener, InsertionStartsListener, BeforeJobInsertionListener, InsertionEndsListener, AlgorithmEndsListener {
 
-    private boolean renderShipments = false;
-
     public static final int BEFORE_RUIN_RENDER_SOLUTION = 2;
-
     public static final int RUIN = 0;
-
     public static final int RECREATE = 1;
-
     public static final int CLEAR_SOLUTION = 3;
-
-
+    private boolean renderShipments = false;
     private Graph graph;
 
     private FileSinkDGS fileSink;
@@ -103,6 +97,94 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         initialiseGraph(vrp);
     }
 
+    private void initialiseGraph(VehicleRoutingProblem problem) {
+        for (Vehicle vehicle : problem.getVehicles()) {
+            addVehicle(vehicle);
+        }
+        for (Job job : problem.getJobs().values()) {
+            addJob(job);
+        }
+    }
+
+    private void addVehicle(Vehicle vehicle) {
+        String startId = makeStartId(vehicle);
+        Node node = graph.addNode(startId);
+        node.addAttribute("x", vehicle.getStartLocation().getCoordinate().getX());
+        node.addAttribute("y", vehicle.getStartLocation().getCoordinate().getY());
+        node.addAttribute("ui.class", "depot");
+
+        String endId = makeEndId(vehicle);
+        if (!startId.equals(endId)) {
+            Node endNode = graph.addNode(endId);
+            endNode.addAttribute("x", vehicle.getEndLocation().getCoordinate().getX());
+            endNode.addAttribute("y", vehicle.getEndLocation().getCoordinate().getY());
+            endNode.addAttribute("ui.class", "depot");
+        }
+    }
+
+    private void addJob(Job job) {
+        if (job instanceof Service) {
+            Service service = (Service) job;
+            addNode(service.getId(), service.getLocation().getCoordinate());
+            markService(service);
+        } else if (job instanceof Shipment) {
+            Shipment shipment = (Shipment) job;
+            String fromNodeId = getFromNodeId(shipment);
+            addNode(fromNodeId, shipment.getPickupLocation().getCoordinate());
+            String toNodeId = getToNodeId(shipment);
+            addNode(toNodeId, shipment.getDeliveryLocation().getCoordinate());
+            markShipment(shipment);
+            if (renderShipments) {
+                Edge e = graph.addEdge("shipment_" + fromNodeId + "_" + toNodeId, fromNodeId, toNodeId, true);
+                e.addAttribute("ui.class", "shipment");
+            }
+        }
+    }
+
+    private String makeStartId(Vehicle vehicle) {
+        return vehicle.getId() + "_start";
+    }
+
+    private String makeEndId(Vehicle vehicle) {
+        if (vehicle.getStartLocation().getId().equals(vehicle.getEndLocation().getId())) return makeStartId(vehicle);
+        return vehicle.getId() + "_end";
+    }
+
+    private void addNode(String nodeId, Coordinate nodeCoord) {
+        Node node = graph.addNode(nodeId);
+        node.addAttribute("x", nodeCoord.getX());
+        node.addAttribute("y", nodeCoord.getY());
+    }
+
+    private void markService(Service service) {
+        if (service instanceof Delivery) {
+            markDelivery(service.getId());
+        } else {
+            markPickup(service.getId());
+        }
+    }
+
+    private String getFromNodeId(Shipment shipment) {
+        return shipment.getId() + "_pickup";
+    }
+
+    private String getToNodeId(Shipment shipment) {
+        return shipment.getId() + "_delivery";
+    }
+
+    private void markShipment(Shipment shipment) {
+        markPickup(getFromNodeId(shipment));
+        markDelivery(getToNodeId(shipment));
+    }
+
+    private void markDelivery(String id) {
+        graph.getNode(id).addAttribute("ui.class", "delivery");
+    }
+
+    private void markPickup(String id) {
+        graph.getNode(id).addAttribute("ui.class", "pickup");
+    }
+
     public void setRecordingRange(int startIteration, int endIteration) {
         this.start_recording_at = startIteration;
         this.end_recording_at = endIteration;
@@ -115,6 +197,10 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         markAllNodesAsInserted();
         addRoutes(routes);
         fileSink.stepBegins(graph.getId(), 0, RUIN);
+    }
+
+    private boolean record() {
+        return currentIteration >= start_recording_at && currentIteration <= end_recording_at;
     }
 
     private void markAllNodesAsInserted() {
@@ -139,6 +225,14 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         }
     }
 
+    private void markInserted(Job job) {
+        if (job instanceof Service) {
+            markService((Service) job);
+        } else {
+            markShipment((Shipment) job);
+        }
+    }
+
     private String getNodeId(TourActivity act) {
         String nodeId = null;
         if (act instanceof TourActivity.JobActivity) {
@@ -153,8 +247,14 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         return nodeId;
     }
 
-    private boolean record() {
-        return currentIteration >= start_recording_at && currentIteration <= end_recording_at;
+    private void addEdge(String edgeId, String fromNode, String toNode) {
+        graph.addEdge(edgeId, fromNode, toNode, true);
+        markEdgeInserted(edgeId);
+    }
+
+    private void markEdgeInserted(String edgeId) {
+        graph.getEdge(edgeId).addAttribute("ui.class", "inserted");
+        graph.getEdge(edgeId).removeAttribute("ui.class");
     }
 
     @Override
@@ -231,14 +331,6 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         return null;
     }
 
-    private String getToNodeId(Shipment shipment) {
-        return shipment.getId() + "_delivery";
-    }
-
-    private String getFromNodeId(Shipment shipment) {
-        return shipment.getId() + "_pickup";
-    }
-
     private void removeService(Job job, VehicleRoute fromRoute) {
         String nodeId = job.getId();
         removeNodeAndBelongingEdges(nodeId, fromRoute);
@@ -295,86 +387,6 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         currentIteration = i;
     }
 
-    private void initialiseGraph(VehicleRoutingProblem problem) {
-        for (Vehicle vehicle : problem.getVehicles()) {
-            addVehicle(vehicle);
-        }
-        for (Job job : problem.getJobs().values()) {
-            addJob(job);
-        }
-    }
-
-    private void addJob(Job job) {
-        if (job instanceof Service) {
-            Service service = (Service) job;
-            addNode(service.getId(), service.getLocation().getCoordinate());
-            markService(service);
-        } else if (job instanceof Shipment) {
-            Shipment shipment = (Shipment) job;
-            String fromNodeId = getFromNodeId(shipment);
-            addNode(fromNodeId, shipment.getPickupLocation().getCoordinate());
-            String toNodeId = getToNodeId(shipment);
-            addNode(toNodeId, shipment.getDeliveryLocation().getCoordinate());
-            markShipment(shipment);
-            if (renderShipments) {
-                Edge e = graph.addEdge("shipment_" + fromNodeId + "_" + toNodeId, fromNodeId, toNodeId, true);
-                e.addAttribute("ui.class", "shipment");
-            }
-        }
-    }
-
-    private void markShipment(Shipment shipment) {
-        markPickup(getFromNodeId(shipment));
-        markDelivery(getToNodeId(shipment));
-    }
-
-    private void markService(Service service) {
-        if (service instanceof Delivery) {
-            markDelivery(service.getId());
-        } else {
-            markPickup(service.getId());
-        }
-    }
-
-    private void markPickup(String id) {
-        graph.getNode(id).addAttribute("ui.class", "pickup");
-    }
-
-    private void markDelivery(String id) {
-        graph.getNode(id).addAttribute("ui.class", "delivery");
-    }
-
-    private void addVehicle(Vehicle vehicle) {
-        String startId = makeStartId(vehicle);
-        Node node = graph.addNode(startId);
-        node.addAttribute("x", vehicle.getStartLocation().getCoordinate().getX());
-        node.addAttribute("y", vehicle.getStartLocation().getCoordinate().getY());
-        node.addAttribute("ui.class", "depot");
-
-        String endId = makeEndId(vehicle);
-        if (!startId.equals(endId)) {
-            Node endNode = graph.addNode(endId);
-            endNode.addAttribute("x", vehicle.getEndLocation().getCoordinate().getX());
-            endNode.addAttribute("y", vehicle.getEndLocation().getCoordinate().getY());
-            endNode.addAttribute("ui.class", "depot");
-        }
-    }
-
-    private String makeStartId(Vehicle vehicle) {
-        return vehicle.getId() + "_start";
-    }
-
-    private String makeEndId(Vehicle vehicle) {
-        if (vehicle.getStartLocation().getId().equals(vehicle.getEndLocation().getId())) return makeStartId(vehicle);
-        return vehicle.getId() + "_end";
-    }
-
-    private void addNode(String nodeId, Coordinate nodeCoord) {
-        Node node = graph.addNode(nodeId);
-        node.addAttribute("x", nodeCoord.getX());
-        node.addAttribute("y", nodeCoord.getY());
-    }
-
     @Override
     public void informInsertionEnds(Collection<VehicleRoute> vehicleRoutes) {
         if (!record()) return;
@@ -395,6 +407,15 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
                 removeEdge(prevNode + "_" + lastNode);
             }
         }
+    }
+
+    private void removeEdge(String edgeId) {
+        markEdgeRemoved(edgeId);
+        graph.removeEdge(edgeId);
+    }
+
+    private void markEdgeRemoved(String edgeId) {
+        graph.getEdge(edgeId).addAttribute("ui.class", "removed");
     }
 
     @Override
@@ -485,39 +506,12 @@ public class AlgorithmEventsRecorder implements RuinListener, IterationStartsLis
         }
     }
 
-    private void markInserted(Job job) {
-        if (job instanceof Service) {
-            markService((Service) job);
-        } else {
-            markShipment((Shipment) job);
-        }
-    }
-
-    private void removeEdge(String edgeId) {
-        markEdgeRemoved(edgeId);
-        graph.removeEdge(edgeId);
-    }
-
-    private void markEdgeRemoved(String edgeId) {
-        graph.getEdge(edgeId).addAttribute("ui.class", "removed");
-    }
-
     private boolean isFirst(int index) {
         return index == 0;
     }
 
     private boolean isLast(int index, VehicleRoute route) {
         return index == route.getActivities().size();
-    }
-
-    private void addEdge(String edgeId, String fromNode, String toNode) {
-        graph.addEdge(edgeId, fromNode, toNode, true);
-        markEdgeInserted(edgeId);
-    }
-
-    private void markEdgeInserted(String edgeId) {
-        graph.getEdge(edgeId).addAttribute("ui.class", "inserted");
-        graph.getEdge(edgeId).removeAttribute("ui.class");
     }
 
     @Override

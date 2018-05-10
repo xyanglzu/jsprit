@@ -51,12 +51,12 @@ public class RefuseCollectionWithFastMatrixExample {
     public static void main(String[] args) throws IOException {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * create vehicle-type and vehicle
-		 */
+         */
         VehicleTypeImpl.Builder typeBuilder = VehicleTypeImpl.Builder.newInstance("vehicle-type").addCapacityDimension(0, 23);
         typeBuilder.setCostPerDistance(1.0);
         VehicleTypeImpl bigType = typeBuilder.build();
@@ -66,21 +66,21 @@ public class RefuseCollectionWithFastMatrixExample {
         vehicleBuilder.setType(bigType);
         VehicleImpl bigVehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * start building the problem
-		 */
+         */
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         vrpBuilder.setFleetSize(FleetSize.INFINITE);
         vrpBuilder.addVehicle(bigVehicle);
 
-		/*
+        /*
          * read demand quantities
-		 */
+         */
         readDemandQuantities(vrpBuilder);
 
-		/*
+        /*
          * create cost-matrix
-		 */
+         */
         FastVehicleRoutingTransportCostsMatrix.Builder matrixBuilder = FastVehicleRoutingTransportCostsMatrix.Builder.newInstance(11, true);
         readDistances(matrixBuilder);
 
@@ -111,14 +111,14 @@ public class RefuseCollectionWithFastMatrixExample {
             String[] lineTokens = line.split(",");
             /*
              * build service
-			 */
+             */
             Service service = Service.Builder.newInstance(lineTokens[0])
                 .addSizeDimension(0, Integer.parseInt(lineTokens[1]))
                 .setLocation(Location.Builder.newInstance().setIndex(Integer.parseInt(lineTokens[0])).build())
                 .build();
             /*
-			 * and add it to problem
-			 */
+             * and add it to problem
+             */
             vrpBuilder.addJob(service);
         }
         reader.close();

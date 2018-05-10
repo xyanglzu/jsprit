@@ -18,8 +18,8 @@
   ~ limitations under the License.
   -->
 
-<algorithm xmlns="http://www.w3schools.com"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<algorithm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns="http://www.w3schools.com"
            xsi:schemaLocation="http://www.w3schools.com algorithm_schema.xsd">
 
     <maxIterations>2000</maxIterations>

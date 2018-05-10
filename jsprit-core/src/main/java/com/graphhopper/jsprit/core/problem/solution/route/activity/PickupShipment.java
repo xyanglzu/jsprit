@@ -23,7 +23,7 @@ import com.graphhopper.jsprit.core.problem.Location;
 import com.graphhopper.jsprit.core.problem.job.Job;
 import com.graphhopper.jsprit.core.problem.job.Shipment;
 
-public final class PickupShipment extends AbstractActivity implements PickupActivity{
+public final class PickupShipment extends AbstractActivity implements PickupActivity {
 
     private Shipment shipment;
 
@@ -54,14 +54,11 @@ public final class PickupShipment extends AbstractActivity implements PickupActi
         return shipment;
     }
 
-    @Override
-    public void setTheoreticalEarliestOperationStartTime(double earliest) {
-        this.earliest = earliest;
-    }
-
-    @Override
-    public void setTheoreticalLatestOperationStartTime(double latest) {
-        this.latest = latest;
+    public String toString() {
+        return "[type=" + getName() + "][locationId=" + getLocation().getId()
+            + "][size=" + getSize().toString()
+            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
+            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
     }
 
     @Override
@@ -80,8 +77,18 @@ public final class PickupShipment extends AbstractActivity implements PickupActi
     }
 
     @Override
+    public void setTheoreticalEarliestOperationStartTime(double earliest) {
+        this.earliest = earliest;
+    }
+
+    @Override
     public double getTheoreticalLatestOperationStartTime() {
         return latest;
+    }
+
+    @Override
+    public void setTheoreticalLatestOperationStartTime(double latest) {
+        this.latest = latest;
     }
 
     @Override
@@ -95,13 +102,13 @@ public final class PickupShipment extends AbstractActivity implements PickupActi
     }
 
     @Override
-    public double getEndTime() {
-        return endTime;
+    public void setArrTime(double arrTime) {
+        this.arrTime = arrTime;
     }
 
     @Override
-    public void setArrTime(double arrTime) {
-        this.arrTime = arrTime;
+    public double getEndTime() {
+        return endTime;
     }
 
     @Override
@@ -110,20 +117,13 @@ public final class PickupShipment extends AbstractActivity implements PickupActi
     }
 
     @Override
-    public TourActivity duplicate() {
-        return new PickupShipment(this);
-    }
-
-    public String toString() {
-        return "[type=" + getName() + "][locationId=" + getLocation().getId()
-            + "][size=" + getSize().toString()
-            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
-            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
+    public Capacity getSize() {
+        return shipment.getSize();
     }
 
     @Override
-    public Capacity getSize() {
-        return shipment.getSize();
+    public TourActivity duplicate() {
+        return new PickupShipment(this);
     }
 
 

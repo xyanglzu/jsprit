@@ -43,13 +43,29 @@ import java.util.List;
 public class RegretInsertion extends AbstractInsertionStrategy {
 
 
-
     private static Logger logger = LoggerFactory.getLogger(RegretInsertionFast.class);
 
     private ScoringFunction scoringFunction;
 
     private JobInsertionCostsCalculator insertionCostsCalculator;
 
+
+    public RegretInsertion(JobInsertionCostsCalculator jobInsertionCalculator, VehicleRoutingProblem vehicleRoutingProblem) {
+        super(vehicleRoutingProblem);
+        this.scoringFunction = new DefaultScorer(vehicleRoutingProblem);
+        this.insertionCostsCalculator = jobInsertionCalculator;
+        this.vrp = vehicleRoutingProblem;
+        logger.debug("initialise {}", this);
+    }
+
+    static double score(Job unassignedJob, InsertionData best, InsertionData secondBest, ScoringFunction scoringFunction) {
+        return Scorer.score(unassignedJob, best, secondBest, scoringFunction);
+    }
+
+    @Override
+    public String toString() {
+        return "[name=regretInsertion][additionalScorer=" + scoringFunction + "]";
+    }
 
     /**
      * Sets the scoring function.
@@ -62,20 +78,6 @@ public class RegretInsertion extends AbstractInsertionStrategy {
         this.scoringFunction = scoringFunction;
     }
 
-    public RegretInsertion(JobInsertionCostsCalculator jobInsertionCalculator, VehicleRoutingProblem vehicleRoutingProblem) {
-        super(vehicleRoutingProblem);
-        this.scoringFunction = new DefaultScorer(vehicleRoutingProblem);
-        this.insertionCostsCalculator = jobInsertionCalculator;
-        this.vrp = vehicleRoutingProblem;
-        logger.debug("initialise {}", this);
-    }
-
-    @Override
-    public String toString() {
-        return "[name=regretInsertion][additionalScorer=" + scoringFunction + "]";
-    }
-
-
     /**
      * Runs insertion.
      * <p>
@@ -86,14 +88,13 @@ public class RegretInsertion extends AbstractInsertionStrategy {
         List<Job> badJobs = new ArrayList<Job>(unassignedJobs.size());
 
         Iterator<Job> jobIterator = unassignedJobs.iterator();
-        while (jobIterator.hasNext()){
+        while (jobIterator.hasNext()) {
             Job job = jobIterator.next();
-            if(job instanceof Break){
-                VehicleRoute route = findRoute(routes,job);
-                if(route == null){
+            if (job instanceof Break) {
+                VehicleRoute route = findRoute(routes, job);
+                if (route == null) {
                     badJobs.add(job);
-                }
-                else {
+                } else {
                     InsertionData iData = insertionCostsCalculator.getInsertionData(route, job, NO_NEW_VEHICLE_YET, NO_NEW_DEPARTURE_TIME_YET, NO_NEW_DRIVER_YET, Double.MAX_VALUE);
                     if (iData instanceof InsertionData.NoInsertionFound) {
                         badJobs.add(job);
@@ -125,13 +126,6 @@ public class RegretInsertion extends AbstractInsertionStrategy {
             }
         }
         return badJobs;
-    }
-
-    private VehicleRoute findRoute(Collection<VehicleRoute> routes, Job job) {
-        for(VehicleRoute r : routes){
-            if(r.getVehicle().getBreak() == job) return r;
-        }
-        return null;
     }
 
     private ScoredJob nextJob(Collection<VehicleRoute> routes, Collection<Job> unassignedJobList, List<ScoredJob> badJobs) {
@@ -209,9 +203,11 @@ public class RegretInsertion extends AbstractInsertionStrategy {
         return scoredJob;
     }
 
-
-    static double score(Job unassignedJob, InsertionData best, InsertionData secondBest, ScoringFunction scoringFunction) {
-        return Scorer.score(unassignedJob,best,secondBest,scoringFunction);
+    private VehicleRoute findRoute(Collection<VehicleRoute> routes, Job job) {
+        for (VehicleRoute r : routes) {
+            if (r.getVehicle().getBreak() == job) return r;
+        }
+        return null;
     }
 
 

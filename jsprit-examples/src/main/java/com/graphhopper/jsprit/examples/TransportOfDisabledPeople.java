@@ -52,12 +52,12 @@ public class TransportOfDisabledPeople {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and a capacity of 2
-		 */
+         */
         VehicleTypeImpl.Builder wheelChairTypeBuilder = VehicleTypeImpl.Builder.newInstance("wheelChairBusType")
             .addCapacityDimension(WHEELCHAIRSPACE_INDEX, 2) //can transport two people with wheelchair
             .addCapacityDimension(PASSENGERSEATS_INDEX, 4); //and 4 without
@@ -67,14 +67,14 @@ public class TransportOfDisabledPeople {
             .addCapacityDimension(PASSENGERSEATS_INDEX, 6); //and 4 without
         VehicleType vehicleType_solelypassenger = soleyPassengerTypeBuilder.build();
 
-		/*
+        /*
          * define two vehicles and their locations.
-		 *
-		 * this example employs two vehicles. one that has to return to its start-location (vehicle1) and one that has a different
-		 * end-location.
-		 *
-		 * play with these location to see which impact they have on customer-sequences.
-		 */
+         *
+         * this example employs two vehicles. one that has to return to its start-location (vehicle1) and one that has a different
+         * end-location.
+         *
+         * play with these location to see which impact they have on customer-sequences.
+         */
         Builder vehicleBuilder1 = VehicleImpl.Builder.newInstance("wheelchair_bus");
         vehicleBuilder1.setStartLocation(loc(Coordinate.newInstance(10, 10)));
         vehicleBuilder1.setType(vehicleType_wheelchair);
@@ -96,10 +96,10 @@ public class TransportOfDisabledPeople {
         VehicleImpl vehicle2_2 = vehicleBuilder2_2.build();
 
 
-		/*
+        /*
          * build shipments at the required locations, each with a capacity-demand of 1.
-		 *
-		 */
+         *
+         */
         Shipment shipment1 = Shipment.Builder.newInstance("wheelchair_1").addSizeDimension(WHEELCHAIRSPACE_INDEX, 1).setPickupLocation(loc(Coordinate.newInstance(5, 7))).setDeliveryLocation(loc(Coordinate.newInstance(6, 9))).build();
         Shipment shipment2 = Shipment.Builder.newInstance("2").addSizeDimension(PASSENGERSEATS_INDEX, 1).setPickupLocation(loc(Coordinate.newInstance(5, 13))).setDeliveryLocation(loc(Coordinate.newInstance(6, 11))).build();
 
@@ -141,10 +141,10 @@ public class TransportOfDisabledPeople {
         //you only have two vehicles
         vrpBuilder.setFleetSize(FleetSize.FINITE);
 
-		/*
+        /*
          *
-		 * wheelchair-bus can only pickup passenger where x<15
-		 */
+         * wheelchair-bus can only pickup passenger where x<15
+         */
         HardRouteConstraint wheelchair_bus_passenger_pickup_constraint = new HardRouteConstraint() {
 
             @Override
@@ -170,32 +170,32 @@ public class TransportOfDisabledPeople {
         constraintManager.addConstraint(wheelchair_bus_passenger_pickup_constraint);
 
 
-        VehicleRoutingAlgorithm algorithm = Jsprit.Builder.newInstance(problem).setStateAndConstraintManager(stateManager,constraintManager).buildAlgorithm();
+        VehicleRoutingAlgorithm algorithm = Jsprit.Builder.newInstance(problem).setStateAndConstraintManager(stateManager, constraintManager).buildAlgorithm();
         algorithm.setPrematureAlgorithmTermination(new IterationWithoutImprovementTermination(100));
 
-		/*
+        /*
          * and search a solution
-		 */
+         */
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
-		/*
+        /*
          * get the best
-		 */
+         */
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
-		/*
-		 * write out problem and solution to xml-file
-		 */
+        /*
+         * write out problem and solution to xml-file
+         */
 //		new VrpXMLWriter(problem, solutions).write("output/shipment-problem-with-solution.xml");
 
-		/*
-		 * print nRoutes and totalCosts of bestSolution
-		 */
+        /*
+         * print nRoutes and totalCosts of bestSolution
+         */
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
 
-		/*
-		 * plot problem without solution
-		 */
+        /*
+         * plot problem without solution
+         */
         Plotter problemPlotter = new Plotter(problem);
         problemPlotter.plotShipments(true);
         problemPlotter.setLabel(Plotter.Label.SIZE);

@@ -30,30 +30,9 @@ import java.util.*;
 public class UnassignedJobReasonTracker implements JobUnassignedListener {
 
     private final static String NO_REASON = "cannot determine a particular reason";
-
-    public static String getMostLikelyFailedConstraintName(Frequency failedConstraintNamesFrequency) {
-        if (failedConstraintNamesFrequency == null || failedConstraintNamesFrequency.getUniqueCount() == 0)
-            return NO_REASON;
-        Iterator<Map.Entry<Comparable<?>, Long>> entryIterator = failedConstraintNamesFrequency.entrySetIterator();
-        long maxCount = 0;
-        String mostLikely = null;
-        while (entryIterator.hasNext()) {
-            Map.Entry<Comparable<?>, Long> entry = entryIterator.next();
-            if (entry.getValue() > maxCount) {
-                Comparable<?> key = entry.getKey();
-                maxCount = entry.getValue();
-                mostLikely = key.toString();
-            }
-        }
-        return mostLikely;
-    }
-
     Map<String, Frequency> failedConstraintNamesFrequencyMapping = new HashMap<>();
-
     Map<Integer, String> codesToHumanReadableReason = new HashMap<>();
-
     Map<String, Integer> failedConstraintNamesToCode = new HashMap<>();
-
     Set<String> failedConstraintNamesToBeIgnored = new HashSet<>();
 
     public UnassignedJobReasonTracker() {
@@ -115,15 +94,6 @@ public class UnassignedJobReasonTracker implements JobUnassignedListener {
     }
 
     /**
-     * Returns an unmodifiable map of codes and reason pairs.
-     *
-     * @return
-     */
-    public Map<Integer, String> getCodesToReason() {
-        return Collections.unmodifiableMap(codesToHumanReadableReason);
-    }
-
-    /**
      * Returns an unmodifiable map of constraint names (simple name of constraint) and reason code pairs.
      *
      * @return
@@ -132,16 +102,42 @@ public class UnassignedJobReasonTracker implements JobUnassignedListener {
         return Collections.unmodifiableMap(failedConstraintNamesToCode);
     }
 
-    public int getCode(String failedConstraintName) {
-        return toCode(failedConstraintName);
-    }
-
     public String getHumanReadableReason(int code) {
         return getCodesToReason().get(code);
     }
 
+    public static String getMostLikelyFailedConstraintName(Frequency failedConstraintNamesFrequency) {
+        if (failedConstraintNamesFrequency == null || failedConstraintNamesFrequency.getUniqueCount() == 0)
+            return NO_REASON;
+        Iterator<Map.Entry<Comparable<?>, Long>> entryIterator = failedConstraintNamesFrequency.entrySetIterator();
+        long maxCount = 0;
+        String mostLikely = null;
+        while (entryIterator.hasNext()) {
+            Map.Entry<Comparable<?>, Long> entry = entryIterator.next();
+            if (entry.getValue() > maxCount) {
+                Comparable<?> key = entry.getKey();
+                maxCount = entry.getValue();
+                mostLikely = key.toString();
+            }
+        }
+        return mostLikely;
+    }
+
     public String getHumanReadableReason(String failedConstraintName) {
         return getCodesToReason().get(getCode(failedConstraintName));
+    }
+
+    /**
+     * Returns an unmodifiable map of codes and reason pairs.
+     *
+     * @return
+     */
+    public Map<Integer, String> getCodesToReason() {
+        return Collections.unmodifiableMap(codesToHumanReadableReason);
+    }
+
+    public int getCode(String failedConstraintName) {
+        return toCode(failedConstraintName);
     }
 
     /**
@@ -162,6 +158,12 @@ public class UnassignedJobReasonTracker implements JobUnassignedListener {
         return toCode(mostLikelyReason);
     }
 
+    private int toCode(String mostLikelyReason) {
+        if (failedConstraintNamesToCode.containsKey(mostLikelyReason))
+            return failedConstraintNamesToCode.get(mostLikelyReason);
+        else return -1;
+    }
+
     /**
      * Returns the most likely reason i.e. the reason (failed constraint) being observed most often.
      *
@@ -176,12 +178,6 @@ public class UnassignedJobReasonTracker implements JobUnassignedListener {
         int code = toCode(mostLikelyReason);
         if (code == -1) return mostLikelyReason;
         else return codesToHumanReadableReason.get(code);
-    }
-
-    private int toCode(String mostLikelyReason) {
-        if (failedConstraintNamesToCode.containsKey(mostLikelyReason))
-            return failedConstraintNamesToCode.get(mostLikelyReason);
-        else return -1;
     }
 
 

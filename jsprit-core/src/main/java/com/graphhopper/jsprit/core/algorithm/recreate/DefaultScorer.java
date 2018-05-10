@@ -27,7 +27,7 @@ import com.graphhopper.jsprit.core.problem.job.Shipment;
 /**
  * Created by schroeder on 15/10/15.
  */
-public class DefaultScorer implements ScoringFunction  {
+public class DefaultScorer implements ScoringFunction {
 
     private VehicleRoutingProblem vrp;
 
@@ -60,6 +60,19 @@ public class DefaultScorer implements ScoringFunction  {
         return score;
     }
 
+    private double scoreService(InsertionData best, Job job) {
+        Location location = ((Service) job).getLocation();
+        double maxDepotDistance = 0;
+        if (location != null) {
+            maxDepotDistance = Math.max(
+                getDistance(best.getSelectedVehicle().getStartLocation(), location),
+                getDistance(best.getSelectedVehicle().getEndLocation(), location)
+            );
+        }
+        return Math.max(timeWindowParam * (((Service) job).getTimeWindow().getEnd() - ((Service) job).getTimeWindow().getStart()), minTimeWindowScore) +
+            depotDistanceParam * maxDepotDistance;
+    }
+
     private double scoreShipment(InsertionData best, Job job) {
         Shipment shipment = (Shipment) job;
         double maxDepotDistance_1 = Math.max(
@@ -75,20 +88,6 @@ public class DefaultScorer implements ScoringFunction  {
             shipment.getDeliveryTimeWindow().getEnd() - shipment.getDeliveryTimeWindow().getStart());
         return Math.max(timeWindowParam * minTimeToOperate, minTimeWindowScore) + depotDistanceParam * maxDepotDistance;
     }
-
-    private double scoreService(InsertionData best, Job job) {
-        Location location = ((Service) job).getLocation();
-        double maxDepotDistance = 0;
-        if (location != null) {
-            maxDepotDistance = Math.max(
-                getDistance(best.getSelectedVehicle().getStartLocation(), location),
-                getDistance(best.getSelectedVehicle().getEndLocation(), location)
-            );
-        }
-        return Math.max(timeWindowParam * (((Service) job).getTimeWindow().getEnd() - ((Service) job).getTimeWindow().getStart()), minTimeWindowScore) +
-            depotDistanceParam * maxDepotDistance;
-    }
-
 
     private double getDistance(Location loc1, Location loc2) {
         return vrp.getTransportCosts().getTransportCost(loc1, loc2, 0., null, null);

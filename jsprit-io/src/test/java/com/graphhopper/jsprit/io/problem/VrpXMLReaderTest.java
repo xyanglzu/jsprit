@@ -85,6 +85,14 @@ public class VrpXMLReaderTest {
         assertTrue(idsInCollection(Arrays.asList("v1", "v2"), vrp.getVehicles()));
     }
 
+    private boolean idsInCollection(List<String> asList, Collection<Vehicle> vehicles) {
+        List<String> ids = new ArrayList<String>(asList);
+        for (Vehicle v : vehicles) {
+            if (ids.contains(v.getId())) ids.remove(v.getId());
+        }
+        return ids.isEmpty();
+    }
+
     @Test
     public void whenReadingVrp_vehiclesAreReadCorrectly2() {
         VehicleRoutingProblem.Builder builder = VehicleRoutingProblem.Builder.newInstance();
@@ -100,6 +108,11 @@ public class VrpXMLReaderTest {
         assertNotNull(v1.getStartLocation());
         assertEquals(1, v1.getStartLocation().getIndex());
         assertEquals(1000.0, v1.getLatestArrival(), 0.01);
+    }
+
+    private Vehicle getVehicle(String string, Collection<Vehicle> vehicles) {
+        for (Vehicle v : vehicles) if (string.equals(v.getId())) return v;
+        return null;
     }
 
     @Test
@@ -136,19 +149,6 @@ public class VrpXMLReaderTest {
         VehicleRoutingProblem vrp = builder.build();
         Vehicle v = getVehicle("v2", vrp.getVehicles());
         assertEquals(0, v.getSkills().values().size());
-    }
-
-    private Vehicle getVehicle(String string, Collection<Vehicle> vehicles) {
-        for (Vehicle v : vehicles) if (string.equals(v.getId())) return v;
-        return null;
-    }
-
-    private boolean idsInCollection(List<String> asList, Collection<Vehicle> vehicles) {
-        List<String> ids = new ArrayList<String>(asList);
-        for (Vehicle v : vehicles) {
-            if (ids.contains(v.getId())) ids.remove(v.getId());
-        }
-        return ids.isEmpty();
     }
 
     @Test

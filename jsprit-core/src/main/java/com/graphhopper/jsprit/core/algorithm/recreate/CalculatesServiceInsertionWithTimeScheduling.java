@@ -36,46 +36,19 @@ import java.util.Random;
 class CalculatesServiceInsertionWithTimeScheduling implements JobInsertionCostsCalculator {
 
 
-    public static class KnowledgeInjection implements InsertionStartsListener {
-        private CalculatesServiceInsertionWithTimeScheduling c;
-
-        public KnowledgeInjection(CalculatesServiceInsertionWithTimeScheduling c) {
-            super();
-            this.c = c;
-        }
-
-        @Override
-        public void informInsertionStarts(Collection<VehicleRoute> vehicleRoutes, Collection<Job> unassignedJobs) {
-            List<Double> knowledge = new ArrayList<Double>();
-            if (vehicleRoutes.isEmpty()) {
-//                System.out.println("hmm");
-            }
-            for (VehicleRoute route : vehicleRoutes) {
-//                if(route.getDepartureTime() == 21600.){
-//                    System.out.println("hu");
-//                }
-                knowledge.add(route.getDepartureTime());
-            }
-            c.setDepartureTimeKnowledge(knowledge);
-        }
-    }
-
     private static Logger log = LoggerFactory.getLogger(CalculatesServiceInsertionWithTimeScheduling.class);
-
     private JobInsertionCostsCalculator jic;
-
     private List<Double> departureTimeKnowledge = new ArrayList<Double>();
-
-    public void setRandom(Random random) {
-        this.random = random;
-    }
-
     private Random random = RandomNumberGeneration.getRandom();
 
     CalculatesServiceInsertionWithTimeScheduling(JobInsertionCostsCalculator jic, double t, double f) {
         super();
         this.jic = jic;
         log.debug("initialise " + this);
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
     }
 
     @Override
@@ -103,5 +76,29 @@ class CalculatesServiceInsertionWithTimeScheduling implements JobInsertionCostsC
 
     public void setDepartureTimeKnowledge(List<Double> departureTimes) {
         departureTimeKnowledge = departureTimes;
+    }
+
+    public static class KnowledgeInjection implements InsertionStartsListener {
+        private CalculatesServiceInsertionWithTimeScheduling c;
+
+        public KnowledgeInjection(CalculatesServiceInsertionWithTimeScheduling c) {
+            super();
+            this.c = c;
+        }
+
+        @Override
+        public void informInsertionStarts(Collection<VehicleRoute> vehicleRoutes, Collection<Job> unassignedJobs) {
+            List<Double> knowledge = new ArrayList<Double>();
+            if (vehicleRoutes.isEmpty()) {
+//                System.out.println("hmm");
+            }
+            for (VehicleRoute route : vehicleRoutes) {
+//                if(route.getDepartureTime() == 21600.){
+//                    System.out.println("hu");
+//                }
+                knowledge.add(route.getDepartureTime());
+            }
+            c.setDepartureTimeKnowledge(knowledge);
+        }
     }
 }

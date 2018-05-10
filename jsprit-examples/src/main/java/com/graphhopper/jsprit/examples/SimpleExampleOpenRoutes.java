@@ -41,19 +41,19 @@ public class SimpleExampleOpenRoutes {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and a capacity of 2
-		 */
+         */
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         vehicleTypeBuilder.setFixedCost(100);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
         Builder vehicleBuilder = VehicleImpl.Builder.newInstance("vehicle");
         vehicleBuilder.setStartLocation(Location.newInstance(10, 10));
         vehicleBuilder.setType(vehicleType);
@@ -61,9 +61,9 @@ public class SimpleExampleOpenRoutes {
 
         VehicleImpl vehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * build services at the required locations, each with a capacity-demand of 1.
-		 */
+         */
         Service service1 = Service.Builder.newInstance("1").addSizeDimension(0, 1).setLocation(Location.newInstance(5, 7)).build();
         Service service2 = Service.Builder.newInstance("2").addSizeDimension(0, 1).setLocation(Location.newInstance(5, 13)).build();
 
@@ -77,28 +77,28 @@ public class SimpleExampleOpenRoutes {
 
         VehicleRoutingProblem problem = vrpBuilder.build();
 
-		/*
+        /*
          * get the algorithm out-of-the-box.
-		 */
+         */
         VehicleRoutingAlgorithm algorithm = Jsprit.createAlgorithm(problem);
 
-		/*
+        /*
          * and search a solution
-		 */
+         */
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
-		/*
+        /*
          * get the best
-		 */
+         */
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
         new VrpXMLWriter(problem, solutions).write("output/problem-with-solution.xml");
 
         SolutionPrinter.print(bestSolution);
 
-		/*
+        /*
          * plot
-		 */
+         */
 
         new Plotter(problem, bestSolution).plot("output/solution.png", "solution");
 

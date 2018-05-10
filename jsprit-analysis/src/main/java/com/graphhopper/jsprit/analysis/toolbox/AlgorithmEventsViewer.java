@@ -28,6 +28,70 @@ import java.io.IOException;
 
 public class AlgorithmEventsViewer {
 
+    private double zoomFactor;
+    private double scaling = 1.0;
+    private long delayRecreation = 5;
+    private long delayRuin = 5;
+    private long delay = 2;
+
+    public static void main(String[] args) throws IOException {
+        AlgorithmEventsViewer viewer = new AlgorithmEventsViewer();
+        viewer.setRuinDelay(10);
+        viewer.setRecreationDelay(5);
+        viewer.display("output/events.dgs.gz");
+    }
+
+    public void setRuinDelay(long delay_in_ms) {
+        this.delayRuin = delay_in_ms;
+    }
+
+    public void setRecreationDelay(long delay_in_ms) {
+        this.delayRecreation = delay_in_ms;
+    }
+
+    public void display(String dgsFile) {
+        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+        Graph graph = GraphStreamViewer.createMultiGraph("g", GraphStreamViewer.StyleSheets.BLUE_FOREST);
+        Viewer viewer = graph.display();
+        viewer.disableAutoLayout();
+
+        FileSource fs = new FileSourceDGS();
+        fs.addSink(graph);
+
+        DelayContainer delayContainer = new DelayContainer();
+        DelaySink delaySink = new DelaySink(delayContainer);
+        delaySink.setDelay(delay);
+        delaySink.setRecreateDelay(delayRecreation);
+        delaySink.setRuinDelay(delayRuin);
+        fs.addSink(delaySink);
+
+        try {
+            fs.begin(dgsFile);
+            while (fs.nextEvents()) {
+                sleep(delayContainer.delay);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            fs.end();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            fs.removeSink(graph);
+        }
+    }
+
+    private static void sleep(long renderDelay_in_ms2) {
+        try {
+            Thread.sleep(renderDelay_in_ms2);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     private static class DelayContainer {
 
         long delay = 0;
@@ -142,74 +206,6 @@ public class AlgorithmEventsViewer {
             } else if (step == AlgorithmEventsRecorder.BEFORE_RUIN_RENDER_SOLUTION) {
                 delayContainer.delay = delay;
             }
-        }
-    }
-
-    private double zoomFactor;
-
-    private double scaling = 1.0;
-
-    private long delayRecreation = 5;
-
-    private long delayRuin = 5;
-
-    private long delay = 2;
-
-    public void setRecreationDelay(long delay_in_ms) {
-        this.delayRecreation = delay_in_ms;
-    }
-
-    public void setRuinDelay(long delay_in_ms) {
-        this.delayRuin = delay_in_ms;
-    }
-
-    public void display(String dgsFile) {
-        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-        Graph graph = GraphStreamViewer.createMultiGraph("g", GraphStreamViewer.StyleSheets.BLUE_FOREST);
-        Viewer viewer = graph.display();
-        viewer.disableAutoLayout();
-
-        FileSource fs = new FileSourceDGS();
-        fs.addSink(graph);
-
-        DelayContainer delayContainer = new DelayContainer();
-        DelaySink delaySink = new DelaySink(delayContainer);
-        delaySink.setDelay(delay);
-        delaySink.setRecreateDelay(delayRecreation);
-        delaySink.setRuinDelay(delayRuin);
-        fs.addSink(delaySink);
-
-        try {
-            fs.begin(dgsFile);
-            while (fs.nextEvents()) {
-                sleep(delayContainer.delay);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            fs.end();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            fs.removeSink(graph);
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-        AlgorithmEventsViewer viewer = new AlgorithmEventsViewer();
-        viewer.setRuinDelay(10);
-        viewer.setRecreationDelay(5);
-        viewer.display("output/events.dgs.gz");
-    }
-
-    private static void sleep(long renderDelay_in_ms2) {
-        try {
-            Thread.sleep(renderDelay_in_ms2);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
     }
 

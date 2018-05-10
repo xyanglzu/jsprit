@@ -37,12 +37,15 @@ class StateFactory {
         return new StateIdImpl(name, -1);
     }
 
+    static void throwReservedIdException(String name) {
+        throw new IllegalStateException("state-id with name '" + name + "' cannot be created. it is already reserved internally.");
+    }
+
     static StateId createId(String name, int index) {
         if (reservedIds.contains(name)) throwReservedIdException(name);
         if (index < 10) throwReservedIdException(name);
         return new StateIdImpl(name, index);
     }
-
 
     static boolean isReservedId(String stateId) {
         return reservedIds.contains(stateId);
@@ -52,14 +55,16 @@ class StateFactory {
         return reservedIds.contains(stateId.toString());
     }
 
-    static void throwReservedIdException(String name) {
-        throw new IllegalStateException("state-id with name '" + name + "' cannot be created. it is already reserved internally.");
-    }
-
-
     static class StateIdImpl implements StateId {
 
         private int index;
+        private String name;
+
+        public StateIdImpl(String name, int index) {
+            super();
+            this.name = name;
+            this.index = index;
+        }
 
         public int getIndex() {
             return index;
@@ -94,14 +99,6 @@ class StateFactory {
             } else if (!name.equals(other.name))
                 return false;
             return true;
-        }
-
-        private String name;
-
-        public StateIdImpl(String name, int index) {
-            super();
-            this.name = name;
-            this.index = index;
         }
 
         public String toString() {

@@ -52,12 +52,12 @@ public class RefuseCollectionExample {
     public static void main(String[] args) throws IOException {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * create vehicle-type and vehicle
-		 */
+         */
         VehicleTypeImpl.Builder typeBuilder = VehicleTypeImpl.Builder.newInstance("vehicle-type").addCapacityDimension(0, 23);
         typeBuilder.setCostPerDistance(1.0);
         VehicleTypeImpl bigType = typeBuilder.build();
@@ -67,21 +67,21 @@ public class RefuseCollectionExample {
         vehicleBuilder.setType(bigType);
         VehicleImpl bigVehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * start building the problem
-		 */
+         */
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         vrpBuilder.setFleetSize(FleetSize.INFINITE);
         vrpBuilder.addVehicle(bigVehicle);
 
-		/*
+        /*
          * read demand quantities
-		 */
+         */
         readDemandQuantities(vrpBuilder);
 
-		/*
+        /*
          * create cost-matrix
-		 */
+         */
         VehicleRoutingTransportCostsMatrix.Builder matrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
         readDistances(matrixBuilder);
 
@@ -112,11 +112,11 @@ public class RefuseCollectionExample {
             String[] lineTokens = line.split(",");
             /*
              * build service
-			 */
+             */
             Service service = Service.Builder.newInstance(lineTokens[0]).addSizeDimension(0, Integer.parseInt(lineTokens[1])).setLocation(Location.newInstance(lineTokens[0])).build();
             /*
-			 * and add it to problem
-			 */
+             * and add it to problem
+             */
             vrpBuilder.addJob(service);
         }
         reader.close();

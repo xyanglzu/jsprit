@@ -48,19 +48,12 @@ import java.util.List;
 final class BreakInsertionCalculator implements JobInsertionCostsCalculator {
 
     private static final Logger logger = LoggerFactory.getLogger(BreakInsertionCalculator.class);
-
-    private HardRouteConstraint hardRouteLevelConstraint;
-
-    private HardActivityConstraint hardActivityLevelConstraint;
-
-    private SoftRouteConstraint softRouteConstraint;
-
-    private SoftActivityConstraint softActivityConstraint;
-
-    private VehicleRoutingTransportCosts transportCosts;
-
     private final VehicleRoutingActivityCosts activityCosts;
-
+    private HardRouteConstraint hardRouteLevelConstraint;
+    private HardActivityConstraint hardActivityLevelConstraint;
+    private SoftRouteConstraint softRouteConstraint;
+    private SoftActivityConstraint softActivityConstraint;
+    private VehicleRoutingTransportCosts transportCosts;
     private ActivityInsertionCostsCalculator additionalTransportCostsCalculator;
 
     private JobActivityFactory activityFactory;
@@ -165,7 +158,7 @@ final class BreakInsertionCalculator implements JobInsertionCostsCalculator {
                 }
             }
             double nextActArrTime = prevActStartTime + transportCosts.getTransportTime(prevAct.getLocation(), nextAct.getLocation(), prevActStartTime, newDriver, newVehicle);
-            prevActStartTime = Math.max(nextActArrTime, nextAct.getTheoreticalEarliestOperationStartTime()) + activityCosts.getActivityDuration(nextAct,nextActArrTime,newDriver,newVehicle);
+            prevActStartTime = Math.max(nextActArrTime, nextAct.getTheoreticalEarliestOperationStartTime()) + activityCosts.getActivityDuration(nextAct, nextActArrTime, newDriver, newVehicle);
             prevAct = nextAct;
             actIndex++;
             if (breakThis) break;

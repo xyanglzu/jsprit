@@ -19,12 +19,7 @@ package com.graphhopper.jsprit.core.util;
 
 public class Coordinate {
 
-    public static Coordinate newInstance(double x, double y) {
-        return new Coordinate(x, y);
-    }
-
     private final double x;
-
     private final double y;
 
     public Coordinate(double x, double y) {
@@ -33,17 +28,16 @@ public class Coordinate {
         this.y = y;
     }
 
+    public static Coordinate newInstance(double x, double y) {
+        return new Coordinate(x, y);
+    }
+
     public double getX() {
         return x;
     }
 
     public double getY() {
         return y;
-    }
-
-    @Override
-    public String toString() {
-        return "[x=" + x + "][y=" + y + "]";
     }
 
     @Override
@@ -72,6 +66,11 @@ public class Coordinate {
         if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
             return false;
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "[x=" + x + "][y=" + y + "]";
     }
 
 }

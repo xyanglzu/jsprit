@@ -96,6 +96,30 @@ public class LuiShenReader {
         close(reader);
     }
 
+    private BufferedReader getReader(String solomonFile) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(solomonFile));
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
+        }
+        return reader;
+    }
+
+    private String readLine(BufferedReader reader) {
+        try {
+            return reader.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Coordinate makeCoord(String xString, String yString) {
+        double x = Double.parseDouble(xString);
+        double y = Double.parseDouble(yString);
+        return new Coordinate(x * coordProjectionFactor, y * coordProjectionFactor);
+    }
+
     private void createVehicles(String vehicleFileName, String costScenario, String locationId, Coordinate coord, double start, double end) {
         BufferedReader reader = getReader(vehicleFileName);
 
@@ -131,6 +155,14 @@ public class LuiShenReader {
         close(reader);
     }
 
+    private void close(BufferedReader reader) {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private int getCostScenarioColumn(String costScenario) {
         if (costScenario.equals("a")) {
             return 2;
@@ -144,37 +176,5 @@ public class LuiShenReader {
 
     public void setCoordProjectionFactor(double coordProjectionFactor) {
         this.coordProjectionFactor = coordProjectionFactor;
-    }
-
-    private void close(BufferedReader reader) {
-        try {
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String readLine(BufferedReader reader) {
-        try {
-            return reader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Coordinate makeCoord(String xString, String yString) {
-        double x = Double.parseDouble(xString);
-        double y = Double.parseDouble(yString);
-        return new Coordinate(x * coordProjectionFactor, y * coordProjectionFactor);
-    }
-
-    private BufferedReader getReader(String solomonFile) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(solomonFile));
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
-        }
-        return reader;
     }
 }

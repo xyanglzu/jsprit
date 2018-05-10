@@ -34,7 +34,7 @@ import java.util.List;
 public class TestComparator {
 
     @Test
-    public void test(){
+    public void test() {
         Service s = Service.Builder.newInstance("1").setLocation(Location.newInstance("loc"))
             .setPriority(1).build();
         Service s2 = Service.Builder.newInstance("2").setLocation(Location.newInstance("loc"))

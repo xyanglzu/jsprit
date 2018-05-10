@@ -29,6 +29,96 @@ import com.graphhopper.jsprit.core.problem.Capacity;
  */
 public class VehicleTypeImpl implements VehicleType {
 
+    private final String typeId;
+    private final int capacity;
+    private final String profile;
+    private final VehicleTypeImpl.VehicleCostParams vehicleCostParams;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VehicleTypeImpl)) return false;
+
+        VehicleTypeImpl that = (VehicleTypeImpl) o;
+
+        if (Double.compare(that.maxVelocity, maxVelocity) != 0) return false;
+        if (!typeId.equals(that.typeId)) return false;
+        if (profile != null ? !profile.equals(that.profile) : that.profile != null) return false;
+        if (!vehicleCostParams.equals(that.vehicleCostParams)) return false;
+        return capacityDimensions.equals(that.capacityDimensions);
+    }
+
+    private final Capacity capacityDimensions;
+    private final double maxVelocity;
+    private Object userData;
+
+    /**
+     * priv constructor constructing vehicle-type
+     *
+     * @param builder
+     */
+    private VehicleTypeImpl(VehicleTypeImpl.Builder builder) {
+        this.userData = builder.userData;
+        typeId = builder.id;
+        capacity = builder.capacity;
+        maxVelocity = builder.maxVelo;
+        vehicleCostParams = new VehicleCostParams(builder.fixedCost, builder.perTime, builder.perDistance, builder.perWaitingTime, builder.perServiceTime);
+        capacityDimensions = builder.capacityDimensions;
+        profile = builder.profile;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = typeId.hashCode();
+        result = 31 * result + (profile != null ? profile.hashCode() : 0);
+        result = 31 * result + vehicleCostParams.hashCode();
+        result = 31 * result + capacityDimensions.hashCode();
+        temp = Double.doubleToLongBits(maxVelocity);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see basics.route.VehicleType#getTypeId()
+     */
+    @Override
+    public String getTypeId() {
+        return typeId;
+    }
+
+    @Override
+    public Capacity getCapacityDimensions() {
+        return capacityDimensions;
+    }
+
+    @Override
+    public double getMaxVelocity() {
+        return maxVelocity;
+    }
+
+    /* (non-Javadoc)
+     * @see basics.route.VehicleType#getVehicleCostParams()
+     */
+    @Override
+    public VehicleTypeImpl.VehicleCostParams getVehicleCostParams() {
+        return vehicleCostParams;
+    }
+
+    @Override
+    public String getProfile() {
+        return profile;
+    }
+
+    /**
+     * @return User-specific domain data associated with the vehicle
+     */
+    @Override
+    public Object getUserData() {
+        return userData;
+    }
+
     /**
      * CostParameter consisting of fixed cost parameter, time-based cost parameter and distance-based cost parameter.
      *
@@ -37,10 +127,6 @@ public class VehicleTypeImpl implements VehicleType {
     public static class VehicleCostParams {
 
 
-        public static VehicleTypeImpl.VehicleCostParams newInstance(double fix, double perTimeUnit, double perDistanceUnit) {
-            return new VehicleCostParams(fix, perTimeUnit, perDistanceUnit);
-        }
-
         public final double fix;
         @Deprecated
         public final double perTimeUnit;
@@ -48,7 +134,6 @@ public class VehicleTypeImpl implements VehicleType {
         public final double perDistanceUnit;
         public final double perWaitingTimeUnit;
         public final double perServiceTimeUnit;
-
         private VehicleCostParams(double fix, double perTimeUnit, double perDistanceUnit) {
             super();
             this.fix = fix;
@@ -77,6 +162,27 @@ public class VehicleTypeImpl implements VehicleType {
             this.perServiceTimeUnit = perServiceTimeUnit;
         }
 
+        public static VehicleTypeImpl.VehicleCostParams newInstance(double fix, double perTimeUnit, double perDistanceUnit) {
+            return new VehicleCostParams(fix, perTimeUnit, perDistanceUnit);
+        }
+
+        @Override
+        public int hashCode() {
+            int result;
+            long temp;
+            temp = Double.doubleToLongBits(fix);
+            result = (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(perTransportTimeUnit);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(perDistanceUnit);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(perWaitingTimeUnit);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            temp = Double.doubleToLongBits(perServiceTimeUnit);
+            result = 31 * result + (int) (temp ^ (temp >>> 32));
+            return result;
+        }
+
         @Override
         public String toString() {
             return "[fixed=" + fix + "][perTime=" + perTransportTimeUnit + "][perDistance=" + perDistanceUnit + "][perWaitingTimeUnit=" + perWaitingTimeUnit + "]";
@@ -96,22 +202,7 @@ public class VehicleTypeImpl implements VehicleType {
             return Double.compare(that.perServiceTimeUnit, perServiceTimeUnit) == 0;
         }
 
-        @Override
-        public int hashCode() {
-            int result;
-            long temp;
-            temp = Double.doubleToLongBits(fix);
-            result = (int) (temp ^ (temp >>> 32));
-            temp = Double.doubleToLongBits(perTransportTimeUnit);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            temp = Double.doubleToLongBits(perDistanceUnit);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            temp = Double.doubleToLongBits(perWaitingTimeUnit);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            temp = Double.doubleToLongBits(perServiceTimeUnit);
-            result = 31 * result + (int) (temp ^ (temp >>> 32));
-            return result;
-        }
+
     }
 
     /**
@@ -121,11 +212,6 @@ public class VehicleTypeImpl implements VehicleType {
      */
     public static class Builder {
 
-
-        public static VehicleTypeImpl.Builder newInstance(String id) {
-            if (id == null) throw new IllegalArgumentException();
-            return new Builder(id);
-        }
 
         private String id;
         private int capacity = 0;
@@ -138,33 +224,31 @@ public class VehicleTypeImpl implements VehicleType {
         private double perTime = 0.0;
         private double perWaitingTime = 0.0;
         private double perServiceTime = 0.0;
-
         private String profile = "car";
-
         private Capacity.Builder capacityBuilder = Capacity.Builder.newInstance();
-
         private Capacity capacityDimensions = null;
-
         private boolean dimensionAdded = false;
-
         private Object userData;
 
         private Builder(String id) {
             this.id = id;
         }
 
+        public static VehicleTypeImpl.Builder newInstance(String id) {
+            if (id == null) throw new IllegalArgumentException();
+            return new Builder(id);
+        }
 
         /**
          * Sets user specific domain data associated with the object.
-         *
+         * <p>
          * <p>
          * The user data is a black box for the framework, it only stores it,
          * but never interacts with it in any way.
          * </p>
          *
-         * @param userData
-         *            any object holding the domain specific user data
-         *            associated with the object.
+         * @param userData any object holding the domain specific user data
+         *                 associated with the object.
          * @return builder
          */
         public Builder setUserData(Object userData) {
@@ -178,8 +262,7 @@ public class VehicleTypeImpl implements VehicleType {
          *
          * @param inMeterPerSeconds
          * @return this builder
-         * @throws IllegalArgumentException
-         *             if velocity is smaller than zero
+         * @throws IllegalArgumentException if velocity is smaller than zero
          */
         public VehicleTypeImpl.Builder setMaxVelocity(double inMeterPerSeconds) {
             if (inMeterPerSeconds < 0.0)
@@ -290,7 +373,7 @@ public class VehicleTypeImpl implements VehicleType {
          * @param dimVal
          * @return the builder
          * @throws IllegalArgumentException if dimVal < 0
-         * @throws IllegalArgumentException    if capacity dimension is already set
+         * @throws IllegalArgumentException if capacity dimension is already set
          */
         public Builder addCapacityDimension(int dimIndex, int dimVal) {
             if (dimVal < 0) throw new IllegalArgumentException("The capacity value must not be negative.");
@@ -330,105 +413,11 @@ public class VehicleTypeImpl implements VehicleType {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof VehicleTypeImpl)) return false;
-
-        VehicleTypeImpl that = (VehicleTypeImpl) o;
-
-        if (Double.compare(that.maxVelocity, maxVelocity) != 0) return false;
-        if (!typeId.equals(that.typeId)) return false;
-        if (profile != null ? !profile.equals(that.profile) : that.profile != null) return false;
-        if (!vehicleCostParams.equals(that.vehicleCostParams)) return false;
-        return capacityDimensions.equals(that.capacityDimensions);
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = typeId.hashCode();
-        result = 31 * result + (profile != null ? profile.hashCode() : 0);
-        result = 31 * result + vehicleCostParams.hashCode();
-        result = 31 * result + capacityDimensions.hashCode();
-        temp = Double.doubleToLongBits(maxVelocity);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
-    }
-
-    private final String typeId;
-
-    private final int capacity;
-
-    private final String profile;
-
-    private final VehicleTypeImpl.VehicleCostParams vehicleCostParams;
-
-    private final Capacity capacityDimensions;
-
-    private final double maxVelocity;
-
-    private Object userData;
-
-    /**
-     * priv constructor constructing vehicle-type
-     *
-     * @param builder
-     */
-    private VehicleTypeImpl(VehicleTypeImpl.Builder builder) {
-        this.userData = builder.userData;
-        typeId = builder.id;
-        capacity = builder.capacity;
-        maxVelocity = builder.maxVelo;
-        vehicleCostParams = new VehicleCostParams(builder.fixedCost, builder.perTime, builder.perDistance, builder.perWaitingTime, builder.perServiceTime);
-        capacityDimensions = builder.capacityDimensions;
-        profile = builder.profile;
-    }
-
-    /**
-     * @return User-specific domain data associated with the vehicle
-     */
-    @Override
-    public Object getUserData() {
-        return userData;
-    }
-
-    /* (non-Javadoc)
-     * @see basics.route.VehicleType#getTypeId()
-     */
-    @Override
-    public String getTypeId() {
-        return typeId;
-    }
-
-    /* (non-Javadoc)
-     * @see basics.route.VehicleType#getVehicleCostParams()
-     */
-    @Override
-    public VehicleTypeImpl.VehicleCostParams getVehicleCostParams() {
-        return vehicleCostParams;
-    }
-
-    @Override
     public String toString() {
         return "[typeId=" + typeId + "]" +
             "[capacity=" + capacityDimensions + "]" +
             "[costs=" + vehicleCostParams + "]";
     }
 
-    @Override
-    public double getMaxVelocity() {
-        return maxVelocity;
-    }
-
-    @Override
-    public Capacity getCapacityDimensions() {
-        return capacityDimensions;
-    }
-
-    @Override
-    public String getProfile() {
-        return profile;
-    }
 
 }

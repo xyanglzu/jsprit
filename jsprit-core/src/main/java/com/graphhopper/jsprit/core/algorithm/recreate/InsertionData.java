@@ -32,15 +32,25 @@ import java.util.List;
 public class InsertionData {
 
 
-    public static class NoInsertionFound extends InsertionData {
-
-        public NoInsertionFound() {
-            super(Double.MAX_VALUE, NO_INDEX, NO_INDEX, null, null);
-        }
-
-    }
-
+    static int NO_INDEX = -1;
     private static InsertionData noInsertion = new NoInsertionFound();
+    private final double insertionCost;
+    private final int pickupInsertionIndex;
+    private final int deliveryInsertionIndex;
+    private final Vehicle selectedVehicle;
+    private final Driver selectedDriver;
+    private double departureTime;
+    private double additionalTime;
+    private List<Event> events = new ArrayList<Event>();
+    private List<String> reasons = new ArrayList<>();
+
+    public InsertionData(double insertionCost, int pickupInsertionIndex, int deliveryInsertionIndex, Vehicle vehicle, Driver driver) {
+        this.insertionCost = insertionCost;
+        this.pickupInsertionIndex = pickupInsertionIndex;
+        this.deliveryInsertionIndex = deliveryInsertionIndex;
+        this.selectedVehicle = vehicle;
+        this.selectedDriver = driver;
+    }
 
     /**
      * Returns an instance of InsertionData that represents an EmptyInsertionData (which might indicate
@@ -54,43 +64,15 @@ public class InsertionData {
         return noInsertion;
     }
 
-    static int NO_INDEX = -1;
-
-    private final double insertionCost;
-
-    private final int pickupInsertionIndex;
-
-    private final int deliveryInsertionIndex;
-
-    private final Vehicle selectedVehicle;
-
-    private final Driver selectedDriver;
-
-    private double departureTime;
-
-    private double additionalTime;
-
-    private List<Event> events = new ArrayList<Event>();
-
     List<Event> getEvents() {
         return events;
     }
-
-    private List<String> reasons = new ArrayList<>();
 
     /**
      * @return the additionalTime
      */
     public double getAdditionalTime() {
         return additionalTime;
-    }
-
-    public void addFailedConstrainName(String name) {
-        reasons.add(name);
-    }
-
-    public List<String> getFailedConstraintNames() {
-        return reasons;
     }
 
     /**
@@ -100,12 +82,12 @@ public class InsertionData {
         this.additionalTime = additionalTime;
     }
 
-    public InsertionData(double insertionCost, int pickupInsertionIndex, int deliveryInsertionIndex, Vehicle vehicle, Driver driver) {
-        this.insertionCost = insertionCost;
-        this.pickupInsertionIndex = pickupInsertionIndex;
-        this.deliveryInsertionIndex = deliveryInsertionIndex;
-        this.selectedVehicle = vehicle;
-        this.selectedDriver = driver;
+    public void addFailedConstrainName(String name) {
+        reasons.add(name);
+    }
+
+    public List<String> getFailedConstraintNames() {
+        return reasons;
     }
 
     @Override
@@ -170,6 +152,14 @@ public class InsertionData {
      */
     public void setVehicleDepartureTime(double departureTime) {
         this.departureTime = departureTime;
+    }
+
+    public static class NoInsertionFound extends InsertionData {
+
+        public NoInsertionFound() {
+            super(Double.MAX_VALUE, NO_INDEX, NO_INDEX, null, null);
+        }
+
     }
 
 

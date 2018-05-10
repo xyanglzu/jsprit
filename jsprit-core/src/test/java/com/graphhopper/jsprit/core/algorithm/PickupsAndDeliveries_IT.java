@@ -23,7 +23,6 @@ import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolutio
 import com.graphhopper.jsprit.core.util.LiLimReader;
 import com.graphhopper.jsprit.core.util.Solutions;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.util.Collection;
 
@@ -36,7 +35,7 @@ public class PickupsAndDeliveries_IT {
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         new LiLimReader(vrpBuilder).read(getClass().getResourceAsStream("lr101.txt"));
         VehicleRoutingProblem vrp = vrpBuilder.build();
-        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setProperty(Jsprit.Parameter.FAST_REGRET,"true").buildAlgorithm();
+        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setProperty(Jsprit.Parameter.FAST_REGRET, "true").buildAlgorithm();
         Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
         assertEquals(1650.8, Solutions.bestOf(solutions).getCost(), 80.);
         assertEquals(19, Solutions.bestOf(solutions).getRoutes().size(), 1);

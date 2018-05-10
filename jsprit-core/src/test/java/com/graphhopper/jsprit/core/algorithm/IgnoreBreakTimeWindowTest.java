@@ -40,13 +40,13 @@ import org.junit.Test;
 public class IgnoreBreakTimeWindowTest {
 
     @Test
-    public void doNotIgnoreBreakTW(){
+    public void doNotIgnoreBreakTW() {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType");
         VehicleType vehicleType = vehicleTypeBuilder.setCostPerWaitingTime(0.8).build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
 
         VehicleImpl vehicle2;
         {
@@ -57,13 +57,13 @@ public class IgnoreBreakTimeWindowTest {
             vehicleBuilder.setBreak(Break.Builder.newInstance("lunch").setTimeWindow(TimeWindow.newInstance(14, 14)).setServiceTime(1.).build());
             vehicle2 = vehicleBuilder.build();
         }
-		/*
+        /*
          * build services at the required locations, each with a capacity-demand of 1.
-		 */
+         */
 
 
         Service service4 = Service.Builder.newInstance("2").setLocation(Location.newInstance(0, 0))
-            .setServiceTime(1.).setTimeWindow(TimeWindow.newInstance(17,17)).build();
+            .setServiceTime(1.).setTimeWindow(TimeWindow.newInstance(17, 17)).build();
 
         Service service5 = Service.Builder.newInstance("3").setLocation(Location.newInstance(0, 0))
             .setServiceTime(1.).setTimeWindow(TimeWindow.newInstance(18, 18)).build();
@@ -99,12 +99,12 @@ public class IgnoreBreakTimeWindowTest {
 
     private boolean breakShouldBeTime(VehicleRoutingProblemSolution solution) {
         boolean inTime = true;
-        for(TourActivity act : solution.getRoutes().iterator().next().getActivities()){
-            if(act instanceof BreakActivity){
-                if(act.getEndTime() < ((BreakActivity) act).getJob().getTimeWindow().getStart()){
+        for (TourActivity act : solution.getRoutes().iterator().next().getActivities()) {
+            if (act instanceof BreakActivity) {
+                if (act.getEndTime() < ((BreakActivity) act).getJob().getTimeWindow().getStart()) {
                     inTime = false;
                 }
-                if(act.getArrTime() > ((BreakActivity) act).getJob().getTimeWindow().getEnd()){
+                if (act.getArrTime() > ((BreakActivity) act).getJob().getTimeWindow().getEnd()) {
                     inTime = false;
                 }
             }

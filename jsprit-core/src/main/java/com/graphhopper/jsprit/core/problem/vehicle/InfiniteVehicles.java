@@ -18,8 +18,6 @@
 package com.graphhopper.jsprit.core.problem.vehicle;
 
 
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 class InfiniteVehicles implements VehicleFleetManager {
@@ -43,11 +40,6 @@ class InfiniteVehicles implements VehicleFleetManager {
         logger.debug("initialise " + this);
     }
 
-    @Override
-    public String toString() {
-        return "[name=infiniteVehicle]";
-    }
-
     private void extractTypes(Collection<Vehicle> vehicles) {
         for (Vehicle v : vehicles) {
 //            VehicleTypeKey typeKey = new VehicleTypeKey(v.getType().getTypeId(), v.getStartLocation().getId(), v.getEndLocation().getId(), v.getEarliestDeparture(), v.getLatestArrival(), v.getSkills(), v.isReturnToDepot());
@@ -56,6 +48,10 @@ class InfiniteVehicles implements VehicleFleetManager {
         }
     }
 
+    @Override
+    public String toString() {
+        return "[name=infiniteVehicle]";
+    }
 
     @Override
     public void lock(Vehicle vehicle) {

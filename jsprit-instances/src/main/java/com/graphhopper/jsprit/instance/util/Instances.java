@@ -52,6 +52,10 @@ public class Instances {
         return instances;
     }
 
+    private static String getInstanceNu(int i) {
+        if (i < 10) return "0" + i;
+        return "" + i;
+    }
 
     private static double getBestKnown(String file) {
         try {
@@ -66,11 +70,6 @@ public class Instances {
             e.printStackTrace();
         }
         return 0;
-    }
-
-    private static String getInstanceNu(int i) {
-        if (i < 10) return "0" + i;
-        return "" + i;
     }
 
     /**

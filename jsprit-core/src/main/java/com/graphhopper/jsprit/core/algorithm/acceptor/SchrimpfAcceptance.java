@@ -71,14 +71,10 @@ public class SchrimpfAcceptance implements SolutionAcceptor, IterationStartsList
     private static Logger logger = LoggerFactory.getLogger(SchrimpfAcceptance.class.getName());
 
     private final double alpha;
-
-    private int maxIterations = 1000;
-
-    private int currentIteration = 0;
-
-    private double initialThreshold = 0.0;
-
     private final int solutionMemory;
+    private int maxIterations = 1000;
+    private int currentIteration = 0;
+    private double initialThreshold = 0.0;
 
     public SchrimpfAcceptance(int solutionMemory, double alpha) {
         this.alpha = alpha;
@@ -111,6 +107,11 @@ public class SchrimpfAcceptance implements SolutionAcceptor, IterationStartsList
         return solutionAccepted;
     }
 
+    private double getThreshold(int iteration) {
+        double scheduleVariable = (double) iteration / (double) maxIterations;
+        return initialThreshold * Math.exp(-1. * Math.log(2) * scheduleVariable / alpha);
+    }
+
     public boolean acceptSolution(VehicleRoutingProblemSolution solution, VehicleRoutingProblemSolution newSolution) {
         List<VehicleRoutingProblemSolution> solutions = new ArrayList<>();
         solutions.add(solution);
@@ -141,12 +142,6 @@ public class SchrimpfAcceptance implements SolutionAcceptor, IterationStartsList
     public String toString() {
         return "[name=SchrimpfAcceptance][alpha=" + alpha + "]";
     }
-
-    private double getThreshold(int iteration) {
-        double scheduleVariable = (double) iteration / (double) maxIterations;
-        return initialThreshold * Math.exp(-1. * Math.log(2) * scheduleVariable / alpha);
-    }
-
 
     @SuppressWarnings("UnusedDeclaration")
     public double getInitialThreshold() {

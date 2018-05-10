@@ -29,48 +29,8 @@ import java.util.*;
 
 public class TourActivities {
 
-    public static TourActivities copyOf(TourActivities tourActivities) {
-        return new TourActivities(tourActivities);
-    }
-
-    public static class ReverseActivityIterator implements Iterator<TourActivity> {
-
-        private List<TourActivity> acts;
-        private int currentIndex;
-
-        public ReverseActivityIterator(List<TourActivity> acts) {
-            super();
-            this.acts = acts;
-            currentIndex = acts.size() - 1;
-        }
-
-        @Override
-        public boolean hasNext() {
-            if (currentIndex >= 0) return true;
-            return false;
-        }
-
-        @Override
-        public TourActivity next() {
-            TourActivity act = acts.get(currentIndex);
-            currentIndex--;
-            return act;
-        }
-
-        public void reset() {
-            currentIndex = acts.size() - 1;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     private final ArrayList<TourActivity> tourActivities = new ArrayList<TourActivity>();
-
     private final Set<Job> jobs = new HashSet<Job>();
-
     private ReverseActivityIterator backward;
 
     private TourActivities(TourActivities tour2copy) {
@@ -81,12 +41,45 @@ public class TourActivities {
         }
     }
 
+    public List<TourActivity> getActivities() {
+        return Collections.unmodifiableList(tourActivities);
+    }
+
     public TourActivities() {
 
     }
 
-    public List<TourActivity> getActivities() {
-        return Collections.unmodifiableList(tourActivities);
+    public static TourActivities copyOf(TourActivities tourActivities) {
+        return new TourActivities(tourActivities);
+    }
+
+    /**
+     * Inserts the specified activity add the specified insertionIndex. Shifts the element currently at that position (if any) and
+     * any subsequent elements to the right (adds one to their indices).
+     * <p>If specified activity instanceof JobActivity, it adds job to jobList.
+     * <p>If insertionIndex > tourActivitiies.size(), it just adds the specified act at the end.
+     *
+     * @param insertionIndex index where activity needs to be inserted
+     * @param act            activity to be inserted
+     * @throws IndexOutOfBoundsException if insertionIndex < 0;
+     */
+    public void addActivity(int insertionIndex, TourActivity act) {
+
+        assert insertionIndex >= 0 : "insertionIndex < 0, this cannot be";
+
+        /*
+         * if 1 --> between start and act(0) --> act(0)
+         * if 2 && 2 <= acts.size --> between act(0) and act(1) --> act(1)
+         * if 2 && 2 > acts.size --> at actEnd
+         * ...
+         *
+         */
+        if (insertionIndex < tourActivities.size()) {
+            tourActivities.add(insertionIndex, act);
+        } else if (insertionIndex >= tourActivities.size()) {
+            tourActivities.add(act);
+        }
+        addJob(act);
     }
 
     public Iterator<TourActivity> iterator() {
@@ -146,7 +139,6 @@ public class TourActivities {
     }
 
 
-
     /**
      * Removes activity from this activity sequence. Removes its corresponding job as well, if there are no other activities
      * related to this job.
@@ -180,34 +172,12 @@ public class TourActivities {
         return actRemoved;
     }
 
-
-    /**
-     * Inserts the specified activity add the specified insertionIndex. Shifts the element currently at that position (if any) and
-     * any subsequent elements to the right (adds one to their indices).
-     * <p>If specified activity instanceof JobActivity, it adds job to jobList.
-     * <p>If insertionIndex > tourActivitiies.size(), it just adds the specified act at the end.
-     *
-     * @param insertionIndex index where activity needs to be inserted
-     * @param act            activity to be inserted
-     * @throws IndexOutOfBoundsException if insertionIndex < 0;
-     */
-    public void addActivity(int insertionIndex, TourActivity act) {
-
-        assert insertionIndex >= 0 : "insertionIndex < 0, this cannot be";
-
-		/*
-         * if 1 --> between start and act(0) --> act(0)
-		 * if 2 && 2 <= acts.size --> between act(0) and act(1) --> act(1)
-		 * if 2 && 2 > acts.size --> at actEnd
-		 * ...
-		 *
-		 */
-        if (insertionIndex < tourActivities.size()) {
-            tourActivities.add(insertionIndex, act);
-        } else if (insertionIndex >= tourActivities.size()) {
-            tourActivities.add(act);
+    private void addJob(TourActivity act) {
+        if (act instanceof JobActivity) {
+            Job job = ((JobActivity) act).getJob();
+//            if(job instanceof Service) assert !jobs.contains(job);
+            jobs.add(job);
         }
-        addJob(act);
     }
 
     /**
@@ -224,14 +194,6 @@ public class TourActivities {
         addJob(act);
     }
 
-    private void addJob(TourActivity act) {
-        if (act instanceof JobActivity) {
-            Job job = ((JobActivity) act).getJob();
-//            if(job instanceof Service) assert !jobs.contains(job);
-            jobs.add(job);
-        }
-    }
-
     /**
      * Returns number of jobs assiciated to activities in this activity sequence.
      *
@@ -245,6 +207,40 @@ public class TourActivities {
         if (backward == null) backward = new ReverseActivityIterator(tourActivities);
         else backward.reset();
         return backward;
+    }
+
+    public static class ReverseActivityIterator implements Iterator<TourActivity> {
+
+        private List<TourActivity> acts;
+        private int currentIndex;
+
+        public ReverseActivityIterator(List<TourActivity> acts) {
+            super();
+            this.acts = acts;
+            currentIndex = acts.size() - 1;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (currentIndex >= 0) return true;
+            return false;
+        }
+
+        @Override
+        public TourActivity next() {
+            TourActivity act = acts.get(currentIndex);
+            currentIndex--;
+            return act;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void reset() {
+            currentIndex = acts.size() - 1;
+        }
     }
 
 

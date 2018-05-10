@@ -112,103 +112,12 @@ public class SolutionAnalyserTest {
         solution = new VehicleRoutingProblemSolution(Arrays.asList(route1, route2), 42);
     }
 
-
-    public void buildAnotherScenarioWithOnlyOneVehicleAndWithoutAnyConstraintsBefore() {
-        VehicleType type = VehicleTypeImpl.Builder.newInstance("type").setFixedCost(100.).setCostPerDistance(2.).addCapacityDimension(0, 15).build();
-
-        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("v1").setType(type)
-            .setStartLocation(Location.newInstance(-5, 0))
-            .setLatestArrival(150.)
-            .build();
-
-        Pickup s1 = Pickup.Builder.newInstance("s1")
-            .setTimeWindow(TimeWindow.newInstance(10, 20))
-            .setLocation(Location.newInstance(-10, 1))
-            .addSizeDimension(0, 10)
-            .build();
-        Delivery s2 = Delivery.Builder.newInstance("s2")
-            .setLocation(Location.newInstance(-10, 10))
-            .setTimeWindow(TimeWindow.newInstance(10, 20))
-            .addSizeDimension(0, 20)
-            .build();
-        Shipment shipment1 = Shipment.Builder.newInstance("ship1").setPickupLocation(TestUtils.loc(Coordinate.newInstance(-15, 2)))
-            .setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(-16, 5)))
-            .addSizeDimension(0, 15)
-            .setPickupServiceTime(20.).setDeliveryServiceTime(20.)
-            .setPickupTimeWindow(TimeWindow.newInstance(10, 20)).setDeliveryTimeWindow(TimeWindow.newInstance(10, 20))
-            .build();
-
-        Pickup s3 = Pickup.Builder.newInstance("s3")
-            .setTimeWindow(TimeWindow.newInstance(10, 20))
-            .setLocation(TestUtils.loc(Coordinate.newInstance(10, 1)))
-            .addSizeDimension(0, 10)
-            .build();
-        Delivery s4 = Delivery.Builder.newInstance("s4").setLocation(Location.newInstance(10, 10))
-            .addSizeDimension(0, 20)
-            .setTimeWindow(TimeWindow.newInstance(10, 20))
-            .build();
-        Shipment shipment2 = Shipment.Builder.newInstance("ship2").setPickupLocation(TestUtils.loc(Coordinate.newInstance(15, 2)))
-            .setPickupServiceTime(20.).setDeliveryServiceTime(20.)
-            .setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(16, 5)))
-            .setPickupTimeWindow(TimeWindow.newInstance(10, 20)).setDeliveryTimeWindow(TimeWindow.newInstance(10, 20))
-            .addSizeDimension(0, 15).build();
-
-        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance().addVehicle(vehicle)
-            .addJob(s1)
-            .addJob(s2).addJob(shipment1).addJob(s3).addJob(s4).addJob(shipment2).setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
-        vrpBuilder.setRoutingCost(new ManhattanCosts(vrpBuilder.getLocations()));
-        vrp = vrpBuilder.build();
-
-        VehicleRoute route = VehicleRoute.Builder.newInstance(vehicle).setJobActivityFactory(vrp.getJobActivityFactory())
-            .addPickup(s3)
-            .addPickup(shipment2).addDelivery(shipment2)
-            .addDelivery(s4)
-            .addDelivery(s2)
-            .addPickup(shipment1).addDelivery(shipment1)
-            .addPickup(s1)
-            .build();
-
-        solution = new VehicleRoutingProblemSolution(Arrays.asList(route), 300);
-    }
-
     /**
      * Test the last transport costs at an activity are correct.
      */
     @Test
     public void lastTransportCostsOfRoute1ShouldWork() {
         testTransportCosts(TransportCostsTestType.LAST_COST);
-    }
-
-    /**
-     * Test the last transport distance at an activity are correct.
-     */
-    @Test
-    public void lastTransportDistanceOfRoute1ShouldWork() {
-        testTransportCosts(TransportCostsTestType.LAST_DISTANCE);
-    }
-
-
-    /**
-     * Test the last transport time at an activity are correct.
-     */
-    @Test
-    public void lastTransportTimeOfRoute1ShouldWork() {
-        testTransportCosts(TransportCostsTestType.LAST_TIME);
-    }
-
-    /**
-     * Test the last transport time at an activity are correct.
-     */
-    @Test
-    public void transportTimeAtActivityOfRoute1ShouldWork() {
-        testTransportCosts(TransportCostsTestType.TRANSPORT_TIME_AT_ACTIVITY);
-    }
-
-    private enum TransportCostsTestType {
-        LAST_COST,
-        LAST_TIME,
-        LAST_DISTANCE,
-        TRANSPORT_TIME_AT_ACTIVITY,
     }
 
     /**
@@ -289,6 +198,31 @@ public class SolutionAnalyserTest {
                 Assert.assertEquals(totalTime, savedTransportTime, 1E-10);
             }
         }
+    }
+
+    /**
+     * Test the last transport distance at an activity are correct.
+     */
+    @Test
+    public void lastTransportDistanceOfRoute1ShouldWork() {
+        testTransportCosts(TransportCostsTestType.LAST_DISTANCE);
+    }
+
+
+    /**
+     * Test the last transport time at an activity are correct.
+     */
+    @Test
+    public void lastTransportTimeOfRoute1ShouldWork() {
+        testTransportCosts(TransportCostsTestType.LAST_TIME);
+    }
+
+    /**
+     * Test the last transport time at an activity are correct.
+     */
+    @Test
+    public void transportTimeAtActivityOfRoute1ShouldWork() {
+        testTransportCosts(TransportCostsTestType.TRANSPORT_TIME_AT_ACTIVITY);
     }
 
     @Test
@@ -442,6 +376,64 @@ public class SolutionAnalyserTest {
         SolutionAnalyser analyser = new SolutionAnalyser(vrp, solution, vrp.getTransportCosts());
         VehicleRoute route = solution.getRoutes().iterator().next();
         Assert.assertEquals(4, analyser.getNumberOfPickups(route), 0.01);
+    }
+
+    public void buildAnotherScenarioWithOnlyOneVehicleAndWithoutAnyConstraintsBefore() {
+        VehicleType type = VehicleTypeImpl.Builder.newInstance("type").setFixedCost(100.).setCostPerDistance(2.).addCapacityDimension(0, 15).build();
+
+        VehicleImpl vehicle = VehicleImpl.Builder.newInstance("v1").setType(type)
+            .setStartLocation(Location.newInstance(-5, 0))
+            .setLatestArrival(150.)
+            .build();
+
+        Pickup s1 = Pickup.Builder.newInstance("s1")
+            .setTimeWindow(TimeWindow.newInstance(10, 20))
+            .setLocation(Location.newInstance(-10, 1))
+            .addSizeDimension(0, 10)
+            .build();
+        Delivery s2 = Delivery.Builder.newInstance("s2")
+            .setLocation(Location.newInstance(-10, 10))
+            .setTimeWindow(TimeWindow.newInstance(10, 20))
+            .addSizeDimension(0, 20)
+            .build();
+        Shipment shipment1 = Shipment.Builder.newInstance("ship1").setPickupLocation(TestUtils.loc(Coordinate.newInstance(-15, 2)))
+            .setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(-16, 5)))
+            .addSizeDimension(0, 15)
+            .setPickupServiceTime(20.).setDeliveryServiceTime(20.)
+            .setPickupTimeWindow(TimeWindow.newInstance(10, 20)).setDeliveryTimeWindow(TimeWindow.newInstance(10, 20))
+            .build();
+
+        Pickup s3 = Pickup.Builder.newInstance("s3")
+            .setTimeWindow(TimeWindow.newInstance(10, 20))
+            .setLocation(TestUtils.loc(Coordinate.newInstance(10, 1)))
+            .addSizeDimension(0, 10)
+            .build();
+        Delivery s4 = Delivery.Builder.newInstance("s4").setLocation(Location.newInstance(10, 10))
+            .addSizeDimension(0, 20)
+            .setTimeWindow(TimeWindow.newInstance(10, 20))
+            .build();
+        Shipment shipment2 = Shipment.Builder.newInstance("ship2").setPickupLocation(TestUtils.loc(Coordinate.newInstance(15, 2)))
+            .setPickupServiceTime(20.).setDeliveryServiceTime(20.)
+            .setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(16, 5)))
+            .setPickupTimeWindow(TimeWindow.newInstance(10, 20)).setDeliveryTimeWindow(TimeWindow.newInstance(10, 20))
+            .addSizeDimension(0, 15).build();
+
+        VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance().addVehicle(vehicle)
+            .addJob(s1)
+            .addJob(s2).addJob(shipment1).addJob(s3).addJob(s4).addJob(shipment2).setFleetSize(VehicleRoutingProblem.FleetSize.FINITE);
+        vrpBuilder.setRoutingCost(new ManhattanCosts(vrpBuilder.getLocations()));
+        vrp = vrpBuilder.build();
+
+        VehicleRoute route = VehicleRoute.Builder.newInstance(vehicle).setJobActivityFactory(vrp.getJobActivityFactory())
+            .addPickup(s3)
+            .addPickup(shipment2).addDelivery(shipment2)
+            .addDelivery(s4)
+            .addDelivery(s2)
+            .addPickup(shipment1).addDelivery(shipment1)
+            .addPickup(s1)
+            .build();
+
+        solution = new VehicleRoutingProblemSolution(Arrays.asList(route), 300);
     }
 
     @Test
@@ -766,7 +758,6 @@ public class SolutionAnalyserTest {
         Assert.assertEquals(42., analyser.getDistanceAtActivity(route.getEnd(), route), 0.01);
     }
 
-
     @Test
     public void lateArrivalTimes_atStartActOfRoute1ShouldWork() {
         SolutionAnalyser analyser = new SolutionAnalyser(vrp, solution, vrp.getTransportCosts());
@@ -923,7 +914,6 @@ public class SolutionAnalyserTest {
         }
     }
 
-
     @Test
     public void capacityViolationAtBeginning_shouldWorkWhenViolated() {
         buildAnotherScenarioWithOnlyOneVehicleAndWithoutAnyConstraintsBefore();
@@ -933,7 +923,6 @@ public class SolutionAnalyserTest {
         Capacity cap = analyser.getCapacityViolationAtBeginning(route);
         assertEquals(25, cap.get(0));
     }
-
 
     @Test
     public void capacityViolationAfterStart_shouldWorkWhenViolated() {
@@ -1565,7 +1554,6 @@ public class SolutionAnalyserTest {
         assertFalse(violated);
     }
 
-
     @Test
     public void skillViolationOnRoute_shouldWorkWhenNotViolated() {
         SolutionAnalyser analyser = new SolutionAnalyser(vrp, solution, vrp.getTransportCosts());
@@ -1613,6 +1601,13 @@ public class SolutionAnalyserTest {
         SolutionAnalyser analyser = new SolutionAnalyser(vrp, solution, vrp.getTransportCosts());
         Boolean violated = analyser.hasSkillConstraintViolation();
         assertFalse(violated);
+    }
+
+    private enum TransportCostsTestType {
+        LAST_COST,
+        LAST_TIME,
+        LAST_DISTANCE,
+        TRANSPORT_TIME_AT_ACTIVITY,
     }
 
 }

@@ -53,6 +53,18 @@ public final class DeliverService extends AbstractActivity implements DeliveryAc
     }
 
     @Override
+    public Delivery getJob() {
+        return delivery;
+    }
+
+    public String toString() {
+        return "[type=" + getName() + "][locationId=" + getLocation().getId()
+            + "][size=" + getSize().toString()
+            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
+            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
+    }
+
+    @Override
     public String getName() {
         return delivery.getType();
     }
@@ -63,24 +75,23 @@ public final class DeliverService extends AbstractActivity implements DeliveryAc
     }
 
     @Override
-    public void setTheoreticalEarliestOperationStartTime(double earliest) {
-        theoreticalEarliest = earliest;
-    }
-
-    @Override
-    public void setTheoreticalLatestOperationStartTime(double latest) {
-        theoreticalLatest = latest;
-    }
-
-
-    @Override
     public double getTheoreticalEarliestOperationStartTime() {
         return theoreticalEarliest;
     }
 
     @Override
+    public void setTheoreticalEarliestOperationStartTime(double earliest) {
+        theoreticalEarliest = earliest;
+    }
+
+    @Override
     public double getTheoreticalLatestOperationStartTime() {
         return theoreticalLatest;
+    }
+
+    @Override
+    public void setTheoreticalLatestOperationStartTime(double latest) {
+        theoreticalLatest = latest;
     }
 
     @Override
@@ -94,13 +105,13 @@ public final class DeliverService extends AbstractActivity implements DeliveryAc
     }
 
     @Override
-    public double getEndTime() {
-        return endTime;
+    public void setArrTime(double arrTime) {
+        this.arrTime = arrTime;
     }
 
     @Override
-    public void setArrTime(double arrTime) {
-        this.arrTime = arrTime;
+    public double getEndTime() {
+        return endTime;
     }
 
     @Override
@@ -109,24 +120,12 @@ public final class DeliverService extends AbstractActivity implements DeliveryAc
     }
 
     @Override
-    public TourActivity duplicate() {
-        return new DeliverService(this);
-    }
-
-    @Override
-    public Delivery getJob() {
-        return delivery;
-    }
-
-    public String toString() {
-        return "[type=" + getName() + "][locationId=" + getLocation().getId()
-            + "][size=" + getSize().toString()
-            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
-            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
-    }
-
-    @Override
     public Capacity getSize() {
         return capacity;
+    }
+
+    @Override
+    public TourActivity duplicate() {
+        return new DeliverService(this);
     }
 }

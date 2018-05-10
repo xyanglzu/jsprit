@@ -47,23 +47,23 @@ public class MultipleDepotExample2 {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         /*
          * Read cordeau-instance p01, BUT only its services without any vehicles
-		 */
+         */
         new CordeauReader(vrpBuilder).read("input/p08");
 
-		/*
+        /*
          * add vehicles with its depots
-		 * 2 depots:
-		 * (-33,33)
-		 * (33,-33)
-		 *
-		 * each with 14 vehicles each with a capacity of 500 and a maximum duration of 310
-		 */
+         * 2 depots:
+         * (-33,33)
+         * (33,-33)
+         *
+         * each with 14 vehicles each with a capacity of 500 and a maximum duration of 310
+         */
         int nuOfVehicles = 13;
         int capacity = 500;
         double maxDuration = 310;
@@ -87,24 +87,24 @@ public class MultipleDepotExample2 {
         }
 
 
-		/*
+        /*
          * define problem with finite fleet
-		 */
+         */
         vrpBuilder.setFleetSize(FleetSize.FINITE);
 
-		/*
+        /*
          * build the problem
-		 */
+         */
         VehicleRoutingProblem vrp = vrpBuilder.build();
 
-		/*
+        /*
          * plot to see how the problem looks like
-		 */
+         */
 //		SolutionPlotter.plotVrpAsPNG(vrp, "output/problem08.png", "p08");
 
-		/*
+        /*
          * solve the problem
-		 */
+         */
         VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp)
             .setProperty(Jsprit.Parameter.FAST_REGRET, "true")
             .setProperty(Jsprit.Parameter.THREADS, "5").buildAlgorithm();

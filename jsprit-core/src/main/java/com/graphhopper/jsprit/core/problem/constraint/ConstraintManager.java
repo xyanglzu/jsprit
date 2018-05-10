@@ -38,12 +38,8 @@ import java.util.List;
 public class ConstraintManager implements HardActivityConstraint, HardRouteConstraint, SoftActivityConstraint, SoftRouteConstraint {
 
 
-    public static enum Priority {
-        CRITICAL, HIGH, LOW
-    }
-
     private static Logger log = LoggerFactory.getLogger(ConstraintManager.class);
-
+    private final DependencyType[] dependencyTypes;
     private HardActivityLevelConstraintManager actLevelConstraintManager = new HardActivityLevelConstraintManager();
 
     private HardRouteLevelConstraintManager hardRouteConstraintManager = new HardRouteLevelConstraintManager();
@@ -62,8 +58,6 @@ public class ConstraintManager implements HardActivityConstraint, HardRouteConst
 
     private boolean skillconstraintSet = false;
 
-    private final DependencyType[] dependencyTypes;
-
     public ConstraintManager(VehicleRoutingProblem vrp, RouteAndActivityStateGetter stateManager) {
         this.vrp = vrp;
         this.stateManager = stateManager;
@@ -75,44 +69,6 @@ public class ConstraintManager implements HardActivityConstraint, HardRouteConst
         this.stateManager = stateManager;
         dependencyTypes = new DependencyType[vrp.getJobs().size() + 1];
         resolveConstraints(constraints);
-    }
-
-    public Collection<HardRouteConstraint> getHardRouteConstraints() {
-        return hardRouteConstraintManager.getConstraints();
-    }
-
-    public Collection<HardActivityConstraint> getCriticalHardActivityConstraints() {
-        return actLevelConstraintManager.getCriticalConstraints();
-    }
-
-    public Collection<HardActivityConstraint> getHighPrioHardActivityConstraints() {
-        return actLevelConstraintManager.getHighPrioConstraints();
-    }
-
-    public Collection<HardActivityConstraint> getLowPrioHardActivityConstraints() {
-        return actLevelConstraintManager.getLowPrioConstraints();
-    }
-//    public Collection<HardActivityConstraint> getHardActivityConstraints() {
-//        return actLevelConstraintManager.g;
-//    }
-
-    public DependencyType[] getDependencyTypes() {
-        return dependencyTypes;
-    }
-
-    public void setDependencyType(String jobId, DependencyType dependencyType){
-        Job job = vrp.getJobs().get(jobId);
-        if(job != null) {
-            dependencyTypes[job.getIndex()] = dependencyType;
-        }
-    }
-
-    public DependencyType getDependencyType(String jobId){
-        Job job = vrp.getJobs().get(jobId);
-        if(job != null){
-            return dependencyTypes[job.getIndex()];
-        }
-        return DependencyType.NO_TYPE;
     }
 
     private void resolveConstraints(Collection<Constraint> constraints) {
@@ -141,6 +97,44 @@ public class ConstraintManager implements HardActivityConstraint, HardRouteConst
 
     }
 
+    public Collection<HardRouteConstraint> getHardRouteConstraints() {
+        return hardRouteConstraintManager.getConstraints();
+    }
+
+    public Collection<HardActivityConstraint> getCriticalHardActivityConstraints() {
+        return actLevelConstraintManager.getCriticalConstraints();
+    }
+
+    public Collection<HardActivityConstraint> getHighPrioHardActivityConstraints() {
+        return actLevelConstraintManager.getHighPrioConstraints();
+    }
+
+    public Collection<HardActivityConstraint> getLowPrioHardActivityConstraints() {
+        return actLevelConstraintManager.getLowPrioConstraints();
+    }
+//    public Collection<HardActivityConstraint> getHardActivityConstraints() {
+//        return actLevelConstraintManager.g;
+//    }
+
+    public DependencyType[] getDependencyTypes() {
+        return dependencyTypes;
+    }
+
+    public void setDependencyType(String jobId, DependencyType dependencyType) {
+        Job job = vrp.getJobs().get(jobId);
+        if (job != null) {
+            dependencyTypes[job.getIndex()] = dependencyType;
+        }
+    }
+
+    public DependencyType getDependencyType(String jobId) {
+        Job job = vrp.getJobs().get(jobId);
+        if (job != null) {
+            return dependencyTypes[job.getIndex()];
+        }
+        return DependencyType.NO_TYPE;
+    }
+
     public void addTimeWindowConstraint() {
         if (!timeWindowConstraintsSet) {
             addConstraint(new VehicleDependentTimeWindowConstraints(stateManager, vrp.getTransportCosts(), vrp.getActivityCosts()), Priority.HIGH);
@@ -148,6 +142,9 @@ public class ConstraintManager implements HardActivityConstraint, HardRouteConst
         }
     }
 
+    public void addConstraint(HardActivityConstraint actLevelConstraint, Priority priority) {
+        actLevelConstraintManager.addConstraint(actLevelConstraint, priority);
+    }
 
     public void addLoadConstraint() {
         if (!loadConstraintsSet) {
@@ -158,21 +155,17 @@ public class ConstraintManager implements HardActivityConstraint, HardRouteConst
         }
     }
 
+    public void addConstraint(HardRouteConstraint routeLevelConstraint) {
+        hardRouteConstraintManager.addConstraint(routeLevelConstraint);
+    }
+
+//	public void add
+
     public void addSkillsConstraint() {
         if (!skillconstraintSet) {
             addConstraint(new HardSkillConstraint(stateManager));
             skillconstraintSet = true;
         }
-    }
-
-//	public void add
-
-    public void addConstraint(HardActivityConstraint actLevelConstraint, Priority priority) {
-        actLevelConstraintManager.addConstraint(actLevelConstraint, priority);
-    }
-
-    public void addConstraint(HardRouteConstraint routeLevelConstraint) {
-        hardRouteConstraintManager.addConstraint(routeLevelConstraint);
     }
 
     public void addConstraint(SoftActivityConstraint softActivityConstraint) {
@@ -210,6 +203,10 @@ public class ConstraintManager implements HardActivityConstraint, HardRouteConst
     @Override
     public double getCosts(JobInsertionContext iFacts, TourActivity prevAct, TourActivity newAct, TourActivity nextAct, double prevActDepTime) {
         return softActivityConstraintManager.getCosts(iFacts, prevAct, newAct, nextAct, prevActDepTime);
+    }
+
+    public static enum Priority {
+        CRITICAL, HIGH, LOW
     }
 
 

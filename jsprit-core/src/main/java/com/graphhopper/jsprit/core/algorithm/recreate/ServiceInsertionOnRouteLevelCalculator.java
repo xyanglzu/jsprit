@@ -74,15 +74,6 @@ final class ServiceInsertionOnRouteLevelCalculator implements JobInsertionCostsC
 
     private End end;
 
-    public void setJobActivityFactory(JobActivityFactory jobActivityFactory) {
-        this.activityFactory = jobActivityFactory;
-    }
-
-    public void setMemorySize(int memorySize) {
-        this.memorySize = memorySize;
-        logger.debug("set [solutionMemory={}]", memorySize);
-    }
-
     public ServiceInsertionOnRouteLevelCalculator(VehicleRoutingTransportCosts vehicleRoutingCosts, VehicleRoutingActivityCosts costFunc, ActivityInsertionCostsCalculator activityInsertionCostsCalculator, HardRouteConstraint hardRouteLevelConstraint, HardActivityConstraint hardActivityLevelConstraint) {
         super();
         this.transportCosts = vehicleRoutingCosts;
@@ -94,6 +85,14 @@ final class ServiceInsertionOnRouteLevelCalculator implements JobInsertionCostsC
         logger.debug("initialise {}", this);
     }
 
+    public void setJobActivityFactory(JobActivityFactory jobActivityFactory) {
+        this.activityFactory = jobActivityFactory;
+    }
+
+    public void setMemorySize(int memorySize) {
+        this.memorySize = memorySize;
+        logger.debug("set [solutionMemory={}]", memorySize);
+    }
 
     public void setStates(RouteAndActivityStateGetter stateManager) {
         this.stateManager = stateManager;
@@ -204,7 +203,7 @@ final class ServiceInsertionOnRouteLevelCalculator implements JobInsertionCostsC
             /**
              * departure time at nextAct with new vehicle
              */
-            double depTime_nextAct_newVehicle = Math.max(arrTime_nextAct_newVehicle, nextAct.getTheoreticalEarliestOperationStartTime()) + activityCosts.getActivityDuration(nextAct, arrTime_nextAct_newVehicle,newDriver,newVehicle);
+            double depTime_nextAct_newVehicle = Math.max(arrTime_nextAct_newVehicle, nextAct.getTheoreticalEarliestOperationStartTime()) + activityCosts.getActivityDuration(nextAct, arrTime_nextAct_newVehicle, newDriver, newVehicle);
 
             /**
              * set previous to next
@@ -286,6 +285,21 @@ final class ServiceInsertionOnRouteLevelCalculator implements JobInsertionCostsC
         return insertionData;
     }
 
+    private Comparator<InsertionData> getComparator() {
+        return new Comparator<InsertionData>() {
+
+            @Override
+            public int compare(InsertionData o1, InsertionData o2) {
+                if (o1.getInsertionCost() < o2.getInsertionCost()) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+
+            }
+        };
+    }
+
     private void initialiseStartAndEnd(final Vehicle newVehicle, double newVehicleDepartureTime) {
         if (start == null) {
             start = new Start(newVehicle.getStartLocation(), newVehicle.getEarliestDeparture(), Double.MAX_VALUE);
@@ -313,20 +327,5 @@ final class ServiceInsertionOnRouteLevelCalculator implements JobInsertionCostsC
         } else prevCost = stateManager.getActivityState(act, InternalStates.COSTS, Double.class);
         if (prevCost == null) prevCost = 0.;
         return prevCost;
-    }
-
-    private Comparator<InsertionData> getComparator() {
-        return new Comparator<InsertionData>() {
-
-            @Override
-            public int compare(InsertionData o1, InsertionData o2) {
-                if (o1.getInsertionCost() < o2.getInsertionCost()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-
-            }
-        };
     }
 }

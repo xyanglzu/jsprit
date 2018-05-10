@@ -28,29 +28,11 @@ import java.util.List;
  */
 class ScoredJob {
 
-    static class BadJob extends ScoredJob {
-
-        BadJob(Job job, List<String> failedConstraintNames) {
-            super(job, 0., getEmptyInsertion(failedConstraintNames), null, false);
-        }
-
-        private static InsertionData getEmptyInsertion(List<String> failedConstraintNames) {
-            InsertionData empty = new InsertionData.NoInsertionFound();
-            empty.getFailedConstraintNames().addAll(failedConstraintNames);
-            return empty;
-        }
-    }
-
     private Job job;
-
     private double score;
-
     private InsertionData insertionData;
-
     private VehicleRoute route;
-
     private boolean newRoute;
-
 
     ScoredJob(Job job, double score, InsertionData insertionData, VehicleRoute route, boolean isNewRoute) {
         this.job = job;
@@ -78,6 +60,19 @@ class ScoredJob {
 
     public VehicleRoute getRoute() {
         return route;
+    }
+
+    static class BadJob extends ScoredJob {
+
+        BadJob(Job job, List<String> failedConstraintNames) {
+            super(job, 0., getEmptyInsertion(failedConstraintNames), null, false);
+        }
+
+        private static InsertionData getEmptyInsertion(List<String> failedConstraintNames) {
+            InsertionData empty = new InsertionData.NoInsertionFound();
+            empty.getFailedConstraintNames().addAll(failedConstraintNames);
+            return empty;
+        }
     }
 
 }

@@ -28,7 +28,6 @@ import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl;
 import com.graphhopper.jsprit.core.util.Solutions;
 import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -45,9 +44,9 @@ public class RefuseCollectionWithCostsHigherThanTimesAndFiniteFleet_IT {
     public void testAlgo() {
 
 
-		/*
+        /*
          * create vehicle-type and vehicle
-		 */
+         */
         VehicleTypeImpl.Builder typeBuilder = VehicleTypeImpl.Builder.newInstance("vehicle-type").addCapacityDimension(0, 23);
         typeBuilder.setCostPerDistance(1.0);
         VehicleTypeImpl bigType = typeBuilder.build();
@@ -58,20 +57,20 @@ public class RefuseCollectionWithCostsHigherThanTimesAndFiniteFleet_IT {
         vehicleBuilder.setLatestArrival(220);
         Vehicle bigVehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * start building the problem
-		 */
+         */
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
         vrpBuilder.setFleetSize(VehicleRoutingProblem.FleetSize.INFINITE);
         vrpBuilder.addVehicle(bigVehicle);
 
-		/*
+        /*
          * create cost-matrix
-		 */
+         */
         VehicleRoutingTransportCostsMatrix.Builder matrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
         /*
          * read demand quantities
-		 */
+         */
         try {
             readDemandQuantities(vrpBuilder);
             readDistances(matrixBuilder);
@@ -104,12 +103,12 @@ public class RefuseCollectionWithCostsHigherThanTimesAndFiniteFleet_IT {
             String[] lineTokens = line.split(",");
             /*
              * build service
-			 */
+             */
             Service service = Service.Builder.newInstance(lineTokens[0]).addSizeDimension(0, Integer.parseInt(lineTokens[1]))
                 .setLocation(Location.newInstance(lineTokens[0])).build();
             /*
-			 * and add it to problem
-			 */
+             * and add it to problem
+             */
             vrpBuilder.addJob(service);
         }
         reader.close();

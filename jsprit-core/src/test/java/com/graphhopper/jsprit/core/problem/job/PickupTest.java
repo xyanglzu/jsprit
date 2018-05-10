@@ -95,14 +95,14 @@ public class PickupTest {
 
 
     @Test
-    public void whenSettingPriorities_itShouldBeSetCorrectly(){
+    public void whenSettingPriorities_itShouldBeSetCorrectly() {
         Pickup s = Pickup.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setPriority(3).build();
         Assert.assertEquals(3, s.getPriority());
     }
 
     @Test
-    public void whenNotSettingPriorities_defaultShouldBe(){
+    public void whenNotSettingPriorities_defaultShouldBe() {
         Pickup s = Pickup.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .build();
         Assert.assertEquals(2, s.getPriority());
@@ -121,17 +121,17 @@ public class PickupTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void whenAddingMaxTimeInVehicle_itShouldThrowEx(){
+    public void whenAddingMaxTimeInVehicle_itShouldThrowEx() {
         Pickup s = Pickup.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .setMaxTimeInVehicle(10)
             .build();
     }
 
     @Test
-    public void whenNotAddingMaxTimeInVehicle_itShouldBeDefault(){
+    public void whenNotAddingMaxTimeInVehicle_itShouldBeDefault() {
         Pickup s = Pickup.Builder.newInstance("s").setLocation(Location.newInstance("loc"))
             .build();
-        Assert.assertEquals(Double.MAX_VALUE, s.getMaxTimeInVehicle(),0.001);
+        Assert.assertEquals(Double.MAX_VALUE, s.getMaxTimeInVehicle(), 0.001);
     }
 
 }

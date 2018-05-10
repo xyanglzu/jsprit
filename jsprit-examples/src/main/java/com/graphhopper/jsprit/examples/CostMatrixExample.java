@@ -47,7 +47,7 @@ public class CostMatrixExample {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
         VehicleType type = VehicleTypeImpl.Builder.newInstance("type").addCapacityDimension(0, 2).setCostPerDistance(1).setCostPerTime(2).build();
@@ -59,24 +59,24 @@ public class CostMatrixExample {
         Service s3 = Service.Builder.newInstance("3").addSizeDimension(0, 1).setLocation(Location.newInstance("3")).build();
 
 
-		/*
+        /*
          * Assume the following symmetric distance-matrix
-		 * from,to,distance
-		 * 0,1,10.0
-		 * 0,2,20.0
-		 * 0,3,5.0
-		 * 1,2,4.0
-		 * 1,3,1.0
-		 * 2,3,2.0
-		 *
-		 * and this time-matrix
-		 * 0,1,5.0
-		 * 0,2,10.0
-		 * 0,3,2.5
-		 * 1,2,2.0
-		 * 1,3,0.5
-		 * 2,3,1.0
-		 */
+         * from,to,distance
+         * 0,1,10.0
+         * 0,2,20.0
+         * 0,3,5.0
+         * 1,2,4.0
+         * 1,3,1.0
+         * 2,3,2.0
+         *
+         * and this time-matrix
+         * 0,1,5.0
+         * 0,2,10.0
+         * 0,3,2.5
+         * 1,2,2.0
+         * 1,3,0.5
+         * 2,3,1.0
+         */
         //define a matrix-builder building a symmetric matrix
         VehicleRoutingTransportCostsMatrix.Builder costMatrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
         costMatrixBuilder.addTransportDistance("0", "1", 10.0);

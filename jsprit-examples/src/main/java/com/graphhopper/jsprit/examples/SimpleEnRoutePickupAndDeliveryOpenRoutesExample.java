@@ -43,32 +43,32 @@ public class SimpleEnRoutePickupAndDeliveryOpenRoutesExample {
     public static void main(String[] args) {
         /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * get a vehicle type-builder and build a type with the typeId "vehicleType" and a capacity of 2
-		 */
+         */
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
         Builder vehicleBuilder = VehicleImpl.Builder.newInstance("vehicle");
         vehicleBuilder.setStartLocation(loc(Coordinate.newInstance(10, 10)));
         vehicleBuilder.setType(vehicleType);
         vehicleBuilder.setReturnToDepot(false);
         VehicleImpl vehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * build shipments at the required locations, each with a capacity-demand of 1.
-		 * 4 shipments
-		 * 1: (5,7)->(6,9)
-		 * 2: (5,13)->(6,11)
-		 * 3: (15,7)->(14,9)
-		 * 4: (15,13)->(14,11)
-		 */
+         * 4 shipments
+         * 1: (5,7)->(6,9)
+         * 2: (5,13)->(6,11)
+         * 3: (15,7)->(14,9)
+         * 4: (15,13)->(14,11)
+         */
 
         Shipment shipment1 = Shipment.Builder.newInstance("1").addSizeDimension(0, 1).setPickupLocation(loc(Coordinate.newInstance(5, 7))).setDeliveryLocation(loc(Coordinate.newInstance(6, 9))).build();
         Shipment shipment2 = Shipment.Builder.newInstance("2").addSizeDimension(0, 1).setPickupLocation(loc(Coordinate.newInstance(5, 13))).setDeliveryLocation(loc(Coordinate.newInstance(6, 11))).build();
@@ -83,41 +83,41 @@ public class SimpleEnRoutePickupAndDeliveryOpenRoutesExample {
 
         VehicleRoutingProblem problem = vrpBuilder.build();
 
-		/*
+        /*
          * get the algorithm out-of-the-box.
-		 */
+         */
         VehicleRoutingAlgorithm algorithm = new SchrimpfFactory().createAlgorithm(problem);
 
-		/*
+        /*
          * and search a solution
-		 */
+         */
         Collection<VehicleRoutingProblemSolution> solutions = algorithm.searchSolutions();
 
-		/*
+        /*
          * get the best
-		 */
+         */
         VehicleRoutingProblemSolution bestSolution = Solutions.bestOf(solutions);
 
-		/*
+        /*
          * write out problem and solution to xml-file
-		 */
+         */
         new VrpXMLWriter(problem, solutions).write("output/shipment-problem-with-solution.xml");
 
-		/*
-		 * print nRoutes and totalCosts of bestSolution
-		 */
+        /*
+         * print nRoutes and totalCosts of bestSolution
+         */
         SolutionPrinter.print(problem, bestSolution, SolutionPrinter.Print.VERBOSE);
 
-		/*
-		 * plot problem without solution
-		 */
+        /*
+         * plot problem without solution
+         */
         Plotter problemPlotter = new Plotter(problem);
         problemPlotter.plotShipments(true);
         problemPlotter.plot("output/simpleEnRoutePickupAndDeliveryExample_problem.png", "en-route pickup and delivery");
 
-		/*
-		 * plot problem with solution
-		 */
+        /*
+         * plot problem with solution
+         */
         Plotter solutionPlotter = new Plotter(problem, Solutions.bestOf(solutions).getRoutes());
         solutionPlotter.plotShipments(true);
         solutionPlotter.plot("output/simpleEnRoutePickupAndDeliveryExample_solution.png", "en-route pickup and delivery");

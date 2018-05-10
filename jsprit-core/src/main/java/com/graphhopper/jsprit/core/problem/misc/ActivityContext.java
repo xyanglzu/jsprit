@@ -39,12 +39,30 @@ public class ActivityContext {
     }
 
     /**
+     * Sets arrivalTime of associated vehicle at activity.
+     *
+     * @param arrivalTime arrival time of associated vehicle at activity
+     */
+    public void setArrivalTime(double arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    /**
      * Returns end time of associated activity.
      *
      * @return end time
      */
     public double getEndTime() {
         return endTime;
+    }
+
+    /**
+     * Sets end time of associated activity.
+     *
+     * @param endTime end time
+     */
+    public void setEndTime(double endTime) {
+        this.endTime = endTime;
     }
 
     /**
@@ -64,24 +82,6 @@ public class ActivityContext {
      */
     public int getInsertionIndex() {
         return insertionIndex;
-    }
-
-    /**
-     * Sets arrivalTime of associated vehicle at activity.
-     *
-     * @param arrivalTime arrival time of associated vehicle at activity
-     */
-    public void setArrivalTime(double arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
-    /**
-     * Sets end time of associated activity.
-     *
-     * @param endTime end time
-     */
-    public void setEndTime(double endTime) {
-        this.endTime = endTime;
     }
 
     /**

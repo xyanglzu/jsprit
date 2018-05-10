@@ -37,14 +37,10 @@ import java.util.*;
 @Deprecated
 public final class RuinRadialMultipleCenters extends AbstractRuinStrategy {
 
-    private Logger logger = LoggerFactory.getLogger(RuinRadialMultipleCenters.class);
-
-    private VehicleRoutingProblem vrp;
-
-    private JobNeighborhoods jobNeighborhoods;
-
     private final int noJobsToMemorize;
-
+    private Logger logger = LoggerFactory.getLogger(RuinRadialMultipleCenters.class);
+    private VehicleRoutingProblem vrp;
+    private JobNeighborhoods jobNeighborhoods;
     private int noCenters = 1;
 
     public RuinRadialMultipleCenters(VehicleRoutingProblem vrp, int neighborhoodSize, JobDistance jobDistance) {
@@ -98,6 +94,17 @@ public final class RuinRadialMultipleCenters extends AbstractRuinStrategy {
         return ruined;
     }
 
+    private Job pickRandomJob(Set<Job> available) {
+        int randomIndex = random.nextInt(available.size());
+        int i = 0;
+        for (Job j : available) {
+            if (i >= randomIndex) {
+                return j;
+            } else i++;
+        }
+        return null;
+    }
+
     private Collection<Job> ruinRoutes_(Collection<VehicleRoute> vehicleRoutes, Job targetJob, int nOfJobs2BeRemoved, Set<Job> available) {
         List<Job> unassignedJobs = new ArrayList<Job>();
         int nNeighbors = nOfJobs2BeRemoved - 1;
@@ -112,17 +119,6 @@ public final class RuinRadialMultipleCenters extends AbstractRuinStrategy {
             }
         }
         return unassignedJobs;
-    }
-
-    private Job pickRandomJob(Set<Job> available) {
-        int randomIndex = random.nextInt(available.size());
-        int i = 0;
-        for (Job j : available) {
-            if (i >= randomIndex) {
-                return j;
-            } else i++;
-        }
-        return null;
     }
 
 }

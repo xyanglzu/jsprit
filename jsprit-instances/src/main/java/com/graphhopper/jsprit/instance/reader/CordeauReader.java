@@ -123,16 +123,14 @@ public class CordeauReader {
         close(reader);
     }
 
-    public void setCoordProjectionFactor(double coordProjectionFactor) {
-        this.coordProjectionFactor = coordProjectionFactor;
-    }
-
-    private void close(BufferedReader reader) {
+    private BufferedReader getReader(String solomonFile) {
+        BufferedReader reader = null;
         try {
-            reader.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            reader = new BufferedReader(new FileReader(solomonFile));
+        } catch (FileNotFoundException e1) {
+            throw new RuntimeException(e1);
         }
+        return reader;
     }
 
     private String readLine(BufferedReader reader) {
@@ -149,13 +147,15 @@ public class CordeauReader {
         return new Coordinate(x * coordProjectionFactor, y * coordProjectionFactor);
     }
 
-    private BufferedReader getReader(String solomonFile) {
-        BufferedReader reader = null;
+    private void close(BufferedReader reader) {
         try {
-            reader = new BufferedReader(new FileReader(solomonFile));
-        } catch (FileNotFoundException e1) {
-            throw new RuntimeException(e1);
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return reader;
+    }
+
+    public void setCoordProjectionFactor(double coordProjectionFactor) {
+        this.coordProjectionFactor = coordProjectionFactor;
     }
 }

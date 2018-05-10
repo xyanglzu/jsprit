@@ -36,59 +36,59 @@ public class PickupAndDeliveryOpenExample {
 
     public static void main(String[] args) {
 
-		/*
+        /*
          * some preparation - create output folder
-		 */
+         */
         Examples.createOutputFolder();
 
-		/*
+        /*
          * Build the problem.
-		 *
-		 * But define a problem-builder first.
-		 */
+         *
+         * But define a problem-builder first.
+         */
         VehicleRoutingProblem.Builder vrpBuilder = VehicleRoutingProblem.Builder.newInstance();
 
-		/*
+        /*
          * A solomonReader reads solomon-instance files, and stores the required information in the builder.
-		 */
+         */
         new VrpXMLReader(vrpBuilder).read("input/pickups_and_deliveries_solomon_r101_withoutTWs_open.xml");
 
-		/*
+        /*
          * Finally, the problem can be built. By default, transportCosts are crowFlyDistances (as usually used for vrp-instances).
-		 */
+         */
 
         VehicleRoutingProblem vrp = vrpBuilder.build();
 
 //		SolutionPlotter.plotVrpAsPNG(vrp, "output/pd_solomon_r101_o.png", "pd_r101");
 
-		/*
+        /*
          * Define the required vehicle-routing algorithms to solve the above problem.
-		 *
-		 * The algorithm can be defined and configured in an xml-file.
-		 */
+         *
+         * The algorithm can be defined and configured in an xml-file.
+         */
 
         VehicleRoutingAlgorithm vra = Jsprit.createAlgorithm(vrp);
         vra.getAlgorithmListeners().addListener(new AlgorithmSearchProgressChartListener("output/sol_progress.png"));
         /*
          * Solve the problem.
-		 *
-		 *
-		 */
+         *
+         *
+         */
         Collection<VehicleRoutingProblemSolution> solutions = vra.searchSolutions();
 
-		/*
+        /*
          * Retrieve best solution.
-		 */
+         */
         VehicleRoutingProblemSolution solution = new SelectBest().selectSolution(solutions);
 
-		/*
-		 * print solution
-		 */
+        /*
+         * print solution
+         */
         SolutionPrinter.print(solution);
 
-		/*
-		 * Plot solution.
-		 */
+        /*
+         * Plot solution.
+         */
 //		SolutionPlotter.plotSolutionAsPNG(vrp, solution, "output/pd_solomon_r101_solution.png","pd_r101");
         Plotter plotter = new Plotter(vrp, solution);
         plotter.setLabel(Label.SIZE);

@@ -17,8 +17,8 @@
   ~ limitations under the License.
   -->
 
-<problem xmlns="http://www.w3schools.com"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<problem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://www.w3schools.com"
          xsi:schemaLocation="http://www.w3schools.com vrp_xml_schema.xsd">
 
     <services>

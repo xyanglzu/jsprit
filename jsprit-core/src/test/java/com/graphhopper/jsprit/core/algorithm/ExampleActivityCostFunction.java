@@ -25,14 +25,12 @@ import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 
 public class ExampleActivityCostFunction implements VehicleRoutingActivityCosts {
 
+    public double parameter_timeAtAct;
+    public double parameter_penaltyTooLate;
+
     public ExampleActivityCostFunction() {
         super();
     }
-
-    public double parameter_timeAtAct;
-
-    public double parameter_penaltyTooLate;
-
 
     @Override
     public double getActivityCost(TourActivity tourAct, double arrivalTime, Driver driver, Vehicle vehicle) {
@@ -40,7 +38,7 @@ public class ExampleActivityCostFunction implements VehicleRoutingActivityCosts 
             return 0.0;
         } else {
             //waiting + act-time
-            double endTime = Math.max(arrivalTime, tourAct.getTheoreticalEarliestOperationStartTime()) + getActivityDuration(tourAct,arrivalTime,driver,vehicle);
+            double endTime = Math.max(arrivalTime, tourAct.getTheoreticalEarliestOperationStartTime()) + getActivityDuration(tourAct, arrivalTime, driver, vehicle);
             double timeAtAct = endTime - arrivalTime;
 
             double totalCost = timeAtAct * parameter_timeAtAct;

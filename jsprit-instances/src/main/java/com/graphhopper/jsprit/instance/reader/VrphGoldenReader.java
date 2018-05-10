@@ -40,25 +40,7 @@ import java.io.*;
  */
 public class VrphGoldenReader {
 
-    /**
-     * <b>FSMD</b> - Fleet Size and Mix with Dependent costs
-     * <p><b>FSMF</b> - Fleet Size and Mix with Fixed costs
-     * <p><b>FSMFD</b> - Fleet Size and Mix with Fixed and Dependent costs
-     * <p><b>HVRPD</b> - Heterogeneous Vehicle Routing Problem with Dependent costs and finite (limited) fleet
-     * <p><b>HVRPFD</b> - Heterogeneous Vehicle Routing Problem with Fixed and Dependent costs and finite (limited) fleet
-     *
-     * @author schroeder
-     */
-    public enum VrphType {
-        FSMD,
-        HVRPD,
-        FSMF,
-        FSMFD,
-        HVRPFD
-    }
-
     private final VehicleRoutingProblem.Builder vrpBuilder;
-
     private final VrphType vrphType;
 
     public VrphGoldenReader(Builder vrpBuilder, VrphType vrphType) {
@@ -134,10 +116,12 @@ public class VrphGoldenReader {
         closeReader(reader);
     }
 
-    private void closeReader(BufferedReader reader) {
+    private BufferedReader getReader(String filename) {
+        BufferedReader bufferedReader = null;
         try {
-            reader.close();
-        } catch (IOException e) {
+            bufferedReader = new BufferedReader(new FileReader(new File(filename)));
+            return bufferedReader;
+        } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -152,16 +136,30 @@ public class VrphGoldenReader {
         return readLine;
     }
 
-    private BufferedReader getReader(String filename) {
-        BufferedReader bufferedReader = null;
+    private void closeReader(BufferedReader reader) {
         try {
-            bufferedReader = new BufferedReader(new FileReader(new File(filename)));
-            return bufferedReader;
-        } catch (FileNotFoundException e) {
+            reader.close();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * <b>FSMD</b> - Fleet Size and Mix with Dependent costs
+     * <p><b>FSMF</b> - Fleet Size and Mix with Fixed costs
+     * <p><b>FSMFD</b> - Fleet Size and Mix with Fixed and Dependent costs
+     * <p><b>HVRPD</b> - Heterogeneous Vehicle Routing Problem with Dependent costs and finite (limited) fleet
+     * <p><b>HVRPFD</b> - Heterogeneous Vehicle Routing Problem with Fixed and Dependent costs and finite (limited) fleet
+     *
+     * @author schroeder
+     */
+    public enum VrphType {
+        FSMD,
+        HVRPD,
+        FSMF,
+        FSMFD,
+        HVRPFD
+    }
 
 
 }

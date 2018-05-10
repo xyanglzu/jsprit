@@ -58,14 +58,11 @@ public final class DeliverShipment extends AbstractActivity implements DeliveryA
         return shipment;
     }
 
-    @Override
-    public void setTheoreticalEarliestOperationStartTime(double earliest) {
-        this.earliest = earliest;
-    }
-
-    @Override
-    public void setTheoreticalLatestOperationStartTime(double latest) {
-        this.latest = latest;
+    public String toString() {
+        return "[type=" + getName() + "][locationId=" + getLocation().getId()
+            + "][size=" + getSize().toString()
+            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
+            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
     }
 
     @Override
@@ -84,8 +81,18 @@ public final class DeliverShipment extends AbstractActivity implements DeliveryA
     }
 
     @Override
+    public void setTheoreticalEarliestOperationStartTime(double earliest) {
+        this.earliest = earliest;
+    }
+
+    @Override
     public double getTheoreticalLatestOperationStartTime() {
         return latest;
+    }
+
+    @Override
+    public void setTheoreticalLatestOperationStartTime(double latest) {
+        this.latest = latest;
     }
 
     @Override
@@ -99,13 +106,13 @@ public final class DeliverShipment extends AbstractActivity implements DeliveryA
     }
 
     @Override
-    public double getEndTime() {
-        return endTime;
+    public void setArrTime(double arrTime) {
+        this.arrTime = arrTime;
     }
 
     @Override
-    public void setArrTime(double arrTime) {
-        this.arrTime = arrTime;
+    public double getEndTime() {
+        return endTime;
     }
 
     @Override
@@ -114,19 +121,12 @@ public final class DeliverShipment extends AbstractActivity implements DeliveryA
     }
 
     @Override
-    public TourActivity duplicate() {
-        return new DeliverShipment(this);
-    }
-
-    public String toString() {
-        return "[type=" + getName() + "][locationId=" + getLocation().getId()
-            + "][size=" + getSize().toString()
-            + "][twStart=" + Activities.round(getTheoreticalEarliestOperationStartTime())
-            + "][twEnd=" + Activities.round(getTheoreticalLatestOperationStartTime()) + "]";
+    public Capacity getSize() {
+        return capacity;
     }
 
     @Override
-    public Capacity getSize() {
-        return capacity;
+    public TourActivity duplicate() {
+        return new DeliverShipment(this);
     }
 }

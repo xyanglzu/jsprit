@@ -25,7 +25,16 @@ package com.graphhopper.jsprit.core.problem.job;
  */
 public class Delivery extends Service {
 
+    Delivery(Builder builder) {
+        super(builder);
+
+    }
+
     public static class Builder extends Service.Builder<Delivery> {
+
+        Builder(String id) {
+            super(id);
+        }
 
         /**
          * Returns a new instance of builder that builds a delivery.
@@ -35,17 +44,6 @@ public class Delivery extends Service {
          */
         public static Builder newInstance(String id) {
             return new Builder(id);
-        }
-
-        Builder(String id) {
-            super(id);
-        }
-
-
-        public Builder setMaxTimeInVehicle(double maxTimeInVehicle){
-            if(maxTimeInVehicle < 0) throw new IllegalArgumentException("maxTimeInVehicle should be positive");
-            this.maxTimeInVehicle = maxTimeInVehicle;
-            return this;
         }
 
         /**
@@ -62,10 +60,11 @@ public class Delivery extends Service {
             return new Delivery(this);
         }
 
-    }
-
-    Delivery(Builder builder) {
-        super(builder);
+        public Builder setMaxTimeInVehicle(double maxTimeInVehicle) {
+            if (maxTimeInVehicle < 0) throw new IllegalArgumentException("maxTimeInVehicle should be positive");
+            this.maxTimeInVehicle = maxTimeInVehicle;
+            return this;
+        }
 
     }
 

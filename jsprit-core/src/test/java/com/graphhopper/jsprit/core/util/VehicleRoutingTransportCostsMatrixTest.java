@@ -40,6 +40,10 @@ public class VehicleRoutingTransportCostsMatrixTest {
         assertEquals(2., matrix.getDistance("2", "1"), 0.1);
     }
 
+    private Location loc(String s) {
+        return Location.Builder.newInstance().setId(s).build();
+    }
+
     @Test
     public void whenAddingDistanceToSymmetricMatrixUsingStringAsKey_itShouldReturnCorrectValues() {
         VehicleRoutingTransportCostsMatrix.Builder matrixBuilder = VehicleRoutingTransportCostsMatrix.Builder.newInstance(true);
@@ -85,10 +89,6 @@ public class VehicleRoutingTransportCostsMatrixTest {
         matrixBuilder.addTransportDistance("1", "2", 2.);
         VehicleRoutingTransportCostsMatrix matrix = matrixBuilder.build();
         assertEquals(2., matrix.getTransportCost(loc("1"), loc("2"), 0.0, null, null), 0.1);
-    }
-
-    private Location loc(String s) {
-        return Location.Builder.newInstance().setId(s).build();
     }
 
     @Test(expected = IllegalStateException.class)

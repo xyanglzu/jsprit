@@ -39,16 +39,16 @@ import org.junit.Test;
 public class MaxTimeInVehicle_IT {
 
     @Test
-    public void test(){
+    public void test() {
 
-        Shipment s1 = Shipment.Builder.newInstance("s1").setPickupLocation(Location.newInstance(0,0)).setDeliveryLocation(Location.newInstance(100,0)).setDeliveryServiceTime(10)
+        Shipment s1 = Shipment.Builder.newInstance("s1").setPickupLocation(Location.newInstance(0, 0)).setDeliveryLocation(Location.newInstance(100, 0)).setDeliveryServiceTime(10)
             .setMaxTimeInVehicle(100d)
             .build();
-        Shipment s2 = Shipment.Builder.newInstance("s2").setPickupLocation(Location.newInstance(0,0)).setDeliveryLocation(Location.newInstance(100,0)).setDeliveryServiceTime(10)
+        Shipment s2 = Shipment.Builder.newInstance("s2").setPickupLocation(Location.newInstance(0, 0)).setDeliveryLocation(Location.newInstance(100, 0)).setDeliveryServiceTime(10)
             .setMaxTimeInVehicle(100d)
             .build();
 
-        VehicleImpl v = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance(0,0)).build();
+        VehicleImpl v = VehicleImpl.Builder.newInstance("v").setStartLocation(Location.newInstance(0, 0)).build();
 
         VehicleRoutingProblem vrp = VehicleRoutingProblem.Builder.newInstance().addVehicle(v).addJob(s1).addJob(s2).build();
 
@@ -57,13 +57,13 @@ public class MaxTimeInVehicle_IT {
         StateId openJobsId = stateManager.createStateId("open-jobs-id");
         stateManager.addStateUpdater(new UpdateMaxTimeInVehicle(stateManager, id, vrp.getTransportCosts(), vrp.getActivityCosts(), openJobsId));
 
-        ConstraintManager constraintManager = new ConstraintManager(vrp,stateManager);
+        ConstraintManager constraintManager = new ConstraintManager(vrp, stateManager);
         constraintManager.addConstraint(new MaxTimeInVehicleConstraint(vrp.getTransportCosts(), vrp.getActivityCosts(), id, stateManager, vrp, openJobsId), ConstraintManager.Priority.CRITICAL);
 
-        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setStateAndConstraintManager(stateManager,constraintManager).buildAlgorithm();
+        VehicleRoutingAlgorithm vra = Jsprit.Builder.newInstance(vrp).setStateAndConstraintManager(stateManager, constraintManager).buildAlgorithm();
         VehicleRoutingProblemSolution solution = Solutions.bestOf(vra.searchSolutions());
 
 //        Assert.assertEquals(400, solution.getCost(), 0.001);
-        SolutionPrinter.print(vrp,solution, SolutionPrinter.Print.VERBOSE);
+        SolutionPrinter.print(vrp, solution, SolutionPrinter.Print.VERBOSE);
     }
 }

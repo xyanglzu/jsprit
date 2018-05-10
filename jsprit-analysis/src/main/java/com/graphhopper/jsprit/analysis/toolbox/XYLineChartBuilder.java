@@ -35,6 +35,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class XYLineChartBuilder {
 
+    private final String xDomain;
+    private final String yDomain;
+    private final String chartName;
+    private ConcurrentHashMap<String, XYSeries> seriesMap = new ConcurrentHashMap<String, XYSeries>();
+
+    private XYLineChartBuilder(String chartName, String xDomainName, String yDomainName) {
+        this.xDomain = xDomainName;
+        this.yDomain = yDomainName;
+        this.chartName = chartName;
+    }
+
     /**
      * Helper that just saves the chart as specified png-file. The width of the image is 1000 and height 600.
      *
@@ -59,20 +70,6 @@ public class XYLineChartBuilder {
      */
     public static XYLineChartBuilder newInstance(String chartTitle, String xDomainName, String yDomainName) {
         return new XYLineChartBuilder(chartTitle, xDomainName, yDomainName);
-    }
-
-    private ConcurrentHashMap<String, XYSeries> seriesMap = new ConcurrentHashMap<String, XYSeries>();
-
-    private final String xDomain;
-
-    private final String yDomain;
-
-    private final String chartName;
-
-    private XYLineChartBuilder(String chartName, String xDomainName, String yDomainName) {
-        this.xDomain = xDomainName;
-        this.yDomain = yDomainName;
-        this.chartName = chartName;
     }
 
     /**

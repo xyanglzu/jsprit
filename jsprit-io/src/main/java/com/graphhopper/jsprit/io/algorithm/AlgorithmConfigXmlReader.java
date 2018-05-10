@@ -38,6 +38,10 @@ public class AlgorithmConfigXmlReader {
 
     private boolean schemaValidation = true;
 
+    public AlgorithmConfigXmlReader(AlgorithmConfig algorithmConfig) {
+        this.algorithmConfig = algorithmConfig;
+    }
+
     /**
      * @param schemaValidation the schemaValidation to set
      */
@@ -46,8 +50,10 @@ public class AlgorithmConfigXmlReader {
         return this;
     }
 
-    public AlgorithmConfigXmlReader(AlgorithmConfig algorithmConfig) {
-        this.algorithmConfig = algorithmConfig;
+    public void read(String filename) {
+        log.debug("read algorithm-config from file " + filename);
+        URL url = Resource.getAsURL(filename);
+        read(url);
     }
 
     public void read(URL url) {
@@ -80,13 +86,6 @@ public class AlgorithmConfigXmlReader {
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-    public void read(String filename) {
-        log.debug("read algorithm-config from file " + filename);
-        URL url = Resource.getAsURL(filename);
-        read(url);
     }
 
 }

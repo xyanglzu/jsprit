@@ -78,16 +78,16 @@ public class Time {
 
     }
 
-    private static double getSecondsInSeconds(String secString) {
-        return getDigit(secString);
+    private static double getHourInSeconds(String hourString) {
+        return getDigit(hourString) * 3600.;
     }
 
     private static double getMinInSeconds(String minString) {
         return getDigit(minString) * 60.;
     }
 
-    private static double getHourInSeconds(String hourString) {
-        return getDigit(hourString) * 3600.;
+    private static double getSecondsInSeconds(String secString) {
+        return getDigit(secString);
     }
 
     private static double getDigit(String digitString) {

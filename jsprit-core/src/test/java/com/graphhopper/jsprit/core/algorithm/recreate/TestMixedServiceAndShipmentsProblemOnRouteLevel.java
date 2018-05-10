@@ -41,22 +41,22 @@ public class TestMixedServiceAndShipmentsProblemOnRouteLevel {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
         VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance("vehicle");
         vehicleBuilder.setStartLocation(Location.newInstance(10, 10));
         vehicleBuilder.setType(vehicleType);
         VehicleImpl vehicle = vehicleBuilder.build();
 
-		/*
+        /*
          * build shipments at the required locations, each with a capacity-demand of 1.
-		 * 4 shipments
-		 * 1: (5,7)->(6,9)
-		 * 2: (5,13)->(6,11)
-		 * 3: (15,7)->(14,9)
-		 * 4: (15,13)->(14,11)
-		 */
+         * 4 shipments
+         * 1: (5,7)->(6,9)
+         * 2: (5,13)->(6,11)
+         * 3: (15,7)->(14,9)
+         * 4: (15,13)->(14,11)
+         */
 
         Shipment shipment1 = Shipment.Builder.newInstance("1").addSizeDimension(0, 1).setPickupLocation(TestUtils.loc(Coordinate.newInstance(5, 7))).setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(6, 9))).build();
         Shipment shipment2 = Shipment.Builder.newInstance("2").addSizeDimension(0, 1).setPickupLocation(TestUtils.loc(Coordinate.newInstance(5, 13))).setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(6, 11))).build();
@@ -64,13 +64,13 @@ public class TestMixedServiceAndShipmentsProblemOnRouteLevel {
         Shipment shipment3 = Shipment.Builder.newInstance("3").addSizeDimension(0, 1).setPickupLocation(TestUtils.loc(Coordinate.newInstance(15, 7))).setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(14, 9))).build();
         Shipment shipment4 = Shipment.Builder.newInstance("4").addSizeDimension(0, 1).setPickupLocation(TestUtils.loc(Coordinate.newInstance(15, 13))).setDeliveryLocation(TestUtils.loc(Coordinate.newInstance(14, 11))).build();
 
-		/*
+        /*
          * build deliveries, (implicitly picked up in the depot)
-		 * 1: (4,8)
-		 * 2: (4,12)
-		 * 3: (16,8)
-		 * 4: (16,12)
-		 */
+         * 1: (4,8)
+         * 2: (4,12)
+         * 3: (16,8)
+         * 4: (16,12)
+         */
         Delivery delivery1 = (Delivery) Delivery.Builder.newInstance("5").addSizeDimension(0, 1).setLocation(TestUtils.loc(Coordinate.newInstance(4, 8))).build();
         Delivery delivery2 = (Delivery) Delivery.Builder.newInstance("6").addSizeDimension(0, 1).setLocation(TestUtils.loc(Coordinate.newInstance(4, 12))).build();
         Delivery delivery3 = (Delivery) Delivery.Builder.newInstance("7").addSizeDimension(0, 1).setLocation(TestUtils.loc(Coordinate.newInstance(16, 8))).build();
@@ -106,22 +106,22 @@ public class TestMixedServiceAndShipmentsProblemOnRouteLevel {
         VehicleTypeImpl.Builder vehicleTypeBuilder = VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         VehicleType vehicleType = vehicleTypeBuilder.build();
 
-		/*
+        /*
          * get a vehicle-builder and build a vehicle located at (10,10) with type "vehicleType"
-		 */
+         */
         VehicleImpl.Builder vehicleBuilder = VehicleImpl.Builder.newInstance("vehicle");
         vehicleBuilder.setStartLocation(Location.newInstance(10, 10));
         vehicleBuilder.setType(vehicleType);
         VehicleImpl vehicle = vehicleBuilder.build();
 
 
-		/*
+        /*
          * build deliveries, (implicitly picked up in the depot)
-		 * 1: (4,8)
-		 * 2: (4,12)
-		 * 3: (16,8)
-		 * 4: (16,12)
-		 */
+         * 1: (4,8)
+         * 2: (4,12)
+         * 3: (16,8)
+         * 4: (16,12)
+         */
         Delivery delivery1 = (Delivery) Delivery.Builder.newInstance("5").addSizeDimension(0, 1).setLocation(Location.newInstance(4, 8)).build();
         Delivery delivery2 = (Delivery) Delivery.Builder.newInstance("6").addSizeDimension(0, 1).setLocation(Location.newInstance(4, 12)).build();
         Delivery delivery3 = (Delivery) Delivery.Builder.newInstance("7").addSizeDimension(0, 1).setLocation(Location.newInstance(16, 8)).build();

@@ -25,7 +25,15 @@ package com.graphhopper.jsprit.core.problem.job;
  */
 public class Pickup extends Service {
 
+    Pickup(Builder builder) {
+        super(builder);
+    }
+
     public static class Builder extends Service.Builder<Pickup> {
+
+        Builder(String id) {
+            super(id);
+        }
 
         /**
          * Returns a new instance of builder that builds a pickup.
@@ -35,17 +43,6 @@ public class Pickup extends Service {
          */
         public static Builder newInstance(String id) {
             return new Builder(id);
-        }
-
-        Builder(String id) {
-            super(id);
-        }
-
-        public Builder setMaxTimeInVehicle(double maxTimeInVehicle){
-            throw new UnsupportedOperationException("maxTimeInVehicle is not yet supported for Pickups and Services (only for Deliveries and Shipments)");
-//            if(maxTimeInVehicle < 0) throw new IllegalArgumentException("maxTimeInVehicle should be positive");
-//            this.maxTimeInVehicle = maxTimeInVehicle;
-//            return this;
         }
 
         /**
@@ -64,10 +61,13 @@ public class Pickup extends Service {
             return new Pickup(this);
         }
 
-    }
+        public Builder setMaxTimeInVehicle(double maxTimeInVehicle) {
+            throw new UnsupportedOperationException("maxTimeInVehicle is not yet supported for Pickups and Services (only for Deliveries and Shipments)");
+//            if(maxTimeInVehicle < 0) throw new IllegalArgumentException("maxTimeInVehicle should be positive");
+//            this.maxTimeInVehicle = maxTimeInVehicle;
+//            return this;
+        }
 
-    Pickup(Builder builder) {
-        super(builder);
     }
 
 }

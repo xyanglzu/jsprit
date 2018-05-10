@@ -31,6 +31,32 @@ import java.util.List;
 
 class Inserter {
 
+    private InsertionListeners insertionListeners;
+    private JobInsertionHandler jobInsertionHandler;
+    private VehicleRoutingProblem vehicleRoutingProblem;
+
+    public Inserter(InsertionListeners insertionListeners, VehicleRoutingProblem vehicleRoutingProblem) {
+        this.insertionListeners = insertionListeners;
+        new DefaultTourActivityFactory();
+        jobInsertionHandler = new ServiceInsertionHandler(vehicleRoutingProblem);
+        jobInsertionHandler.setNextHandler(new ShipmentInsertionHandler(vehicleRoutingProblem));
+    }
+
+    public void insertJob(Job job, InsertionData insertionData, VehicleRoute vehicleRoute) {
+        insertionListeners.informBeforeJobInsertion(job, insertionData, vehicleRoute);
+
+        if (insertionData == null || (insertionData instanceof NoInsertionFound))
+            throw new IllegalStateException("insertionData null. cannot insert job.");
+        if (job == null) throw new IllegalStateException("cannot insert null-job");
+        if (!(vehicleRoute.getVehicle().getId().equals(insertionData.getSelectedVehicle().getId()))) {
+            insertionListeners.informVehicleSwitched(vehicleRoute, vehicleRoute.getVehicle(), insertionData.getSelectedVehicle());
+            vehicleRoute.setVehicleAndDepartureTime(insertionData.getSelectedVehicle(), insertionData.getVehicleDepartureTime());
+        }
+        jobInsertionHandler.handleJobInsertion(job, insertionData, vehicleRoute);
+
+        insertionListeners.informJobInserted(job, vehicleRoute, insertionData.getInsertionCost(), insertionData.getAdditionalTime());
+    }
+
     interface JobInsertionHandler {
 
         void handleJobInsertion(Job job, InsertionData iData, VehicleRoute route);
@@ -126,33 +152,5 @@ class Inserter {
             this.delegator = jobInsertionHandler;
         }
 
-    }
-
-    private InsertionListeners insertionListeners;
-
-    private JobInsertionHandler jobInsertionHandler;
-
-    private VehicleRoutingProblem vehicleRoutingProblem;
-
-    public Inserter(InsertionListeners insertionListeners, VehicleRoutingProblem vehicleRoutingProblem) {
-        this.insertionListeners = insertionListeners;
-        new DefaultTourActivityFactory();
-        jobInsertionHandler = new ServiceInsertionHandler(vehicleRoutingProblem);
-        jobInsertionHandler.setNextHandler(new ShipmentInsertionHandler(vehicleRoutingProblem));
-    }
-
-    public void insertJob(Job job, InsertionData insertionData, VehicleRoute vehicleRoute) {
-        insertionListeners.informBeforeJobInsertion(job, insertionData, vehicleRoute);
-
-        if (insertionData == null || (insertionData instanceof NoInsertionFound))
-            throw new IllegalStateException("insertionData null. cannot insert job.");
-        if (job == null) throw new IllegalStateException("cannot insert null-job");
-        if (!(vehicleRoute.getVehicle().getId().equals(insertionData.getSelectedVehicle().getId()))) {
-            insertionListeners.informVehicleSwitched(vehicleRoute, vehicleRoute.getVehicle(), insertionData.getSelectedVehicle());
-            vehicleRoute.setVehicleAndDepartureTime(insertionData.getSelectedVehicle(), insertionData.getVehicleDepartureTime());
-        }
-        jobInsertionHandler.handleJobInsertion(job, insertionData, vehicleRoute);
-
-        insertionListeners.informJobInserted(job, vehicleRoute, insertionData.getInsertionCost(), insertionData.getAdditionalTime());
     }
 }

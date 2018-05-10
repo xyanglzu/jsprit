@@ -34,14 +34,6 @@ public class RandomUtils {
         return nextItem(routes, random);
     }
 
-    public static Job nextJob(Collection<Job> jobs, Random random) {
-        return nextItem(jobs, random);
-    }
-
-    public static Job nextJob(List<Job> jobs, Random random) {
-        return nextItem(jobs, random);
-    }
-
     public static <T> T nextItem(Collection<T> items, Random random) {
         int randomIndex = random.nextInt(items.size());
         int count = 0;
@@ -50,6 +42,14 @@ public class RandomUtils {
             count++;
         }
         return null;
+    }
+
+    public static Job nextJob(Collection<Job> jobs, Random random) {
+        return nextItem(jobs, random);
+    }
+
+    public static Job nextJob(List<Job> jobs, Random random) {
+        return nextItem(jobs, random);
     }
 
     public static <T> T nextItem(List<T> items, Random random) {

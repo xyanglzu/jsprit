@@ -371,16 +371,16 @@ public class CapacityTest {
     }
 
     @Test
-    public void shouldBeEqual(){
+    public void shouldBeEqual() {
         Capacity cap1 = Capacity.Builder.newInstance().build();
         Capacity cap2 = Capacity.Builder.newInstance().build();
         Assert.assertTrue(cap1.equals(cap2));
     }
 
     @Test
-    public void shouldBeEqual2(){
-        Capacity cap1 = Capacity.Builder.newInstance().addDimension(0,10).addDimension(1,100).addDimension(2,1000).build();
-        Capacity cap2 = Capacity.Builder.newInstance().addDimension(0,10).addDimension(2, 1000).addDimension(1,100).build();
+    public void shouldBeEqual2() {
+        Capacity cap1 = Capacity.Builder.newInstance().addDimension(0, 10).addDimension(1, 100).addDimension(2, 1000).build();
+        Capacity cap2 = Capacity.Builder.newInstance().addDimension(0, 10).addDimension(2, 1000).addDimension(1, 100).build();
         Assert.assertTrue(cap1.equals(cap2));
     }
 }

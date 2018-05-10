@@ -49,6 +49,22 @@ public class VehicleTypeKey extends AbstractVehicle.AbstractTypeKey {
     }
 
     @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = type.hashCode();
+        result = 31 * result + startLocationId.hashCode();
+        result = 31 * result + endLocationId.hashCode();
+        temp = Double.doubleToLongBits(earliestStart);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(latestEnd);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + skills.hashCode();
+        result = 31 * result + (returnToDepot ? 1 : 0);
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -64,22 +80,6 @@ public class VehicleTypeKey extends AbstractVehicle.AbstractTypeKey {
         if (!type.equals(that.type)) return false;
 
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = type.hashCode();
-        result = 31 * result + startLocationId.hashCode();
-        result = 31 * result + endLocationId.hashCode();
-        temp = Double.doubleToLongBits(earliestStart);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(latestEnd);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + skills.hashCode();
-        result = 31 * result + (returnToDepot ? 1 : 0);
-        return result;
     }
 
     @Override

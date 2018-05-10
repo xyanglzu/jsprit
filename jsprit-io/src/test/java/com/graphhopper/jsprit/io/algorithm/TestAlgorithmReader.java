@@ -74,17 +74,6 @@ public class TestAlgorithmReader {
         Assert.assertEquals(2000, vra.getMaxIterations());
     }
 
-    static class IterationCounter implements IterationEndsListener {
-
-        int iterations = 0;
-
-        @Override
-        public void informIterationEnds(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-            iterations = i;
-        }
-
-    }
-
     @Test
     public void whenSettingPrematureBreak_itShouldReadTermination() {
         VehicleRoutingAlgorithm vra = VehicleRoutingAlgorithms.readAndCreateAlgorithm(vrp, getClass().getResource("algorithmConfigForReaderTest2.xml"));
@@ -102,7 +91,6 @@ public class TestAlgorithmReader {
         vra.searchSolutions();
         Assert.assertEquals(25, iCounter.iterations);
     }
-
 
     @Test
     public void testTypedMap() {
@@ -280,6 +268,17 @@ public class TestAlgorithmReader {
     public void readerTest_whenReadingAlgoWithSchemaValidationWithoutIterations_itReadsCorrectly() {
         AlgorithmConfig algoConfig = new AlgorithmConfig();
         new AlgorithmConfigXmlReader(algoConfig).read(getClass().getResource("algorithmConfig_withoutIterations.xml"));
+
+    }
+
+    static class IterationCounter implements IterationEndsListener {
+
+        int iterations = 0;
+
+        @Override
+        public void informIterationEnds(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+            iterations = i;
+        }
 
     }
 

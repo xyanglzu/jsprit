@@ -44,15 +44,11 @@ import static org.mockito.Mockito.when;
 
 public class ServiceLoadRouteLevelConstraintTest {
 
-    private Vehicle vehicle;
-
-    private VehicleRoute route;
-
     RouteAndActivityStateGetter stateGetter;
-
     ServiceLoadRouteLevelConstraint constraint;
-
     StateManager stateManager;
+    private Vehicle vehicle;
+    private VehicleRoute route;
 
     @Before
     public void doBefore() {
@@ -334,6 +330,10 @@ public class ServiceLoadRouteLevelConstraintTest {
         assertFalse(new ServiceLoadRouteLevelConstraint(stateManager).fulfilled(iContext));
     }
 
+    private Service createPickup(String string, int i) {
+        return Pickup.Builder.newInstance(string).addSizeDimension(0, i).setLocation(Location.newInstance("loc")).build();
+    }
+
     @Test
     public void whenNewVehicleCapacityIsNotSufficiant2_returnFalse() {
         Pickup service = (Pickup) createPickup("pick", 2);
@@ -346,11 +346,6 @@ public class ServiceLoadRouteLevelConstraintTest {
         JobInsertionContext iContext = new JobInsertionContext(route, service, vehicle, null, 0.);
 
         assertFalse(new ServiceLoadRouteLevelConstraint(stateManager).fulfilled(iContext));
-    }
-
-
-    private Service createPickup(String string, int i) {
-        return Pickup.Builder.newInstance(string).addSizeDimension(0, i).setLocation(Location.newInstance("loc")).build();
     }
 
 

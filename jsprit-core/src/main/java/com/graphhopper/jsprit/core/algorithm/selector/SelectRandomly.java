@@ -29,6 +29,7 @@ import java.util.Random;
 public class SelectRandomly implements SolutionSelector {
 
     private static SelectRandomly selector = null;
+    private Random random = RandomNumberGeneration.getRandom();
 
     public static SelectRandomly getInstance() {
         if (selector == null) {
@@ -37,8 +38,6 @@ public class SelectRandomly implements SolutionSelector {
         }
         return selector;
     }
-
-    private Random random = RandomNumberGeneration.getRandom();
 
     @Override
     public VehicleRoutingProblemSolution selectSolution(Collection<VehicleRoutingProblemSolution> solutions) {

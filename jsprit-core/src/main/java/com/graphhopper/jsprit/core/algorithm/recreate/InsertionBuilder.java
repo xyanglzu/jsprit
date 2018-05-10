@@ -32,48 +32,24 @@ import java.util.concurrent.ExecutorService;
 public class InsertionBuilder {
 
     private boolean fastRegret;
-
-
-    public enum Strategy {
-        REGRET, BEST
-    }
-
     private VehicleRoutingProblem vrp;
-
     private StateManager stateManager;
-
     private boolean local = true;
-
     private ConstraintManager constraintManager;
-
     private VehicleFleetManager fleetManager;
-
     private double weightOfFixedCosts;
-
     private boolean considerFixedCosts = false;
-
     private ActivityInsertionCostsCalculator actInsertionCostsCalculator = null;
-
     private int forwaredLooking;
-
     private int memory;
-
     private ExecutorService executor;
-
     private int nuOfThreads;
-
     private double timeSlice;
-
     private int nNeighbors;
-
     private boolean timeScheduling = false;
-
     private boolean allowVehicleSwitch = true;
-
     private boolean addDefaultCostCalc = true;
-
     private Strategy strategy = Strategy.BEST;
-
     private boolean isFastRegret = false;
 
     public InsertionBuilder(VehicleRoutingProblem vrp, VehicleFleetManager vehicleFleetManager, StateManager stateManager, ConstraintManager constraintManager) {
@@ -108,7 +84,6 @@ public class InsertionBuilder {
         this.isFastRegret = fastRegret;
         return this;
     }
-
 
     public InsertionBuilder setLocalLevel() {
         local = true;
@@ -145,7 +120,6 @@ public class InsertionBuilder {
         return this;
     }
 
-
     public InsertionStrategy build() {
         List<InsertionListener> iListeners = new ArrayList<InsertionListener>();
         List<VehicleRoutingAlgorithmListeners.PrioritizedVRAListener> algorithmListeners = new ArrayList<VehicleRoutingAlgorithmListeners.PrioritizedVRAListener>();
@@ -178,23 +152,21 @@ public class InsertionBuilder {
             }
         } else if (strategy.equals(Strategy.REGRET)) {
             if (executor == null) {
-                if(isFastRegret){
+                if (isFastRegret) {
                     RegretInsertionFast regret = new RegretInsertionFast(costCalculator, vrp, fleetManager);
                     regret.setSwitchAllowed(allowVehicleSwitch);
                     insertion = regret;
-                }
-                else {
+                } else {
                     RegretInsertion regret = new RegretInsertion(costCalculator, vrp);
                     insertion = regret;
                 }
 
             } else {
-                if(isFastRegret){
+                if (isFastRegret) {
                     RegretInsertionConcurrentFast regret = new RegretInsertionConcurrentFast(costCalculator, vrp, executor, fleetManager);
                     regret.setSwitchAllowed(allowVehicleSwitch);
                     insertion = regret;
-                }
-                else{
+                } else {
                     RegretInsertionConcurrent regret = new RegretInsertionConcurrent(costCalculator, vrp, executor);
                     insertion = regret;
                 }
@@ -208,6 +180,10 @@ public class InsertionBuilder {
     public InsertionBuilder setAllowVehicleSwitch(boolean allowVehicleSwitch) {
         this.allowVehicleSwitch = allowVehicleSwitch;
         return this;
+    }
+
+    public enum Strategy {
+        REGRET, BEST
     }
 
 

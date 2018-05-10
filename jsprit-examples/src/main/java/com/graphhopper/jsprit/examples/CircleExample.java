@@ -41,16 +41,6 @@ import java.util.Collection;
  */
 public class CircleExample {
 
-    public static Collection<Coordinate> createCoordinates(double center_x, double center_y, double radius, double step) {
-        Collection<Coordinate> coords = new ArrayList<Coordinate>();
-        for (double theta = 0; theta < 2 * Math.PI; theta += step) {
-            double x = center_x + radius * Math.cos(theta);
-            double y = center_y - radius * Math.sin(theta);
-            coords.add(Coordinate.newInstance(x, y));
-        }
-        return coords;
-    }
-
     public static void main(String[] args) {
         File dir = new File("output");
         // if the directory does not exist, create it
@@ -96,6 +86,16 @@ public class CircleExample {
         viewer.setRecreationDelay(8);
         viewer.display("output/events.dgs.gz");
 
+    }
+
+    public static Collection<Coordinate> createCoordinates(double center_x, double center_y, double radius, double step) {
+        Collection<Coordinate> coords = new ArrayList<Coordinate>();
+        for (double theta = 0; theta < 2 * Math.PI; theta += step) {
+            double x = center_x + radius * Math.cos(theta);
+            double y = center_y - radius * Math.sin(theta);
+            coords.add(Coordinate.newInstance(x, y));
+        }
+        return coords;
     }
 
 }

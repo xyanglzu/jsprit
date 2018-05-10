@@ -33,36 +33,11 @@ import java.util.*;
  */
 public class VehicleDependentTraveledDistance implements StateUpdater, ActivityVisitor {
 
-    static class State {
-
-        Location prevLocation;
-
-        double distance;
-
-        public State(Location prevLocation, double distance) {
-            this.prevLocation = prevLocation;
-            this.distance = distance;
-        }
-
-        public Location getPrevLocation() {
-            return prevLocation;
-        }
-
-        public double getDistance() {
-            return distance;
-        }
-    }
-
     private final TransportDistance transportDistance;
-
     private final StateManager stateManager;
-
     private final StateId traveledDistanceId;
-
     private VehicleRoute route;
-
     private List<Vehicle> uniqueVehicles;
-
     private Map<VehicleTypeKey, State> states;
 
     public VehicleDependentTraveledDistance(TransportDistance transportCostMatrices, StateManager stateManager, StateId distanceInRouteId, Collection<Vehicle> vehicles) {
@@ -114,6 +89,26 @@ public class VehicleDependentTraveledDistance implements StateUpdater, ActivityV
                 distance += transportDistance.getDistance(old.getPrevLocation(), v.getEndLocation(), 0, v);
             }
             stateManager.putRouteState(route, v, traveledDistanceId, distance);
+        }
+    }
+
+    static class State {
+
+        Location prevLocation;
+
+        double distance;
+
+        public State(Location prevLocation, double distance) {
+            this.prevLocation = prevLocation;
+            this.distance = distance;
+        }
+
+        public Location getPrevLocation() {
+            return prevLocation;
+        }
+
+        public double getDistance() {
+            return distance;
         }
     }
 

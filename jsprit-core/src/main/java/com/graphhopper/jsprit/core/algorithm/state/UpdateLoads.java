@@ -80,6 +80,13 @@ class UpdateLoads implements ActivityVisitor, StateUpdater, InsertionStartsListe
         currentLoad = Capacity.Builder.newInstance().build();
     }
 
+    @Override
+    public void informInsertionStarts(Collection<VehicleRoute> vehicleRoutes, Collection<Job> unassignedJobs) {
+        for (VehicleRoute route : vehicleRoutes) {
+            insertionStarts(route);
+        }
+    }
+
     void insertionStarts(VehicleRoute route) {
         Capacity loadAtDepot = Capacity.Builder.newInstance().build();
         Capacity loadAtEnd = Capacity.Builder.newInstance().build();
@@ -95,13 +102,6 @@ class UpdateLoads implements ActivityVisitor, StateUpdater, InsertionStartsListe
     }
 
     @Override
-    public void informInsertionStarts(Collection<VehicleRoute> vehicleRoutes, Collection<Job> unassignedJobs) {
-        for (VehicleRoute route : vehicleRoutes) {
-            insertionStarts(route);
-        }
-    }
-
-    @Override
     public void informJobInserted(Job job2insert, VehicleRoute inRoute, double additionalCosts, double additionalTime) {
         if (job2insert instanceof Delivery) {
             Capacity loadAtDepot = stateManager.getRouteState(inRoute, InternalStates.LOAD_AT_BEGINNING, Capacity.class);
@@ -114,7 +114,7 @@ class UpdateLoads implements ActivityVisitor, StateUpdater, InsertionStartsListe
         }
     }
 
-    public void informRouteChanged(VehicleRoute route){
+    public void informRouteChanged(VehicleRoute route) {
         insertionStarts(route);
     }
 

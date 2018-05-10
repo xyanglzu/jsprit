@@ -35,63 +35,22 @@ import java.util.List;
 
 public class JobInsertionCostsCalculatorBuilder {
 
-    private static class CalculatorPlusListeners {
-
-        private JobInsertionCostsCalculator calculator;
-
-        public JobInsertionCostsCalculator getCalculator() {
-            return calculator;
-        }
-
-        private List<PrioritizedVRAListener> algorithmListener = new ArrayList<PrioritizedVRAListener>();
-        private List<InsertionListener> insertionListener = new ArrayList<InsertionListener>();
-
-        public CalculatorPlusListeners(JobInsertionCostsCalculator calculator) {
-            super();
-            this.calculator = calculator;
-        }
-
-        public List<PrioritizedVRAListener> getAlgorithmListener() {
-            return algorithmListener;
-        }
-
-        public List<InsertionListener> getInsertionListener() {
-            return insertionListener;
-        }
-    }
-
     private List<InsertionListener> insertionListeners;
-
     private List<PrioritizedVRAListener> algorithmListeners;
-
     private VehicleRoutingProblem vrp;
-
     private RouteAndActivityStateGetter states;
-
     private boolean local = true;
-
     private int forwardLooking = 0;
-
     private int memory = 1;
-
     private boolean considerFixedCost = false;
-
     private double weightOfFixedCost = 0;
-
     private VehicleFleetManager fleetManager;
-
     private boolean timeScheduling = false;
-
     private double timeSlice;
-
     private int neighbors;
-
     private ConstraintManager constraintManager;
-
     private ActivityInsertionCostsCalculator activityInsertionCostCalculator = null;
-
     private boolean allowVehicleSwitch = true;
-
     private boolean addDefaultCostCalc = true;
 
     /**
@@ -234,29 +193,6 @@ public class JobInsertionCostsCalculatorBuilder {
         return createFinalInsertion(fleetManager, baseCalculator, states);
     }
 
-    private void checkServicesOnly() {
-        for (Job j : vrp.getJobs().values()) {
-            if (j instanceof Shipment) {
-                throw new UnsupportedOperationException("currently the 'insert-on-route-level' option is only available for services (i.e. service, pickup, delivery), \n" +
-                    "if you want to deal with shipments switch to option 'local-level' by either setting bestInsertionBuilder.setLocalLevel() or \n"
-                    + "by omitting the xml-tag '<level forwardLooking=2 memory=1>route</level>' when defining your insertionStrategy in algo-config.xml file");
-            }
-        }
-
-    }
-
-    private void addInsertionListeners(List<InsertionListener> list) {
-        for (InsertionListener iL : list) {
-            insertionListeners.add(iL);
-        }
-    }
-
-    private void addAlgorithmListeners(List<PrioritizedVRAListener> list) {
-        for (PrioritizedVRAListener aL : list) {
-            algorithmListeners.add(aL);
-        }
-    }
-
     private CalculatorPlusListeners createStandardLocal(final VehicleRoutingProblem vrp, RouteAndActivityStateGetter statesManager) {
         if (constraintManager == null) throw new IllegalStateException("constraint-manager is null");
 
@@ -287,7 +223,7 @@ public class JobInsertionCostsCalculatorBuilder {
             }
 
         };
-        ShipmentInsertionCalculator shipmentInsertion = new ShipmentInsertionCalculator(vrp.getTransportCosts(), vrp.getActivityCosts(),actInsertionCalc, constraintManager);
+        ShipmentInsertionCalculator shipmentInsertion = new ShipmentInsertionCalculator(vrp.getTransportCosts(), vrp.getActivityCosts(), actInsertionCalc, constraintManager);
         shipmentInsertion.setJobActivityFactory(activityFactory);
         ServiceInsertionCalculator serviceInsertion = new ServiceInsertionCalculator(vrp.getTransportCosts(), vrp.getActivityCosts(), actInsertionCalc, constraintManager);
         serviceInsertion.setJobActivityFactory(activityFactory);
@@ -307,6 +243,17 @@ public class JobInsertionCostsCalculatorBuilder {
             calculatorPlusListeners.insertionListener.add(configLocal);
         }
         return calculatorPlusListeners;
+    }
+
+    private void checkServicesOnly() {
+        for (Job j : vrp.getJobs().values()) {
+            if (j instanceof Shipment) {
+                throw new UnsupportedOperationException("currently the 'insert-on-route-level' option is only available for services (i.e. service, pickup, delivery), \n" +
+                    "if you want to deal with shipments switch to option 'local-level' by either setting bestInsertionBuilder.setLocalLevel() or \n"
+                    + "by omitting the xml-tag '<level forwardLooking=2 memory=1>route</level>' when defining your insertionStrategy in algo-config.xml file");
+            }
+        }
+
     }
 
     private CalculatorPlusListeners createStandardRoute(final VehicleRoutingProblem vrp, RouteAndActivityStateGetter activityStates2, int forwardLooking, int solutionMemory) {
@@ -343,6 +290,18 @@ public class JobInsertionCostsCalculatorBuilder {
         return new CalculatorPlusListeners(jobInsertionCalculator);
     }
 
+    private void addAlgorithmListeners(List<PrioritizedVRAListener> list) {
+        for (PrioritizedVRAListener aL : list) {
+            algorithmListeners.add(aL);
+        }
+    }
+
+    private void addInsertionListeners(List<InsertionListener> list) {
+        for (InsertionListener iL : list) {
+            insertionListeners.add(iL);
+        }
+    }
+
     private JobInsertionCostsCalculator createFinalInsertion(VehicleFleetManager fleetManager, JobInsertionCostsCalculator baseCalc, RouteAndActivityStateGetter activityStates2) {
         VehicleTypeDependentJobInsertionCalculator vehicleTypeDependentJobInsertionCalculator = new VehicleTypeDependentJobInsertionCalculator(vrp, fleetManager, baseCalc);
         vehicleTypeDependentJobInsertionCalculator.setVehicleSwitchAllowed(allowVehicleSwitch);
@@ -357,6 +316,30 @@ public class JobInsertionCostsCalculatorBuilder {
     public JobInsertionCostsCalculatorBuilder setAllowVehicleSwitch(boolean allowVehicleSwitch) {
         this.allowVehicleSwitch = allowVehicleSwitch;
         return this;
+    }
+
+    private static class CalculatorPlusListeners {
+
+        private JobInsertionCostsCalculator calculator;
+        private List<PrioritizedVRAListener> algorithmListener = new ArrayList<PrioritizedVRAListener>();
+        private List<InsertionListener> insertionListener = new ArrayList<InsertionListener>();
+
+        public CalculatorPlusListeners(JobInsertionCostsCalculator calculator) {
+            super();
+            this.calculator = calculator;
+        }
+
+        public JobInsertionCostsCalculator getCalculator() {
+            return calculator;
+        }
+
+        public List<PrioritizedVRAListener> getAlgorithmListener() {
+            return algorithmListener;
+        }
+
+        public List<InsertionListener> getInsertionListener() {
+            return insertionListener;
+        }
     }
 
 }

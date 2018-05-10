@@ -48,21 +48,6 @@ public class VehicleRoutingAlgorithmTest {
         assertEquals(50, algorithm.getMaxIterations());
     }
 
-    private static class CountIterations implements IterationStartsListener {
-
-        private int countIterations = 0;
-
-        @Override
-        public void informIterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
-            countIterations++;
-        }
-
-        public int getCountIterations() {
-            return countIterations;
-        }
-
-    }
-
     @Test
     public void whenSettingIterationsWithMaxIterations_iterAreExecutedCorrectly() {
         SearchStrategyManager stratManager = mock(SearchStrategyManager.class);
@@ -180,6 +165,21 @@ public class VehicleRoutingAlgorithmTest {
         algorithm.addTerminationCriterion(termination2);
         algorithm.searchSolutions();
         assertEquals(25, counter.getCountIterations());
+    }
+
+    private static class CountIterations implements IterationStartsListener {
+
+        private int countIterations = 0;
+
+        @Override
+        public void informIterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
+            countIterations++;
+        }
+
+        public int getCountIterations() {
+            return countIterations;
+        }
+
     }
 
 }

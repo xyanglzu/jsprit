@@ -22,12 +22,7 @@ import com.graphhopper.jsprit.core.algorithm.state.*;
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem;
 import com.graphhopper.jsprit.core.problem.constraint.ConstraintManager;
 import com.graphhopper.jsprit.core.problem.constraint.SwitchNotFeasible;
-import com.graphhopper.jsprit.core.problem.job.Job;
-import com.graphhopper.jsprit.core.problem.solution.SolutionCostCalculator;
-import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution;
 import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute;
-import com.graphhopper.jsprit.core.problem.solution.route.activity.BreakActivity;
-import com.graphhopper.jsprit.core.problem.solution.route.activity.TourActivity;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeKey;
 import com.graphhopper.jsprit.core.util.ActivityTimeTracker;
@@ -42,7 +37,7 @@ import java.util.Map;
  */
 public class AlgorithmUtil {
 
-    public static void addCoreConstraints(ConstraintManager constraintManager, StateManager stateManager, final VehicleRoutingProblem vrp){
+    public static void addCoreConstraints(ConstraintManager constraintManager, StateManager stateManager, final VehicleRoutingProblem vrp) {
         constraintManager.addTimeWindowConstraint();
         constraintManager.addLoadConstraint();
         constraintManager.addSkillsConstraint();

@@ -26,15 +26,6 @@ import com.graphhopper.jsprit.core.problem.solution.route.activity.TourActivity;
 public interface HardActivityConstraint extends HardConstraint {
 
     /**
-     * Indicates whether a hard activity constraint is fulfilled or not
-     */
-    static enum ConstraintsStatus {
-
-        NOT_FULFILLED_BREAK, NOT_FULFILLED, FULFILLED
-
-    }
-
-    /**
      * Returns whether newAct can be inserted in between prevAct and nextAct.
      * <p>
      * <p>
@@ -79,5 +70,14 @@ public interface HardActivityConstraint extends HardConstraint {
      * @return fulfilled if hard constraint is met, other not fulfilled.
      */
     public ConstraintsStatus fulfilled(JobInsertionContext iFacts, TourActivity prevAct, TourActivity newAct, TourActivity nextAct, double prevActDepTime);
+
+    /**
+     * Indicates whether a hard activity constraint is fulfilled or not
+     */
+    static enum ConstraintsStatus {
+
+        NOT_FULFILLED_BREAK, NOT_FULFILLED, FULFILLED
+
+    }
 
 }

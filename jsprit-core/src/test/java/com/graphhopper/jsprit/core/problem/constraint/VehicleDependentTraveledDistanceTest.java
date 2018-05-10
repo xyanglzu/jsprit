@@ -144,6 +144,13 @@ vehicle2 (max distance): 180.0
         Assert.assertTrue(maxDistanceConstraint.fulfilled(context, act(4), newAct(), route.getEnd(), 0).equals(HardActivityConstraint.ConstraintsStatus.NOT_FULFILLED));
     }
 
+    private TourActivity newAct() {
+        return vrp.getActivities(newDelivery).get(0);
+    }
+
+    private TourActivity act(int i) {
+        return route.getActivities().get(i);
+    }
 
     @Test
     public void insertNewInVehicle2ShouldBeCorrect() {
@@ -162,14 +169,6 @@ vehicle2 (max distance): 180.0
         Assert.assertTrue(maxDistanceConstraint.fulfilled(context, act(3), newAct(), act(4), 0).equals(HardActivityConstraint.ConstraintsStatus.NOT_FULFILLED));
         //additional distance: 45+20-25
         Assert.assertTrue(maxDistanceConstraint.fulfilled(context, act(4), newAct(), route.getEnd(), 0).equals(HardActivityConstraint.ConstraintsStatus.FULFILLED));
-    }
-
-    private TourActivity act(int i) {
-        return route.getActivities().get(i);
-    }
-
-    private TourActivity newAct() {
-        return vrp.getActivities(newDelivery).get(0);
     }
 
     @Test

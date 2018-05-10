@@ -27,32 +27,6 @@ import java.util.*;
 
 public class VehicleRoutingAlgorithmListeners {
 
-    public static class PrioritizedVRAListener {
-
-        Priority priority;
-        VehicleRoutingAlgorithmListener l;
-
-        public PrioritizedVRAListener(Priority priority, VehicleRoutingAlgorithmListener l) {
-            super();
-            this.priority = priority;
-            this.l = l;
-        }
-
-        public Priority getPriority() {
-            return priority;
-        }
-
-        public VehicleRoutingAlgorithmListener getListener() {
-            return l;
-        }
-
-    }
-
-    public enum Priority {
-        HIGH, MEDIUM, LOW
-    }
-
-
     private TreeSet<PrioritizedVRAListener> algorithmListeners = new TreeSet<PrioritizedVRAListener>(new Comparator<PrioritizedVRAListener>() {
 
         @Override
@@ -71,7 +45,6 @@ public class VehicleRoutingAlgorithmListeners {
         }
     });
 
-
     public Collection<VehicleRoutingAlgorithmListener> getAlgorithmListeners() {
         List<VehicleRoutingAlgorithmListener> list = new ArrayList<VehicleRoutingAlgorithmListener>();
         for (PrioritizedVRAListener l : algorithmListeners) {
@@ -87,12 +60,12 @@ public class VehicleRoutingAlgorithmListeners {
         }
     }
 
-    public void addListener(VehicleRoutingAlgorithmListener listener, Priority priority) {
-        algorithmListeners.add(new PrioritizedVRAListener(priority, listener));
-    }
-
     public void addListener(VehicleRoutingAlgorithmListener listener) {
         addListener(listener, Priority.LOW);
+    }
+
+    public void addListener(VehicleRoutingAlgorithmListener listener, Priority priority) {
+        algorithmListeners.add(new PrioritizedVRAListener(priority, listener));
     }
 
     public void algorithmEnds(VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
@@ -112,7 +85,6 @@ public class VehicleRoutingAlgorithmListeners {
         }
     }
 
-
     public void iterationStarts(int i, VehicleRoutingProblem problem, Collection<VehicleRoutingProblemSolution> solutions) {
         for (PrioritizedVRAListener l : algorithmListeners) {
             if (l.getListener() instanceof IterationStartsListener) {
@@ -120,7 +92,6 @@ public class VehicleRoutingAlgorithmListeners {
             }
         }
     }
-
 
     public void algorithmStarts(VehicleRoutingProblem problem, VehicleRoutingAlgorithm algorithm, Collection<VehicleRoutingProblemSolution> solutions) {
         for (PrioritizedVRAListener l : algorithmListeners) {
@@ -146,5 +117,30 @@ public class VehicleRoutingAlgorithmListeners {
                 ((StrategySelectedListener) l.getListener()).informSelectedStrategy(discoveredSolution, problem, solutions);
             }
         }
+    }
+
+    public enum Priority {
+        HIGH, MEDIUM, LOW
+    }
+
+    public static class PrioritizedVRAListener {
+
+        Priority priority;
+        VehicleRoutingAlgorithmListener l;
+
+        public PrioritizedVRAListener(Priority priority, VehicleRoutingAlgorithmListener l) {
+            super();
+            this.priority = priority;
+            this.l = l;
+        }
+
+        public Priority getPriority() {
+            return priority;
+        }
+
+        public VehicleRoutingAlgorithmListener getListener() {
+            return l;
+        }
+
     }
 }

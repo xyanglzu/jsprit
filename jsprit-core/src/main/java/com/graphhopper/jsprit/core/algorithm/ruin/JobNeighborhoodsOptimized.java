@@ -32,55 +32,12 @@ import java.util.*;
  */
 class JobNeighborhoodsOptimized implements JobNeighborhoods {
 
-    static class ArrayIterator implements Iterator<Job> {
-
-        private final int noItems;
-
-        private final int[] itemArray;
-
-        private final Job[] jobs;
-
-        private int index = 0;
-
-        public ArrayIterator(int noItems, int[] itemArray, Job[] jobs) {
-            this.noItems = noItems;
-            this.itemArray = itemArray;
-            this.jobs = jobs;
-        }
-
-        @Override
-        public boolean hasNext() {
-            if(index < noItems && index < itemArray.length) {
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public Job next() {
-            Job job = jobs[itemArray[index]];
-            index++;
-            return job;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     private static Logger logger = LoggerFactory.getLogger(JobNeighborhoodsOptimized.class);
-
     private VehicleRoutingProblem vrp;
-
     private int[][] neighbors;
-
     private Job[] jobs;
-
     private JobDistance jobDistance;
-
     private int capacity;
-
     private double maxDistance = 0.;
 
     public JobNeighborhoodsOptimized(VehicleRoutingProblem vrp, JobDistance jobDistance, int capacity) {
@@ -88,15 +45,15 @@ class JobNeighborhoodsOptimized implements JobNeighborhoods {
         this.vrp = vrp;
         this.jobDistance = jobDistance;
         this.capacity = capacity;
-        neighbors = new int[vrp.getJobsInclusiveInitialJobsInRoutes().size()+1][capacity];
-        jobs = new Job[vrp.getJobsInclusiveInitialJobsInRoutes().size()+1];
+        neighbors = new int[vrp.getJobsInclusiveInitialJobsInRoutes().size() + 1][capacity];
+        jobs = new Job[vrp.getJobsInclusiveInitialJobsInRoutes().size() + 1];
         logger.debug("initialize {}", this);
     }
 
     @Override
     public Iterator<Job> getNearestNeighborsIterator(int nNeighbors, Job neighborTo) {
-        int[] neighbors = this.neighbors[neighborTo.getIndex()-1];
-        return new ArrayIterator(nNeighbors,neighbors,jobs);
+        int[] neighbors = this.neighbors[neighborTo.getIndex() - 1];
+        return new ArrayIterator(nNeighbors, neighbors, jobs);
     }
 
     @Override
@@ -125,27 +82,26 @@ class JobNeighborhoodsOptimized implements JobNeighborhoods {
                 ReferencedJob referencedJob = new ReferencedJob(job_j, distance);
                 jobList.add(referencedJob);
             }
-            Collections.sort(jobList,getComparator());
+            Collections.sort(jobList, getComparator());
             int[] jobIndices = new int[capacity];
-            for(int index=0;index<capacity;index++){
+            for (int index = 0; index < capacity; index++) {
                 jobIndices[index] = jobList.get(index).getJob().getIndex();
             }
-            neighbors[job_i.getIndex()-1] = jobIndices;
+            neighbors[job_i.getIndex() - 1] = jobIndices;
         }
         stopWatch.stop();
         logger.debug("pre-processing comp-time: {}", stopWatch);
     }
 
-    private Comparator<ReferencedJob> getComparator(){
+    private Comparator<ReferencedJob> getComparator() {
         return new Comparator<ReferencedJob>() {
             @Override
             public int compare(ReferencedJob o1, ReferencedJob o2) {
                 if (o1.getDistance() < o2.getDistance()) {
                     return -1;
-                } else if (o1.getDistance() > o2.getDistance()){
+                } else if (o1.getDistance() > o2.getDistance()) {
                     return 1;
-                }
-                else return 0;
+                } else return 0;
             }
         };
     }
@@ -153,6 +109,43 @@ class JobNeighborhoodsOptimized implements JobNeighborhoods {
     @Override
     public String toString() {
         return "[name=neighborhoodWithCapRestriction][capacity=" + capacity + "]";
+    }
+
+    static class ArrayIterator implements Iterator<Job> {
+
+        private final int noItems;
+
+        private final int[] itemArray;
+
+        private final Job[] jobs;
+
+        private int index = 0;
+
+        public ArrayIterator(int noItems, int[] itemArray, Job[] jobs) {
+            this.noItems = noItems;
+            this.itemArray = itemArray;
+            this.jobs = jobs;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (index < noItems && index < itemArray.length) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public Job next() {
+            Job job = jobs[itemArray[index]];
+            index++;
+            return job;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 
 }

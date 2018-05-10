@@ -55,55 +55,6 @@ import java.util.List;
 public class BuildAlgorithmFromScratch {
 
 
-    public static class MyBestStrategy extends AbstractInsertionStrategy {
-
-        private JobInsertionCostsCalculatorLight insertionCalculator;
-
-
-        public MyBestStrategy(VehicleRoutingProblem vrp, VehicleFleetManager fleetManager, StateManager stateManager, ConstraintManager constraintManager) {
-            super(vrp);
-            insertionCalculator = JobInsertionCostsCalculatorLightFactory.createStandardCalculator(vrp, fleetManager, stateManager, constraintManager);
-        }
-
-        @Override
-        public Collection<Job> insertUnassignedJobs(Collection<VehicleRoute> vehicleRoutes, Collection<Job> unassignedJobs) {
-            List<Job> badJobs = new ArrayList<Job>();
-            List<Job> unassigned = new ArrayList<Job>(unassignedJobs);
-            Collections.shuffle(unassigned, random);
-
-            for (Job j : unassigned) {
-
-                InsertionData bestInsertionData = InsertionData.createEmptyInsertionData();
-                VehicleRoute bestRoute = null;
-                //look for inserting unassigned job into existing route
-                for (VehicleRoute r : vehicleRoutes) {
-                    InsertionData insertionData = insertionCalculator.getInsertionData(j, r, bestInsertionData.getInsertionCost());
-                    if (insertionData instanceof InsertionData.NoInsertionFound) continue;
-                    if (insertionData.getInsertionCost() < bestInsertionData.getInsertionCost()) {
-                        bestInsertionData = insertionData;
-                        bestRoute = r;
-                    }
-                }
-                //try whole new route
-                VehicleRoute empty = VehicleRoute.emptyRoute();
-                InsertionData insertionData = insertionCalculator.getInsertionData(j, empty, bestInsertionData.getInsertionCost());
-                if (!(insertionData instanceof InsertionData.NoInsertionFound)) {
-                    if (insertionData.getInsertionCost() < bestInsertionData.getInsertionCost()) {
-                        vehicleRoutes.add(empty);
-                        insertJob(j, insertionData, empty);
-                    }
-                } else {
-                    if (bestRoute != null) insertJob(j, bestInsertionData, bestRoute);
-                    else badJobs.add(j);
-                }
-            }
-            return badJobs;
-        }
-
-
-    }
-
-
     public static void main(String[] args) {
         Examples.createOutputFolder();
 
@@ -127,7 +78,6 @@ public class BuildAlgorithmFromScratch {
 
     }
 
-
     public static VehicleRoutingAlgorithm createAlgorithm(final VehicleRoutingProblem vrp) {
 
         VehicleFleetManager fleetManager = new FiniteFleetManagerFactory(vrp.getVehicles()).createFleetManager();
@@ -150,15 +100,15 @@ public class BuildAlgorithmFromScratch {
         scoringFunction.setTimeWindowParam(0.0);
         regret.setScoringFunction(scoringFunction);
 
-		/*
+        /*
          * ruin strategies
-		 */
+         */
         RuinStrategy randomRuin = new RandomRuinStrategyFactory(0.5).createStrategy(vrp);
         RuinStrategy radialRuin = new RadialRuinStrategyFactory(0.3, new AvgServiceAndShipmentDistance(vrp.getTransportCosts())).createStrategy(vrp);
 
-		/*
+        /*
          * objective function
-		 */
+         */
         SolutionCostCalculator objectiveFunction = getObjectiveFunction(vrp);
 
         SearchStrategy firstStrategy = new SearchStrategy("firstStrategy", new SelectBest(), new GreedyAcceptance(1), objectiveFunction);
@@ -209,6 +159,54 @@ public class BuildAlgorithmFromScratch {
             }
 
         };
+    }
+
+    public static class MyBestStrategy extends AbstractInsertionStrategy {
+
+        private JobInsertionCostsCalculatorLight insertionCalculator;
+
+
+        public MyBestStrategy(VehicleRoutingProblem vrp, VehicleFleetManager fleetManager, StateManager stateManager, ConstraintManager constraintManager) {
+            super(vrp);
+            insertionCalculator = JobInsertionCostsCalculatorLightFactory.createStandardCalculator(vrp, fleetManager, stateManager, constraintManager);
+        }
+
+        @Override
+        public Collection<Job> insertUnassignedJobs(Collection<VehicleRoute> vehicleRoutes, Collection<Job> unassignedJobs) {
+            List<Job> badJobs = new ArrayList<Job>();
+            List<Job> unassigned = new ArrayList<Job>(unassignedJobs);
+            Collections.shuffle(unassigned, random);
+
+            for (Job j : unassigned) {
+
+                InsertionData bestInsertionData = InsertionData.createEmptyInsertionData();
+                VehicleRoute bestRoute = null;
+                //look for inserting unassigned job into existing route
+                for (VehicleRoute r : vehicleRoutes) {
+                    InsertionData insertionData = insertionCalculator.getInsertionData(j, r, bestInsertionData.getInsertionCost());
+                    if (insertionData instanceof InsertionData.NoInsertionFound) continue;
+                    if (insertionData.getInsertionCost() < bestInsertionData.getInsertionCost()) {
+                        bestInsertionData = insertionData;
+                        bestRoute = r;
+                    }
+                }
+                //try whole new route
+                VehicleRoute empty = VehicleRoute.emptyRoute();
+                InsertionData insertionData = insertionCalculator.getInsertionData(j, empty, bestInsertionData.getInsertionCost());
+                if (!(insertionData instanceof InsertionData.NoInsertionFound)) {
+                    if (insertionData.getInsertionCost() < bestInsertionData.getInsertionCost()) {
+                        vehicleRoutes.add(empty);
+                        insertJob(j, insertionData, empty);
+                    }
+                } else {
+                    if (bestRoute != null) insertJob(j, bestInsertionData, bestRoute);
+                    else badJobs.add(j);
+                }
+            }
+            return badJobs;
+        }
+
+
     }
 
 

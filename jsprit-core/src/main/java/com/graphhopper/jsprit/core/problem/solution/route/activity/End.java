@@ -23,35 +23,12 @@ import com.graphhopper.jsprit.core.problem.Location;
 
 public final class End extends AbstractActivity implements TourActivity {
 
-    public static End newInstance(String locationId, double earliestArrival, double latestArrival) {
-        return new End(locationId, earliestArrival, latestArrival);
-    }
-
-    public static End copyOf(End end) {
-        return new End(end);
-    }
-
     private final static Capacity capacity = Capacity.Builder.newInstance().build();
-
-
     private double endTime = -1;
-
-
     private double theoretical_earliestOperationStartTime;
-
     private double theoretical_latestOperationStartTime;
-
     private double arrTime;
-
     private Location location;
-
-    public void setTheoreticalEarliestOperationStartTime(double theoreticalEarliestOperationStartTime) {
-        theoretical_earliestOperationStartTime = theoreticalEarliestOperationStartTime;
-    }
-
-    public void setTheoreticalLatestOperationStartTime(double theoreticalLatestOperationStartTime) {
-        theoretical_latestOperationStartTime = theoreticalLatestOperationStartTime;
-    }
 
     public End(Location location, double theoreticalStart, double theoreticalEnd) {
         super();
@@ -80,6 +57,31 @@ public final class End extends AbstractActivity implements TourActivity {
         endTime = end.getEndTime();
         setIndex(-2);
     }
+
+    public static End newInstance(String locationId, double earliestArrival, double latestArrival) {
+        return new End(locationId, earliestArrival, latestArrival);
+    }
+
+    public static End copyOf(End end) {
+        return new End(end);
+    }
+
+    public void setTheoreticalEarliestOperationStartTime(double theoreticalEarliestOperationStartTime) {
+        theoretical_earliestOperationStartTime = theoreticalEarliestOperationStartTime;
+    }
+
+    public void setTheoreticalLatestOperationStartTime(double theoreticalLatestOperationStartTime) {
+        theoretical_latestOperationStartTime = theoreticalLatestOperationStartTime;
+    }
+
+    @Override
+    public String toString() {
+        return "[type=" + getName() + "][location=" + location
+            + "][twStart=" + Activities.round(theoretical_earliestOperationStartTime)
+            + "][twEnd=" + Activities.round(theoretical_latestOperationStartTime) + "]";
+    }
+
+
 
     public double getTheoreticalEarliestOperationStartTime() {
         return theoretical_earliestOperationStartTime;
@@ -111,13 +113,6 @@ public final class End extends AbstractActivity implements TourActivity {
         return 0.0;
     }
 
-
-    @Override
-    public String toString() {
-        return "[type=" + getName() + "][location=" + location
-            + "][twStart=" + Activities.round(theoretical_earliestOperationStartTime)
-            + "][twEnd=" + Activities.round(theoretical_latestOperationStartTime) + "]";
-    }
 
     @Override
     public String getName() {

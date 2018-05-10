@@ -22,15 +22,9 @@ import com.graphhopper.jsprit.core.problem.driver.Driver;
 import com.graphhopper.jsprit.core.problem.vehicle.Vehicle;
 
 public abstract class AbstractForwardVehicleRoutingTransportCosts implements VehicleRoutingTransportCosts {
-    
+
     @Override
     public abstract double getDistance(Location from, Location to, double departureTime, Vehicle vehicle);
-
-    @Override
-    public abstract double getTransportTime(Location from, Location to, double departureTime, Driver driver, Vehicle vehicle);
-
-    @Override
-    public abstract double getTransportCost(Location from, Location to, double departureTime, Driver driver, Vehicle vehicle);
 
     @Override
     public double getBackwardTransportTime(Location from, Location to, double arrivalTime, Driver driver, Vehicle vehicle) {
@@ -38,8 +32,14 @@ public abstract class AbstractForwardVehicleRoutingTransportCosts implements Veh
     }
 
     @Override
+    public abstract double getTransportTime(Location from, Location to, double departureTime, Driver driver, Vehicle vehicle);
+
+    @Override
     public double getBackwardTransportCost(Location from, Location to, double arrivalTime, Driver driver, Vehicle vehicle) {
         return getTransportCost(from, to, arrivalTime, driver, vehicle);
     }
+
+    @Override
+    public abstract double getTransportCost(Location from, Location to, double departureTime, Driver driver, Vehicle vehicle);
 
 }
